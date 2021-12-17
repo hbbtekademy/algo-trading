@@ -1,0 +1,7 @@
+runtime: go116
+service: default
+instance_class: F1
+main: ./cmd/token-app
+
+automatic_scaling:
+  max_instances: 1
