@@ -19,12 +19,12 @@ func onTick(tick kitemodels.Tick) {
 func onConnect() {
 	log.Println("Connected")
 
-	err := ticker.Subscribe(getInstruments())
+	err := ticker.Subscribe(getInstTokens())
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = ticker.SetMode(kiteticker.ModeFull, getInstruments())
+	err = ticker.SetMode(kiteticker.ModeFull, getInstTokens())
 	if err != nil {
 		log.Fatalln("Error setting Ticker Mode:", err)
 	}

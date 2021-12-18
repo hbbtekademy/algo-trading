@@ -13,7 +13,7 @@ validateInput $@
 
 date=$1
 masterTickData="../../TickData/$date/Ticker-$date.csv"
-header="InstrumentId,ExcTS,LastTradeTS,LastPrice,LastTradedQty,VolumeTraded"
+header="Symbol,ExcTS,LastTradeTS,LastPrice,LastTradedQty,VolumeTraded"
 file $masterTickData
 
 # Loop over the master instrument list and split each instruments tick data into a separate file
