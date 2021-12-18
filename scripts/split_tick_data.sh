@@ -25,4 +25,4 @@ while read i; do
    
    echo $header > $splitFN
    grep $i $masterTickData >> $splitFN &
-done < instruments.txt
+done < instrument_symbol.txt

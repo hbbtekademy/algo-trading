@@ -1,15 +1,24 @@
 import plotly.graph_objects as go
-
 import pandas as pd
+import os
+import glob
+
 from datetime import datetime
+from pathlib import Path
 
-df = pd.read_csv(
-    '/Users/hbb/MyDocs/Work/Startup/KiteAPI/TickData/20211217/stick-738561-20211217.csv')
 
-fig = go.Figure(data=[go.Candlestick(x=df['ExcTS'],
-                open=df['open'],
-                high=df['high'],
-                low=df['low'],
-                close=df['close'])])
+candlestick_duration = '15Min'
+base_dir = "../TickData/20211217"
 
-fig.show()
+for filename in glob.glob(base_dir + '/candlesticks/*.csv'):
+    print("Processing file: "+filename)
+    if os.path.isfile(filename):
+        df = pd.read_csv(filename)
+        stem = Path(filename).stem
+        fig = go.Figure(data=[go.Candlestick(x=df['ExcTS'],
+                                             open=df['open'],
+                                             high=df['high'],
+                                             low=df['low'],
+                                             close=df['close'])])
+
+        fig.write_html(base_dir + '/html/' + stem + '.html')
