@@ -35,7 +35,7 @@ func writeToCsv(tick kitemodels.Tick) {
 
 func getTickData(tick kitemodels.Tick) []string {
 	return []string{
-		instruments[tick.InstrumentToken],
+		instruments[tick.InstrumentToken].Sym,
 		tick.Timestamp.Format(time.RFC3339),
 		tick.LastTradeTime.Format(time.RFC3339),
 		fmt.Sprintf("%f", tick.LastPrice),

@@ -9,6 +9,7 @@ import (
 )
 
 func onTick(tick kitemodels.Tick) {
+	//log.Println(getTickData(tick))
 	if !(tick.Timestamp.After(mst) && tick.Timestamp.Before(met)) {
 		log.Printf("ExchTS: %s outside market hours. Skipping tick", tick.Timestamp.Format(time.RFC3339))
 		return
