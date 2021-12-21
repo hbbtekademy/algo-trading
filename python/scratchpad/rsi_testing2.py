@@ -44,30 +44,55 @@ volume_dict = {
     'Volume': 'sum'
 }
 
-df_15min = pd.read_csv('/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/RSITest/BHARTIARTL21DECFUT-HIST-15M.csv',
+print(pd.__version__)
+
+df_15min = pd.read_csv('/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/Nifty100Hist15min/ACC-HIST.csv',
                        parse_dates=['Date'], index_col=['Date'])
 
-rsi = RSIIndicator(df_15min['Close']).rsi()
-df_15min = df_15min.assign(rsi=rsi.values)
-print(df_15min.tail(15))
+df_60min = pd.read_csv('/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/Nifty100Hist60min/ACC-HIST-60M.csv',
+                       parse_dates=['Date'], index_col=['Date'])
 
-df_60min_ohlc = df_15min['Close'].resample('60Min', offset='30Min').apply(ohlc_dict)
+print(df_60min.tail(15))
+
+df_60min_o = df_15min['Open'].resample(
+    '60Min', offset='15Min').apply({'Open': 'first'})
+df_60min_h = df_15min['High'].resample(
+    '60Min', offset='15Min').apply({'High': 'max'})
+df_60min_l = df_15min['Low'].resample(
+    '60Min', offset='15Min').apply({'Low': 'min'})
+df_60min_c = df_15min['Close'].resample(
+    '60Min', offset='15Min').apply({'Close': 'last'})
+df_60min_vol = df_15min['Volume'].resample(
+    '60Min', offset='15Min').apply({'Volume': 'sum'})
+
+df_60min_new = pd.concat([df_60min_o, df_60min_h, df_60min_l,
+                     df_60min_c, df_60min_vol], axis=1)
+df_60min_new.dropna(subset=['Open'], inplace=True)
+print(df_60min_new.tail(15))
+
+df_60min_ohlc = df_15min['Close'].resample(
+    '60Min', offset='30Min').apply(ohlc_dict)
 # print(df_60min_ohlc.head(15))
 
-df_60min_o = df_15min['Open'].resample('60Min', offset='30Min').apply({'Open':'first'})
-df_60min_h = df_15min['High'].resample('60Min', offset='30Min').apply({'Open': 'max'})
-df_60min_l = df_15min['Low'].resample('60Min', offset='30Min').apply({'Low': 'min'})
-df_60min_c = df_15min['Close'].resample('60Min', offset='30Min').apply({'Close': 'last'})
-df_60min_vol = df_15min['Volume'].resample('60Min', offset='30Min').apply({'Volume': 'sum'})
+df_60min_o = df_15min['Open'].resample(
+    '60Min', offset='30Min').apply({'Open': 'first'})
+df_60min_h = df_15min['High'].resample(
+    '60Min', offset='30Min').apply({'Open': 'max'})
+df_60min_l = df_15min['Low'].resample(
+    '60Min', offset='30Min').apply({'Low': 'min'})
+df_60min_c = df_15min['Close'].resample(
+    '60Min', offset='30Min').apply({'Close': 'last'})
+df_60min_vol = df_15min['Volume'].resample(
+    '60Min', offset='30Min').apply({'Volume': 'sum'})
 df_60min = pd.concat([df_60min_o, df_60min_h, df_60min_l,
                      df_60min_c, df_60min_vol], axis=1)
 
-#print(df_60min.head(15))
+# print(df_60min.head(15))
 
-#print(df_60min_vol.head(15))
+# print(df_60min_vol.head(15))
 df_60min.dropna(subset=['Open'], inplace=True)
-#print(df_60min.tail(15))
+# print(df_60min.tail(15))
 
 rsi = RSIIndicator(df_60min['Close']).rsi()
 df_60min = df_60min.assign(rsi=rsi.values)
-print(df_60min.tail(15))
+#print(df_60min.tail(15))
