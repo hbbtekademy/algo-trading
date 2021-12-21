@@ -37,6 +37,10 @@ func initVars() {
 	initMarketTime()
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", mst, met)
 	instruments = instmanager.GetNifty100()
+	futNFOInsts := instmanager.GetNFOFut()
+	for k, v := range futNFOInsts {
+		instruments[k] = v
+	}
 }
 
 func initMarketTime() {
