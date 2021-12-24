@@ -35,5 +35,5 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, "Successfully create Acces Token secret...")
+	fmt.Fprint(w, "Successfully created Access Token secret...")
 }
