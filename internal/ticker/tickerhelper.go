@@ -10,20 +10,22 @@ import (
 	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
 )
 
-func createTickFile() {
+func createTickFile() (*os.File, error) {
 	var err error
 	y, m, d := time.Now().Date()
 	fn := fmt.Sprintf("Ticker-%d%d%d.csv", y, int(m), d)
 
 	tickFile, err = os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Fatalln("Error opening ticker file:", err)
+		log.Println("Error opening ticker file:", err)
 	}
 
 	log.Printf("Tick file %s created...", fn)
+
+	return tickFile, err
 }
 
-func writeToCsv(tick kitemodels.Tick) {
+func writeToCsv(tick *kitemodels.Tick) {
 	w := csv.NewWriter(tickFile)
 	defer w.Flush()
 
@@ -33,7 +35,7 @@ func writeToCsv(tick kitemodels.Tick) {
 	}
 }
 
-func getTickData(tick kitemodels.Tick) []string {
+func getTickData(tick *kitemodels.Tick) []string {
 	return []string{
 		instruments[tick.InstrumentToken].Sym,
 		tick.Timestamp.Format(time.RFC3339),
