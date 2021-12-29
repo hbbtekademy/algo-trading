@@ -141,7 +141,7 @@ func handleRedisTicks() {
 
 func getRedisClient() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:        "34.93.71.75:6379",
+		Addr:        "10.160.0.3:6379",
 		Password:    "",
 		DB:          0,
 		DialTimeout: 1 * time.Second,
