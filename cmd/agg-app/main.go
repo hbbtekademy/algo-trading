@@ -62,10 +62,12 @@ func candleTicker(ticker *time.Ticker) {
 		t := <-ticker.C
 		if mktutil.IsValidMarketHrs(t) {
 			counter := 0
-			t = t.Add(-15 * time.Second)
-			keyTS := t.Format("200601021504")
-			ltpKeyPat := fmt.Sprintf("LTP:ts:sym:%s:*", keyTS)
+			ct := t.Add(-15 * time.Second)
+			pt := t.Add(-75 * time.Second)
+			keyTS := ct.Format("200601021504")
+			prevKeyTS := pt.Format("200601021504")
 
+			ltpKeyPat := fmt.Sprintf("LTP:ts:sym:%s:*", keyTS)
 			keys, err := rdb.Keys(ctx, ltpKeyPat).Result()
 			if err != nil {
 				log.Fatalln("failed getting keys from redis: ", err)
@@ -74,7 +76,7 @@ func candleTicker(ticker *time.Ticker) {
 			for _, key := range keys {
 				counter++
 				sym := strings.Split(key, ":")[4]
-				go candleGenerator(ctx, sym, keyTS)
+				go candleGenerator(ctx, sym, keyTS, prevKeyTS)
 			}
 			log.Printf("Submitted %d candles for generation for TS: %s", counter, keyTS)
 		} else if mktutil.IsAfterMarketHrs(t.Add(5 * time.Minute)) {
@@ -86,8 +88,8 @@ func candleTicker(ticker *time.Ticker) {
 	}
 }
 
-func candleGenerator(ctx context.Context, sym string, ts string) {
-	ltpKey := fmt.Sprintf("LTP:ts:sym:%s:%s", ts, sym)
+func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
+	ltpKey := fmt.Sprintf("LTP:ts:sym:%s:%s", cts, sym)
 	values, err := rdb.LRange(ctx, ltpKey, 0, -1).Result()
 	ohlcv := OHLCV{}
 	if err != nil {
@@ -116,26 +118,39 @@ func candleGenerator(ctx context.Context, sym string, ts string) {
 		ohlcv.Close = ltp
 	}
 
-	volKey := fmt.Sprintf("VOL:ts:sym:%s:%s", ts, sym)
-	values, err = rdb.LRange(ctx, volKey, 0, -1).Result()
+	volKey := fmt.Sprintf("VOL:ts:sym:%s:%s", cts, sym)
+	value, err := rdb.Get(ctx, volKey).Result()
 	if err != nil {
 		log.Printf("Failed getting VOL value for Key: %v. Err: %v", volKey, err)
 		return
 	}
 
-	volStart, err := strconv.ParseInt(values[0], 10, 32)
+	volEnd, err := strconv.ParseInt(value, 10, 32)
 	if err != nil {
 		log.Printf("Failed converting VOL %s to int. Err: %v", values[0], err)
 		return
 	}
-	volEnd, err := strconv.ParseInt(values[len(values)-1], 10, 32)
+
+	pVolKey := fmt.Sprintf("VOL:ts:sym:%s:%s", pts, sym)
+	value, err = rdb.Get(ctx, pVolKey).Result()
+	switch {
+	case err == redis.Nil:
+		value = "0"
+	case err != nil:
+		log.Printf("Failed getting VOL value for Key: %v. Err: %v", pVolKey, err)
+		return
+	case value == "":
+		value = "0"
+	}
+
+	volStart, err := strconv.ParseInt(value, 10, 32)
 	if err != nil {
-		log.Printf("Failed converting VOL %s to int. Err: %v", values[len(values)-1], err)
+		log.Printf("Failed converting VOL %s to int. Err: %v", value, err)
 		return
 	}
 	ohlcv.Volume = volEnd - volStart
 
-	candleKey := fmt.Sprintf("CS1M:ts:sym:%s:%s", ts, sym)
+	candleKey := fmt.Sprintf("CS1M:ts:sym:%s:%s", cts, sym)
 
 	_, err = rdb.HSet(ctx, candleKey,
 		"O", fmt.Sprintf("%f", ohlcv.Open),

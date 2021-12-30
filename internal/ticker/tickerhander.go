@@ -125,9 +125,9 @@ func handleRedisTicks() {
 		volKey := fmt.Sprintf("VOL:ts:sym:%s:%s", keyTS, keySym)
 		volValue := fmt.Sprintf("%d", tick.VolumeTraded)
 
-		_, err = rdb.RPush(ctx, volKey, volValue, 0).Result()
+		_, err = rdb.Set(ctx, volKey, volValue, 0).Result()
 		if err != nil {
-			log.Println("Failed pushing tick VOL to redis: ", err)
+			log.Println("Failed setting tick VOL to redis: ", err)
 		}
 
 		end := time.Now()
