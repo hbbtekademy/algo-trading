@@ -9,7 +9,7 @@ import (
 	"org.hbb/algo-trading/models"
 	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
 	secretmanager "org.hbb/algo-trading/pkg/secret-manager"
-	mktutils "org.hbb/algo-trading/pkg/utils"
+	utils "org.hbb/algo-trading/pkg/utils"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 	tickFile    *os.File
 	mst, met    time.Time
 	instruments models.Instruments
-	mktutil     mktutils.Mktutil
+	mktutil     *utils.Mktutil
 )
 
 func Start() {
@@ -35,8 +35,8 @@ func Start() {
 }
 
 func initVars() {
-	mst, met = mktutils.GetMarketTime()
-	mktutil = *mktutils.New(mst, met)
+	mst, met = utils.GetMarketTime()
+	mktutil = utils.New(mst, met)
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", mst, met)
 	instruments = instmanager.GetNifty100()
 	futNFOInsts := instmanager.GetNFOFut()

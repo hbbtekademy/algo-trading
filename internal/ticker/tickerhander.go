@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-redis/redis/v8"
 	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
 	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
+	utils "org.hbb/algo-trading/pkg/utils"
 )
 
 var (
@@ -99,7 +99,7 @@ func handleFileTicks() {
 }
 
 func handleRedisTicks() {
-	rdb := getRedisClient()
+	rdb := utils.GetRedisClient()
 	defer rdb.Close()
 	ctx := context.Background()
 
@@ -137,13 +137,4 @@ func handleRedisTicks() {
 		}(fmt.Sprintf("Completed redis processing in %f seconds for %s", end.Sub(start).Seconds(), keySym))
 	}
 
-}
-
-func getRedisClient() *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr:        "10.160.0.3:6379",
-		Password:    "",
-		DB:          0,
-		DialTimeout: 1 * time.Second,
-	})
 }

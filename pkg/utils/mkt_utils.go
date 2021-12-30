@@ -1,4 +1,4 @@
-package mktutils
+package utils
 
 import (
 	"fmt"
