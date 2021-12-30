@@ -1,14 +1,15 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 )
 
-func GetRedisClient() *redis.Client {
+func GetRedisClient(ip string, port string) *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:        "10.160.0.3:6379",
+		Addr:        fmt.Sprintf("%s:%s", ip, port),
 		Password:    "",
 		DB:          0,
 		DialTimeout: 1 * time.Second,

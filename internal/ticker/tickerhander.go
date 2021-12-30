@@ -99,7 +99,7 @@ func handleFileTicks() {
 }
 
 func handleRedisTicks() {
-	rdb := utils.GetRedisClient()
+	rdb := utils.GetRedisClient(utils.MustGetEnv("REDIS_HOST"), utils.MustGetEnv("REDIS_PORT"))
 	defer rdb.Close()
 	ctx := context.Background()
 
