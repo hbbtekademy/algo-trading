@@ -20,7 +20,7 @@ var (
 func onTick(tick kitemodels.Tick) {
 	//log.Println(getTickData(tick))
 	// Close the channels 5 mins after market close
-	if mktutil.IsAfterMarketHrs(time.Now().Add(5*time.Minute)) && !chClosed {
+	if mktutil.IsAfterMarketHrs(time.Now().Add(-5*time.Minute)) && !chClosed {
 		log.Printf("Current Time: %s after mkt hrs. Closing File and Redis channels...",
 			time.Now().Format(time.RFC3339))
 		if !chClosed {

@@ -79,7 +79,7 @@ func candleTicker(ticker *time.Ticker) {
 				go candleGenerator(ctx, sym, keyTS, prevKeyTS)
 			}
 			log.Printf("Submitted %d candles for generation for TS: %s", counter, keyTS)
-		} else if mktutil.IsAfterMarketHrs(t.Add(5 * time.Minute)) {
+		} else if mktutil.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
 			log.Println("Outside mkt hrs. Exiting...")
 			done <- true
 		} else if mktutil.IsBeforeMarketHrs(t) {
