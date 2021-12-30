@@ -52,7 +52,6 @@ func main() {
 	go candleTicker(ticker)
 
 	<-done
-
 }
 
 func candleTicker(ticker *time.Ticker) {
@@ -124,7 +123,6 @@ func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
 		log.Printf("Failed getting VOL value for Key: %v. Err: %v", volKey, err)
 		return
 	}
-
 	volEnd, err := strconv.ParseInt(value, 10, 32)
 	if err != nil {
 		log.Printf("Failed converting VOL %s to int. Err: %v", values[0], err)
@@ -142,12 +140,12 @@ func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
 	case value == "":
 		value = "0"
 	}
-
 	volStart, err := strconv.ParseInt(value, 10, 32)
 	if err != nil {
 		log.Printf("Failed converting VOL %s to int. Err: %v", value, err)
 		return
 	}
+
 	ohlcv.Volume = volEnd - volStart
 
 	candleKey := fmt.Sprintf("CS1M:ts:sym:%s:%s", cts, sym)

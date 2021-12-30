@@ -110,7 +110,7 @@ func handleRedisTicks() {
 			return
 		}
 
-		start := time.Now()
+		//start := time.Now()
 		keyTS := tick.Timestamp.Time.Format("200601021504")
 		keySym := instruments[tick.InstrumentToken].Sym
 
@@ -130,11 +130,7 @@ func handleRedisTicks() {
 			log.Println("Failed setting tick VOL to redis: ", err)
 		}
 
-		end := time.Now()
-
-		go func(s string) {
-			log.Println(s)
-		}(fmt.Sprintf("Completed redis processing in %f seconds for %s", end.Sub(start).Seconds(), keySym))
+		//end := time.Now()
 	}
 
 }
