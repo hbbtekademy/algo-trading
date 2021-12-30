@@ -41,7 +41,7 @@ var (
 
 func main() {
 	rdb = utils.GetRedisClient()
-	mktutil = utils.New(utils.GetMarketTime())
+	mktutil = utils.NewMktUtil(utils.GetMarketTime())
 	done = make(chan bool)
 
 	now := time.Now()

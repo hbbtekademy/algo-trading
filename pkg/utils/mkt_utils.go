@@ -11,7 +11,7 @@ type Mktutil struct {
 	met time.Time
 }
 
-func New(mst time.Time, met time.Time) *Mktutil {
+func NewMktUtil(mst time.Time, met time.Time) *Mktutil {
 	return &Mktutil{
 		mst: mst,
 		met: met,
