@@ -76,10 +76,12 @@ func candleTicker(ticker *time.Ticker) {
 				sym := strings.Split(key, ":")[4]
 				go candleGenerator(ctx, sym, keyTS)
 			}
-			log.Printf("Submitted %d candles for generation...", counter)
-		} else {
-			log.Println("Outside mkt hrs...")
+			log.Printf("Submitted %d candles for generation for TS: %s", counter, keyTS)
+		} else if mktutil.IsAfterMarketHrs(t.Add(5 * time.Minute)) {
+			log.Println("Outside mkt hrs. Exiting...")
 			done <- true
+		} else if mktutil.IsBeforeMarketHrs(t) {
+			log.Println("Waiting for mkt hrs to start....")
 		}
 	}
 }
@@ -115,18 +117,23 @@ func candleGenerator(ctx context.Context, sym string, ts string) {
 	}
 
 	volKey := fmt.Sprintf("VOL:ts:sym:%s:%s", ts, sym)
-	value, err := rdb.Get(ctx, volKey).Result()
+	values, err = rdb.LRange(ctx, volKey, 0, -1).Result()
 	if err != nil {
 		log.Printf("Failed getting VOL value for Key: %v. Err: %v", volKey, err)
 		return
 	}
 
-	vol, err := strconv.ParseInt(value, 10, 32)
+	volStart, err := strconv.ParseInt(values[0], 10, 32)
 	if err != nil {
-		log.Printf("Failed converting VOL %s to int. Err: %v", value, err)
+		log.Printf("Failed converting VOL %s to int. Err: %v", values[0], err)
 		return
 	}
-	ohlcv.Volume = vol
+	volEnd, err := strconv.ParseInt(values[len(values)-1], 10, 32)
+	if err != nil {
+		log.Printf("Failed converting VOL %s to int. Err: %v", values[len(values)-1], err)
+		return
+	}
+	ohlcv.Volume = volEnd - volStart
 
 	candleKey := fmt.Sprintf("CS1M:ts:sym:%s:%s", ts, sym)
 
