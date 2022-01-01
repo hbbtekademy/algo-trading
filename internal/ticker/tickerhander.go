@@ -1,14 +1,11 @@
 package ticker
 
 import (
-	"context"
-	"fmt"
 	"log"
 	"time"
 
 	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
 	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
-	utils "org.hbb/algo-trading/pkg/utils"
 )
 
 var (
@@ -94,15 +91,12 @@ func handleFileTicks() {
 			log.Printf("File Tick Channel closed. Exiting handleFileTicks goroutine...")
 			return
 		}
-		writeToCsv(tick)
+		writeTickToCsv(tick)
 	}
 }
 
 func handleRedisTicks() {
-	rdb := utils.GetRedisClient(utils.MustGetEnv("REDIS_HOST"), utils.MustGetEnv("REDIS_PORT"))
 	defer rdb.Close()
-	ctx := context.Background()
-
 	for {
 		tick, ok := <-redisTickCh
 		if !ok {
@@ -111,25 +105,7 @@ func handleRedisTicks() {
 		}
 
 		//start := time.Now()
-		keyTS := tick.Timestamp.Time.Format("200601021504")
-		keySym := instruments[tick.InstrumentToken].Sym
-
-		ltpKey := fmt.Sprintf("LTP:ts:sym:%s:%s", keyTS, keySym)
-		ltpValue := fmt.Sprintf("%f", tick.LastPrice)
-
-		_, err := rdb.RPush(ctx, ltpKey, ltpValue).Result()
-		if err != nil {
-			log.Println("Failed pushing tick LTP to redis: ", err)
-		}
-
-		volKey := fmt.Sprintf("VOL:ts:sym:%s:%s", keyTS, keySym)
-		volValue := fmt.Sprintf("%d", tick.VolumeTraded)
-
-		_, err = rdb.Set(ctx, volKey, volValue, 0).Result()
-		if err != nil {
-			log.Println("Failed setting tick VOL to redis: ", err)
-		}
-
+		writeTickToRedis(tick)
 		//end := time.Now()
 	}
 

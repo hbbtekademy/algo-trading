@@ -1,10 +1,12 @@
 package ticker
 
 import (
+	"context"
 	"log"
 	"os"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
 	"org.hbb/algo-trading/models"
 	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
@@ -15,6 +17,8 @@ import (
 var (
 	ticker      *kiteticker.Ticker
 	tickFile    *os.File
+	rdb         *redis.Client
+	ctx         context.Context
 	mst, met    time.Time
 	instruments models.Instruments
 	mktutil     *utils.Mktutil
@@ -22,6 +26,7 @@ var (
 
 func Start() {
 	initVars()
+	initRedisClient()
 
 	apiKey := secretmanager.GetSecret(secretmanager.KiteApiKeySK)
 	accessToken := secretmanager.GetSecret(secretmanager.KiteAccessTokenSK)
@@ -32,6 +37,21 @@ func Start() {
 	ticker.OnReconnect(onReconnect)
 	ticker.OnError(onError)
 	ticker.Serve()
+}
+
+func initRedisClient() {
+	ctx = context.Background()
+	rdb = utils.GetRedisClient(utils.MustGetEnv("REDIS_HOST"), utils.MustGetEnv("REDIS_PORT"))
+	for i := 0; i <= 10; i++ {
+		_, err := rdb.Ping(ctx).Result()
+		if err == nil {
+			log.Println("Connection to redis server established...")
+			break
+		} else {
+			log.Println("Failed connecting to redis client. Retrying: ", err)
+			time.Sleep(5 * time.Second)
+		}
+	}
 }
 
 func initVars() {
