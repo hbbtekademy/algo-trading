@@ -14,7 +14,7 @@ func GetRedisClient(ip string, port string) *redis.Client {
 		Addr:        fmt.Sprintf("%s:%s", ip, port),
 		Password:    "",
 		DB:          0,
-		DialTimeout: 1 * time.Second,
+		DialTimeout: 250 * time.Millisecond,
 	})
 
 	connected := false
