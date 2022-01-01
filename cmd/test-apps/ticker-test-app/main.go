@@ -25,7 +25,7 @@ var (
 )
 
 func main() {
-
+	start := time.Now()
 	instruments = getInstruments()
 	now = time.Now()
 	first = true
@@ -46,12 +46,19 @@ func main() {
 	defer f.Close()
 
 	sc := bufio.NewScanner(f)
+	l := 0
 	for sc.Scan() {
+		l++
 		tick := getTick(sc.Text())
-		log.Println(tick)
+		//log.Println(tick)
 		utils.WriteTickToRedis(ctx, rdb, tick)
+		if l%50000 == 0 {
+			log.Printf("Processed %d lines", l)
+		}
 	}
 
+	end := time.Now()
+	log.Printf("Done publishing %d ticks to redis in %f seconds", l, end.Sub(start).Seconds())
 }
 
 func getInstruments() Instruments {
@@ -75,7 +82,7 @@ func getTick(s string) *models.Tick {
 
 	// Calculate the modified ExchTS offset from current time
 	if first {
-		diff = now.Sub(exchTS)
+		diff = now.Sub(exchTS) + 3*time.Minute
 		first = false
 	}
 
