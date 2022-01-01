@@ -49,25 +49,5 @@ func initVars() {
 	mktutil = utils.NewMktUtil(mst, met)
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", mst, met)
 
-	instruments = instmanager.GetNifty100()
-	futNFOInsts := instmanager.GetNFOFut()
-	for k, v := range futNFOInsts {
-		instruments[k] = v
-	}
-	indices := instmanager.GetIndices()
-	for k, v := range indices {
-		instruments[k] = v
-	}
-	mid50 := instmanager.GetNiftyMid50()
-	for k, v := range mid50 {
-		instruments[k] = v
-	}
-	small50 := instmanager.GetNiftySmall50()
-	for k, v := range small50 {
-		instruments[k] = v
-	}
-	startup := instmanager.GetNiftyStartup()
-	for k, v := range startup {
-		instruments[k] = v
-	}
+	instruments = instmanager.GetAllInstruments()
 }

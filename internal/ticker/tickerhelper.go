@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
+	"org.hbb/algo-trading/models"
 )
 
 func createTickFile() (*os.File, error) {
@@ -25,8 +25,8 @@ func createTickFile() (*os.File, error) {
 	return tickFile, err
 }
 
-func writeTickToCsv(tick *kitemodels.Tick) {
-	w := csv.NewWriter(tickFile)
+func writeTickToCsv(f *os.File, tick *models.Tick) {
+	w := csv.NewWriter(f)
 	defer w.Flush()
 
 	err := w.Write(getTickData(tick))
@@ -35,33 +35,12 @@ func writeTickToCsv(tick *kitemodels.Tick) {
 	}
 }
 
-func writeTickToRedis(tick *kitemodels.Tick) {
-	keyTS := tick.Timestamp.Time.Format("200601021504")
-	keySym := tick.InstrumentToken
-
-	ltpKey := fmt.Sprintf("LTP:ts:sym:%s:%d", keyTS, keySym)
-	ltpValue := fmt.Sprintf("%f", tick.LastPrice)
-
-	_, err := rdb.RPush(ctx, ltpKey, ltpValue).Result()
-	if err != nil {
-		log.Println("Failed pushing tick LTP to redis: ", err)
-	}
-
-	volKey := fmt.Sprintf("VOL:ts:sym:%s:%d", keyTS, keySym)
-	volValue := fmt.Sprintf("%d", tick.VolumeTraded)
-
-	_, err = rdb.Set(ctx, volKey, volValue, 0).Result()
-	if err != nil {
-		log.Println("Failed setting tick VOL to redis: ", err)
-	}
-}
-
-func getTickData(tick *kitemodels.Tick) []string {
+func getTickData(tick *models.Tick) []string {
 	return []string{
 		instruments[tick.InstrumentToken].Sym,
-		tick.Timestamp.Format(time.RFC3339),
-		tick.LastTradeTime.Format(time.RFC3339),
-		fmt.Sprintf("%f", tick.LastPrice),
+		tick.ExchTS.Format(time.RFC3339),
+		tick.LastTradeTS.Format(time.RFC3339),
+		fmt.Sprintf("%f", tick.LTP),
 		fmt.Sprintf("%d", tick.LastTradedQuantity),
 		fmt.Sprintf("%d", tick.VolumeTraded),
 	}

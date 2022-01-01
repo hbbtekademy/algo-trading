@@ -9,29 +9,9 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"org.hbb/algo-trading/models"
 	"org.hbb/algo-trading/pkg/utils"
 )
-
-type Tick struct {
-	Sym    string
-	ExchTS time.Time
-	LTP    float32
-	Vol    int64
-}
-
-type OHLCV struct {
-	Open   float32
-	High   float32
-	Low    float32
-	Close  float32
-	Volume int64
-}
-
-type Candle struct {
-	TS    time.Time
-	Sym   string
-	OHLCV *OHLCV
-}
 
 var (
 	rdb     *redis.Client
@@ -89,7 +69,7 @@ func candleTicker(ticker *time.Ticker) {
 func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
 	ltpKey := fmt.Sprintf("LTP:ts:sym:%s:%s", cts, sym)
 	values, err := rdb.LRange(ctx, ltpKey, 0, -1).Result()
-	ohlcv := OHLCV{}
+	ohlcv := models.OHLCV{}
 	if err != nil {
 		log.Printf("Failed getting LTP values for Key: %v. Err: %v", ltpKey, err)
 		return
@@ -145,7 +125,7 @@ func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
 		return
 	}
 
-	ohlcv.Volume = volEnd - volStart
+	ohlcv.Volume = uint32(volEnd) - uint32(volStart)
 
 	candleKey := fmt.Sprintf("CS1M:ts:sym:%s:%s", cts, sym)
 

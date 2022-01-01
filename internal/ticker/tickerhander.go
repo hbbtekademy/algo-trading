@@ -6,17 +6,29 @@ import (
 
 	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
 	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
+	"org.hbb/algo-trading/models"
+	utils "org.hbb/algo-trading/pkg/utils"
 )
 
 var (
-	fileTickCh  chan *kitemodels.Tick
-	redisTickCh chan *kitemodels.Tick
+	fileTickCh  chan *models.Tick
+	redisTickCh chan *models.Tick
 	chClosed    bool
 )
 
-func onTick(tick kitemodels.Tick) {
+func onTick(kiteTick kitemodels.Tick) {
 	//log.Println(getTickData(tick))
 	// Close the channels 5 mins after market close
+	tick := &models.Tick{
+		InstrumentToken:    kiteTick.InstrumentToken,
+		Sym:                instruments[kiteTick.InstrumentToken].Sym,
+		ExchTS:             kiteTick.Timestamp.Time,
+		LastTradeTS:        kiteTick.LastTradeTime.Time,
+		LTP:                float32(kiteTick.LastPrice),
+		LastTradedQuantity: kiteTick.LastTradedQuantity,
+		VolumeTraded:       kiteTick.VolumeTraded,
+	}
+
 	if mktutil.IsAfterMarketHrs(time.Now().Add(-5*time.Minute)) && !chClosed {
 		log.Printf("Current Time: %s after mkt hrs. Closing File and Redis channels...",
 			time.Now().Format(time.RFC3339))
@@ -28,15 +40,15 @@ func onTick(tick kitemodels.Tick) {
 		return
 	}
 
-	if !mktutil.IsValidMarketHrs(tick.Timestamp.Time) {
+	if !mktutil.IsValidMarketHrs(tick.ExchTS) {
 		log.Printf("ExchTS: %s outside mkt hrs. Skip tick for Sym %s",
-			tick.Timestamp.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
+			tick.ExchTS.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
 		return
 	}
 
 	if !chClosed {
-		fileTickCh <- &tick
-		redisTickCh <- &tick
+		fileTickCh <- tick
+		redisTickCh <- tick
 	}
 }
 
@@ -55,8 +67,8 @@ func onConnect() {
 	log.Println("Tokens subscribed..")
 
 	chClosed = false
-	fileTickCh = make(chan *kitemodels.Tick, 5000)
-	redisTickCh = make(chan *kitemodels.Tick, 5000)
+	fileTickCh = make(chan *models.Tick, 5000)
+	redisTickCh = make(chan *models.Tick, 5000)
 	log.Println("File and Redis Channels created...")
 
 	go handleFileTicks()
@@ -91,7 +103,7 @@ func handleFileTicks() {
 			log.Printf("File Tick Channel closed. Exiting handleFileTicks goroutine...")
 			return
 		}
-		writeTickToCsv(tick)
+		writeTickToCsv(tickFile, tick)
 	}
 }
 
@@ -105,7 +117,7 @@ func handleRedisTicks() {
 		}
 
 		//start := time.Now()
-		writeTickToRedis(tick)
+		utils.WriteTickToRedis(ctx, rdb, tick)
 		//end := time.Now()
 	}
 

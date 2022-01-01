@@ -4,10 +4,37 @@ import (
 	models "org.hbb/algo-trading/models"
 )
 
+func GetAllInstruments() models.Instruments {
+	instruments := GetNifty100()
+
+	futNFOInsts := GetNFOFut()
+	for k, v := range futNFOInsts {
+		instruments[k] = v
+	}
+	indices := GetIndices()
+	for k, v := range indices {
+		instruments[k] = v
+	}
+	mid50 := GetNiftyMid50()
+	for k, v := range mid50 {
+		instruments[k] = v
+	}
+	small50 := GetNiftySmall50()
+	for k, v := range small50 {
+		instruments[k] = v
+	}
+	startup := GetNiftyStartup()
+	for k, v := range startup {
+		instruments[k] = v
+	}
+	return instruments
+}
+
 func GetTestInstruments() models.Instruments {
 	instruments := make(models.Instruments)
 	instruments[738561] = &models.Instrument{Id: 738561, Sym: "RELIANCE"}
 	instruments[13295874] = &models.Instrument{Id: 13295874, Sym: "CROMPTON22FEBFUT", LotSize: 1100}
+	instruments[408065] = &models.Instrument{Id: 408065, Sym: "INFY"}
 	return instruments
 }
 

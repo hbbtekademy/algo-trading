@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"org.hbb/algo-trading/models"
 )
 
 func GetRedisClient(ip string, port string) *redis.Client {
@@ -35,4 +36,25 @@ func GetRedisClient(ip string, port string) *redis.Client {
 	}
 
 	return rdb
+}
+
+func WriteTickToRedis(ctx context.Context, rdb *redis.Client, tick *models.Tick) {
+	keyTS := tick.ExchTS.Format("200601021504")
+	keySym := tick.InstrumentToken
+
+	ltpKey := fmt.Sprintf("LTP:ts:sym:%s:%d", keyTS, keySym)
+	ltpValue := fmt.Sprintf("%f", tick.LTP)
+
+	_, err := rdb.RPush(ctx, ltpKey, ltpValue).Result()
+	if err != nil {
+		log.Println("Failed pushing tick LTP to redis: ", err)
+	}
+
+	volKey := fmt.Sprintf("VOL:ts:sym:%s:%d", keyTS, keySym)
+	volValue := fmt.Sprintf("%d", tick.VolumeTraded)
+
+	_, err = rdb.Set(ctx, volKey, volValue, 0).Result()
+	if err != nil {
+		log.Println("Failed setting tick VOL to redis: ", err)
+	}
 }
