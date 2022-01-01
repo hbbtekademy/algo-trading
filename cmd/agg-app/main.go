@@ -67,14 +67,10 @@ func candleTicker(ticker *time.Ticker) {
 			prevKeyTS := pt.Format("200601021504")
 
 			ltpKeyPat := fmt.Sprintf("LTP:ts:sym:%s:*", keyTS)
-			keys, err := rdb.Keys(ctx, ltpKeyPat).Result()
-			if err != nil {
-				log.Fatalln("failed getting keys from redis: ", err)
-			}
-
-			for _, key := range keys {
+			iter := rdb.Scan(ctx, 0, ltpKeyPat, 0).Iterator()
+			for iter.Next(ctx) {
 				counter++
-				sym := strings.Split(key, ":")[4]
+				sym := strings.Split(iter.Val(), ":")[4]
 				go candleGenerator(ctx, sym, keyTS, prevKeyTS)
 			}
 			log.Printf("Submitted %d candles for generation for TS: %s", counter, keyTS)
