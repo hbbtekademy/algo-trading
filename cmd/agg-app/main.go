@@ -73,6 +73,9 @@ func candleTicker(ticker *time.Ticker) {
 				sym := strings.Split(iter.Val(), ":")[4]
 				go candleGenerator(ctx, sym, keyTS, prevKeyTS)
 			}
+			if err := iter.Err(); err != nil {
+				log.Println("Failed scanning keys: ", err)
+			}
 			log.Printf("Submitted %d candles for generation for TS: %s", counter, keyTS)
 		} else if mktutil.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
 			log.Println("Outside mkt hrs. Exiting...")
