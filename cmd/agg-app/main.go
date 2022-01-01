@@ -56,6 +56,11 @@ func candleTicker(ticker *time.Ticker) {
 			if err := iter.Err(); err != nil {
 				log.Println("Failed scanning keys: ", err)
 			}
+			msg := fmt.Sprintf("CS1M:ts:%s", keyTS)
+			_, err := rdb.Publish(ctx, "CS1M_NOTIFY", msg).Result()
+			if err != nil {
+				log.Printf("Failed publishing notification to CS1M_NOTIFY channel. Err: %v", err)
+			}
 			log.Printf("Submitted %d candles for generation for TS: %s", counter, keyTS)
 		} else if mktutil.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
 			log.Println("Outside mkt hrs. Exiting...")
