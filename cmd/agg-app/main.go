@@ -69,12 +69,12 @@ func candleTicker(ticker *time.Ticker) {
 
 func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redistypes.RedisKey) {
 	values, err := rdb.LRange(ctx, cKey.GetLTPKey(), 0, -1).Result()
-	ohlcv := models.OHLCV{}
 	if err != nil {
 		log.Printf("Failed getting LTP values for Key: %s. Err: %v", cKey.GetLTPKey(), err)
 		return
 	}
 
+	ohlcv := models.OHLCV{}
 	for idx, value := range values {
 		v, err := strconv.ParseFloat(value, 32)
 		ltp := float32(v)
@@ -96,34 +96,19 @@ func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redisty
 		ohlcv.Close = ltp
 	}
 
-	value, err := rdb.Get(ctx, cKey.GetVOLKey()).Result()
+	volEnd, err := redisutils.GetVolume(ctx, rdb, cKey)
 	if err != nil {
-		log.Printf("Failed getting VOL value for Key: %v. Err: %v", cKey.GetVOLKey(), err)
-		return
-	}
-	volEnd, err := strconv.ParseInt(value, 10, 32)
-	if err != nil {
-		log.Printf("Failed converting VOL %s to int. Err: %v", values[0], err)
+		log.Printf("Failed getting VOL for key:%s. Err: %v", cKey.GetVOLKey(), err)
 		return
 	}
 
-	value, err = rdb.Get(ctx, pKey.GetVOLKey()).Result()
-	switch {
-	case err == redis.Nil:
-		value = "0"
-	case err != nil:
-		log.Printf("Failed getting VOL value for Key: %v. Err: %v", pKey.GetVOLKey(), err)
-		return
-	case value == "":
-		value = "0"
-	}
-	volStart, err := strconv.ParseInt(value, 10, 32)
+	volStart, err := redisutils.GetVolume(ctx, rdb, pKey)
 	if err != nil {
-		log.Printf("Failed converting VOL %s to int. Err: %v", value, err)
+		log.Printf("Failed getting VOL for key:%s. Err: %v", pKey.GetVOLKey(), err)
 		return
 	}
 
-	ohlcv.Volume = uint32(volEnd) - uint32(volStart)
+	ohlcv.Volume = volEnd - volStart
 
 	candleKey := cKey.GetCS1MKey()
 	idxKey := redistypes.NewIdxKey(cKey.TokenId)

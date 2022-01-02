@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -88,4 +89,24 @@ func WriteTickToRedis(ctx context.Context, rdb *redis.Client, tick *models.Tick)
 
 func WriteCandleToRedis(ctx context.Context, rdb *redis.Client, key redistypes.RedisKey, ohlcv models.OHLCV) {
 	panic("not implemented")
+}
+
+func GetVolume(ctx context.Context, rdb *redis.Client, key redistypes.RedisKey) (uint32, error) {
+	v, err := rdb.Get(ctx, key.GetVOLKey()).Result()
+	switch {
+	case err == redis.Nil:
+		v = "0"
+	case err != nil:
+		log.Printf("Failed getting VOL value for Key: %v. Err: %v", key.GetVOLKey(), err)
+		return 0, err
+	case v == "":
+		v = "0"
+	}
+	vol, err := strconv.ParseInt(v, 10, 32)
+	if err != nil {
+		log.Printf("Failed converting VOL %s to int. Err: %v", v, err)
+		return 0, err
+	}
+
+	return uint32(vol), nil
 }
