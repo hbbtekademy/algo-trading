@@ -40,6 +40,8 @@ func main() {
 			c++
 			ts := candle.TS.Format("200601021504")
 			candleKey := fmt.Sprintf("CS15M:ts:sym:%s:%d", ts, candle.InstrumentToken)
+			candleIdxKey := fmt.Sprintf("IDX:CS15M:sym:%d", candle.InstrumentToken)
+
 			ohlcv := candle.OHLCV
 			_, err := rdb.HSet(ctx, candleKey,
 				"O", fmt.Sprintf("%f", ohlcv.Open),
@@ -48,7 +50,13 @@ func main() {
 				"C", fmt.Sprintf("%f", ohlcv.Close),
 				"V", fmt.Sprintf("%d", ohlcv.Volume)).Result()
 			if err != nil {
-				log.Printf("Failed writting candle :%s to reids. Err: %v", candleKey, err)
+				log.Printf("Failed writting candle: %s to reids. Err: %v", candleKey, err)
+				continue
+			}
+
+			_, err = rdb.RPush(ctx, candleIdxKey, candleKey).Result()
+			if err != nil {
+				log.Printf("Failed writting candle index: %s to reids. Err: %v", candleKey, err)
 				continue
 			}
 		}
@@ -70,7 +78,7 @@ func getBFInstruments() *models.Instruments {
 }
 
 func getHistCandles(tokenId uint32, interval string, from time.Time, to time.Time) *[]models.Candle {
-	candles := make([]models.Candle, 1000)
+	var candles []models.Candle
 	now := time.Now()
 	fromTime := from
 	toTime := from.AddDate(0, 0, 120)
