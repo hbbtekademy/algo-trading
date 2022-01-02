@@ -30,7 +30,7 @@ func main() {
 	now = time.Now()
 	first = true
 	ctx := context.Background()
-	rdb := utils.GetRedisClient(utils.MustGetEnv("REDIS_HOST"), utils.MustGetEnv("REDIS_PORT"))
+	rdb := utils.GetRedisClient()
 
 	tfCmdArg := flag.String("tf", "", "Full Ticker File Path")
 	flag.Parse()
