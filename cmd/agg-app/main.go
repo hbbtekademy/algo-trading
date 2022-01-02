@@ -20,7 +20,7 @@ var (
 )
 
 func main() {
-	rdb = utils.GetRedisClient(utils.MustGetEnv("REDIS_HOST"), utils.MustGetEnv("REDIS_PORT"))
+	rdb = utils.GetRedisClient()
 	mktutil = utils.NewMktUtil(utils.GetMarketTime())
 	done = make(chan bool)
 

@@ -10,9 +10,11 @@ import (
 	"org.hbb/algo-trading/models"
 )
 
-func GetRedisClient(ip string, port string) *redis.Client {
+func GetRedisClient() *redis.Client {
+	host := MustGetEnv("REDIS_HOST")
+	port := MustGetEnv("REDIS_PORT")
 	rdb := redis.NewClient(&redis.Options{
-		Addr:        fmt.Sprintf("%s:%s", ip, port),
+		Addr:        fmt.Sprintf("%s:%s", host, port),
 		Password:    "",
 		DB:          0,
 		DialTimeout: 250 * time.Millisecond,
@@ -32,7 +34,7 @@ func GetRedisClient(ip string, port string) *redis.Client {
 	}
 
 	if !connected {
-		log.Fatalf("Unable to connect to Redis server at %s:%s. Exiting...", ip, port)
+		log.Fatalf("Unable to connect to Redis server at %s:%s. Exiting...", host, port)
 	}
 
 	return rdb

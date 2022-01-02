@@ -41,7 +41,7 @@ func Start() {
 
 func initRedisClient() {
 	ctx = context.Background()
-	rdb = utils.GetRedisClient(utils.MustGetEnv("REDIS_HOST"), utils.MustGetEnv("REDIS_PORT"))
+	rdb = utils.GetRedisClient()
 }
 
 func initVars() {
