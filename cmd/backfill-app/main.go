@@ -12,6 +12,7 @@ import (
 	"org.hbb/algo-trading/models"
 	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
 	"org.hbb/algo-trading/pkg/utils"
+	redisutils "org.hbb/algo-trading/pkg/utils/redis"
 )
 
 type CmdArgs struct {
@@ -29,7 +30,7 @@ func main() {
 	ctx := context.Background()
 	cmdArgs := parseCmdLineArgs()
 	kc = utils.GetKiteClient()
-	rdb = utils.GetRedisClient()
+	rdb = redisutils.GetHistRedisClient()
 	instruments := getBFInstruments()
 
 	for tokenId, instrument := range *instruments {

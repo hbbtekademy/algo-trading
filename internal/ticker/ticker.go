@@ -12,6 +12,7 @@ import (
 	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
 	secretmanager "org.hbb/algo-trading/pkg/secret-manager"
 	utils "org.hbb/algo-trading/pkg/utils"
+	redisutils "org.hbb/algo-trading/pkg/utils/redis"
 )
 
 var (
@@ -41,7 +42,7 @@ func Start() {
 
 func initRedisClient() {
 	ctx = context.Background()
-	rdb = utils.GetRedisClient()
+	rdb = redisutils.GetRTRedisClient()
 }
 
 func initVars() {

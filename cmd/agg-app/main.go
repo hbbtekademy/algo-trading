@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/models"
+	redistypes "org.hbb/algo-trading/pkg/redis/types"
 	"org.hbb/algo-trading/pkg/utils"
+	redisutils "org.hbb/algo-trading/pkg/utils/redis"
 )
 
 var (
@@ -20,7 +21,7 @@ var (
 )
 
 func main() {
-	rdb = utils.GetRedisClient()
+	rdb = redisutils.GetRTRedisClient()
 	mktutil = utils.NewMktUtil(utils.GetMarketTime())
 	done = make(chan bool)
 
@@ -39,19 +40,19 @@ func candleTicker(ticker *time.Ticker) {
 	ctx := context.Background()
 	for {
 		t := <-ticker.C
+
 		if mktutil.IsValidMarketHrs(t.Add(-1 * time.Minute)) {
 			counter := 0
 			ct := t.Add(-15 * time.Second)
 			pt := t.Add(-75 * time.Second)
-			keyTS := ct.Format("200601021504")
-			prevKeyTS := pt.Format("200601021504")
+			keyTS := ct.Format(redistypes.REDIS_KEY_TS_FMT)
 
-			ltpKeyPat := fmt.Sprintf("LTP:ts:sym:%s:*", keyTS)
-			iter := rdb.Scan(ctx, 0, ltpKeyPat, 0).Iterator()
+			keyPat := redistypes.NewKeyPattern(keyTS, "*")
+			iter := rdb.Scan(ctx, 0, keyPat.GetLTPKey(), 0).Iterator()
 			for iter.Next(ctx) {
 				counter++
-				sym := strings.Split(iter.Val(), ":")[4]
-				go candleGenerator(ctx, sym, keyTS, prevKeyTS)
+				key := redistypes.ParseKey(iter.Val())
+				go candleGenerator(ctx, key, redistypes.NewKey(pt, key.TokenId))
 			}
 			if err := iter.Err(); err != nil {
 				log.Println("Failed scanning keys: ", err)
@@ -66,12 +67,11 @@ func candleTicker(ticker *time.Ticker) {
 	}
 }
 
-func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
-	ltpKey := fmt.Sprintf("LTP:ts:sym:%s:%s", cts, sym)
-	values, err := rdb.LRange(ctx, ltpKey, 0, -1).Result()
+func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redistypes.RedisKey) {
+	values, err := rdb.LRange(ctx, cKey.GetLTPKey(), 0, -1).Result()
 	ohlcv := models.OHLCV{}
 	if err != nil {
-		log.Printf("Failed getting LTP values for Key: %v. Err: %v", ltpKey, err)
+		log.Printf("Failed getting LTP values for Key: %s. Err: %v", cKey.GetLTPKey(), err)
 		return
 	}
 
@@ -96,10 +96,9 @@ func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
 		ohlcv.Close = ltp
 	}
 
-	volKey := fmt.Sprintf("VOL:ts:sym:%s:%s", cts, sym)
-	value, err := rdb.Get(ctx, volKey).Result()
+	value, err := rdb.Get(ctx, cKey.GetVOLKey()).Result()
 	if err != nil {
-		log.Printf("Failed getting VOL value for Key: %v. Err: %v", volKey, err)
+		log.Printf("Failed getting VOL value for Key: %v. Err: %v", cKey.GetVOLKey(), err)
 		return
 	}
 	volEnd, err := strconv.ParseInt(value, 10, 32)
@@ -108,13 +107,12 @@ func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
 		return
 	}
 
-	pVolKey := fmt.Sprintf("VOL:ts:sym:%s:%s", pts, sym)
-	value, err = rdb.Get(ctx, pVolKey).Result()
+	value, err = rdb.Get(ctx, pKey.GetVOLKey()).Result()
 	switch {
 	case err == redis.Nil:
 		value = "0"
 	case err != nil:
-		log.Printf("Failed getting VOL value for Key: %v. Err: %v", pVolKey, err)
+		log.Printf("Failed getting VOL value for Key: %v. Err: %v", pKey.GetVOLKey(), err)
 		return
 	case value == "":
 		value = "0"
@@ -127,7 +125,8 @@ func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
 
 	ohlcv.Volume = uint32(volEnd) - uint32(volStart)
 
-	candleKey := fmt.Sprintf("CS1M:ts:sym:%s:%s", cts, sym)
+	candleKey := cKey.GetCS1MKey()
+	idxKey := redistypes.NewIdxKey(cKey.TokenId)
 
 	_, err = rdb.HSet(ctx, candleKey,
 		"O", fmt.Sprintf("%f", ohlcv.Open),
@@ -139,5 +138,17 @@ func candleGenerator(ctx context.Context, sym string, cts string, pts string) {
 		log.Printf("Failed writting candle :%s to reids. Err: %v", candleKey, err)
 		return
 	}
+
+	_, err = rdb.ZAdd(ctx, idxKey.GetCS1MIdxKey(),
+		&redis.Z{
+			Score:  cKey.GetScore(),
+			Member: candleKey,
+		}).Result()
+	if err != nil {
+		log.Printf("Failed writting candle idx:%s, value:%s to reids. Err: %v",
+			idxKey.GetCS1MIdxKey(), candleKey, err)
+		return
+	}
+
 	log.Printf("Candlestick %s written to redis...", candleKey)
 }
