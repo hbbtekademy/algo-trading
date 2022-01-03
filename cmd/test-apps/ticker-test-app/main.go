@@ -12,7 +12,7 @@ import (
 
 	"org.hbb/algo-trading/models"
 	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
-	"org.hbb/algo-trading/pkg/utils"
+	redisutils "org.hbb/algo-trading/pkg/utils/redis"
 )
 
 type Instruments map[string]uint32
@@ -30,7 +30,7 @@ func main() {
 	now = time.Now()
 	first = true
 	ctx := context.Background()
-	rdb := utils.GetRedisClient()
+	rdb := redisutils.GetRTRedisClient()
 
 	tfCmdArg := flag.String("tf", "", "Full Ticker File Path")
 	flag.Parse()
@@ -51,7 +51,7 @@ func main() {
 		l++
 		tick := getTick(sc.Text())
 		//log.Println(tick)
-		utils.WriteTickToRedis(ctx, rdb, tick)
+		redisutils.WriteTickToRedis(ctx, rdb, tick)
 		if l%50000 == 0 {
 			log.Printf("Processed %d lines", l)
 		}

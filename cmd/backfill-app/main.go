@@ -11,7 +11,9 @@ import (
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
 	"org.hbb/algo-trading/models"
 	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
+	redistypes "org.hbb/algo-trading/pkg/redis/types"
 	"org.hbb/algo-trading/pkg/utils"
+	redisutils "org.hbb/algo-trading/pkg/utils/redis"
 )
 
 type CmdArgs struct {
@@ -29,7 +31,7 @@ func main() {
 	ctx := context.Background()
 	cmdArgs := parseCmdLineArgs()
 	kc = utils.GetKiteClient()
-	rdb = utils.GetRedisClient()
+	rdb = redisutils.GetHistRedisClient()
 	instruments := getBFInstruments()
 
 	for tokenId, instrument := range *instruments {
@@ -38,25 +40,28 @@ func main() {
 		c := 0
 		for _, candle := range *candles {
 			c++
-			ts := candle.TS.Format("200601021504")
-			candleKey := fmt.Sprintf("CS15M:ts:sym:%s:%d", ts, candle.InstrumentToken)
-			candleIdxKey := fmt.Sprintf("IDX:CS15M:sym:%d", candle.InstrumentToken)
+			key := redistypes.NewKey(candle.TS, candle.InstrumentToken)
+			idxKey := redistypes.NewIdxKey(candle.InstrumentToken)
 
 			ohlcv := candle.OHLCV
-			_, err := rdb.HSet(ctx, candleKey,
+			_, err := rdb.HSet(ctx, key.GetCS15MKey(),
 				"O", fmt.Sprintf("%f", ohlcv.Open),
 				"H", fmt.Sprintf("%f", ohlcv.High),
 				"L", fmt.Sprintf("%f", ohlcv.Low),
 				"C", fmt.Sprintf("%f", ohlcv.Close),
 				"V", fmt.Sprintf("%d", ohlcv.Volume)).Result()
 			if err != nil {
-				log.Printf("Failed writting candle: %s to reids. Err: %v", candleKey, err)
+				log.Printf("Failed writting candle: %s to reids. Err: %v", key.GetCS15MKey(), err)
 				continue
 			}
 
-			_, err = rdb.RPush(ctx, candleIdxKey, candleKey).Result()
+			_, err = rdb.ZAdd(ctx, idxKey.GetCS15MIdxKey(),
+				&redis.Z{
+					Score:  key.GetScore(),
+					Member: key.GetCS15MKey(),
+				}).Result()
 			if err != nil {
-				log.Printf("Failed writting candle index: %s to reids. Err: %v", candleKey, err)
+				log.Printf("Failed writting candle index: %s to reids. Err: %v", key.GetCS15MKey(), err)
 				continue
 			}
 		}

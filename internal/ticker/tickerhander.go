@@ -7,7 +7,7 @@ import (
 	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
 	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
 	"org.hbb/algo-trading/models"
-	utils "org.hbb/algo-trading/pkg/utils"
+	redisutils "org.hbb/algo-trading/pkg/utils/redis"
 )
 
 var (
@@ -117,7 +117,7 @@ func handleRedisTicks() {
 		}
 
 		//start := time.Now()
-		utils.WriteTickToRedis(ctx, rdb, tick)
+		redisutils.WriteTickToRedis(ctx, rdb, tick)
 		//end := time.Now()
 	}
 

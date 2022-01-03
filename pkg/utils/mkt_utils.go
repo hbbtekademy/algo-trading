@@ -36,12 +36,12 @@ func (m *Mktutil) IsBeforeMarketHrs(t time.Time) bool {
 
 func GetMarketTime() (time.Time, time.Time) {
 	y, m, d := time.Now().Date()
-	mst, err := time.Parse(time.RFC3339, fmt.Sprintf("%d-%02d-%02dT09:14:59+05:30", y, int(m), d))
+	mst, err := time.Parse(time.RFC3339, fmt.Sprintf("%d-%02d-%02dT08:59:59+05:30", y, int(m), d))
 	if err != nil {
 		log.Fatalln("failed getting market start time:", err)
 	}
 
-	met, err := time.Parse(time.RFC3339, fmt.Sprintf("%d-%02d-%02dT15:30:00+05:30", y, int(m), d))
+	met, err := time.Parse(time.RFC3339, fmt.Sprintf("%d-%02d-%02dT16:00:00+05:30", y, int(m), d))
 	if err != nil {
 		log.Fatalln("failed getting market end time:", err)
 	}
