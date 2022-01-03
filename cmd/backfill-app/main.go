@@ -32,9 +32,9 @@ func main() {
 	cmdArgs := parseCmdLineArgs()
 	kc = utils.GetKiteClient()
 	rdb = redisutils.GetHistRedisClient()
-	instruments := getBFInstruments()
+	instruments := instmanager.GetAllInstruments()
 
-	for tokenId, instrument := range *instruments {
+	for tokenId, instrument := range instruments {
 		log.Printf("Token: %d, Instrument: %v", tokenId, instrument)
 		candles := getHistCandles(tokenId, cmdArgs.Interval, cmdArgs.From, cmdArgs.To)
 		c := 0
@@ -69,7 +69,7 @@ func main() {
 	}
 }
 
-func getBFInstruments() *models.Instruments {
+func getBFInstruments() models.Instruments {
 	instruments := instmanager.GetNifty100()
 	mid := instmanager.GetNiftyMid50()
 	for k, v := range mid {
@@ -79,7 +79,15 @@ func getBFInstruments() *models.Instruments {
 	for k, v := range small {
 		instruments[k] = v
 	}
-	return &instruments
+	indices := instmanager.GetIndices()
+	for k, v := range indices {
+		instruments[k] = v
+	}
+	startup := instmanager.GetNiftyStartup()
+	for k, v := range startup {
+		instruments[k] = v
+	}
+	return instruments
 }
 
 func getHistCandles(tokenId uint32, interval string, from time.Time, to time.Time) *[]models.Candle {

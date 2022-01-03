@@ -7,10 +7,10 @@ import (
 func GetAllInstruments() models.Instruments {
 	instruments := GetNifty100()
 
-	futNFOInsts := GetNFOFut()
+	/*futNFOInsts := GetNFOFut()
 	for k, v := range futNFOInsts {
 		instruments[k] = v
-	}
+	}*/
 	indices := GetIndices()
 	for k, v := range indices {
 		instruments[k] = v
