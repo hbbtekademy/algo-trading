@@ -115,6 +115,8 @@ func ParseKey(key string) RedisKey {
 	tid, _ := strconv.ParseInt(arr[4], 10, 64)
 
 	return RedisKey{
+		ts:      arr[3],
+		tokenId: arr[4],
 		TS:      ts,
 		TokenId: uint32(tid),
 	}
@@ -125,6 +127,7 @@ func ParseIdxKey(key string) RedisIdxKey {
 	tid, _ := strconv.ParseInt(arr[3], 10, 64)
 
 	return RedisIdxKey{
+		tokenId: arr[3],
 		TokenId: uint32(tid),
 	}
 }
