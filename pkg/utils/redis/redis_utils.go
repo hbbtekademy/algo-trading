@@ -19,20 +19,22 @@ const (
 )
 
 func GetHistRedisClient() *redis.Client {
-	return getRedisClient(REDIS_HIST_DB)
+	host := utils.MustGetEnv("REDIS_HIST_HOST")
+	port := utils.MustGetEnv("REDIS_HIST_PORT")
+	return getRedisClient(host, port, REDIS_HIST_DB)
 }
 
 func GetRTRedisClient() *redis.Client {
-	return getRedisClient(REDIS_RT_DB)
+	host := utils.MustGetEnv("REDIS_RT_HOST")
+	port := utils.MustGetEnv("REDIS_RT_PORT")
+	return getRedisClient(host, port, REDIS_RT_DB)
 }
 
-func getRedisClient(redisDB int) *redis.Client {
-	host := utils.MustGetEnv("REDIS_HOST")
-	port := utils.MustGetEnv("REDIS_PORT")
+func getRedisClient(host string, port string, redisdb int) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:        fmt.Sprintf("%s:%s", host, port),
 		Password:    "",
-		DB:          redisDB,
+		DB:          redisdb,
 		DialTimeout: 250 * time.Millisecond,
 	})
 
