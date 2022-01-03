@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -15,7 +16,8 @@ import (
 
 const (
 	REDIS_HIST_DB = iota
-	REDIS_RT_DB   = iota
+	REDIS_RT_DB
+	REDIS_SIG_DB
 )
 
 func GetHistRedisClient() *redis.Client {
@@ -87,6 +89,41 @@ func WriteTickToRedis(ctx context.Context, rdb *redis.Client, tick *models.Tick)
 	if err != nil {
 		log.Println("Failed setting tick VOL IDX to redis: ", err)
 	}
+}
+
+func WriteHistCandlesToRedis(ctx context.Context, rdb *redis.Client, candles *[]models.Candle, wg *sync.WaitGroup) {
+	defer wg.Done()
+	c := 0
+	tokenId := uint32(0)
+	for _, candle := range *candles {
+		c++
+		tokenId = candle.InstrumentToken
+		key := redistypes.NewKey(candle.TS, candle.InstrumentToken)
+		idxKey := redistypes.NewIdxKey(candle.InstrumentToken)
+
+		ohlcv := candle.OHLCV
+		_, err := rdb.HSet(ctx, key.GetCS15MKey(),
+			"O", fmt.Sprintf("%f", ohlcv.Open),
+			"H", fmt.Sprintf("%f", ohlcv.High),
+			"L", fmt.Sprintf("%f", ohlcv.Low),
+			"C", fmt.Sprintf("%f", ohlcv.Close),
+			"V", fmt.Sprintf("%d", ohlcv.Volume)).Result()
+		if err != nil {
+			log.Printf("Failed writting candle: %s to reids. Err: %v", key.GetCS15MKey(), err)
+			continue
+		}
+
+		_, err = rdb.ZAdd(ctx, idxKey.GetCS15MIdxKey(),
+			&redis.Z{
+				Score:  key.GetScore(),
+				Member: key.GetCS15MKey(),
+			}).Result()
+		if err != nil {
+			log.Printf("Failed writting candle index: %s to reids. Err: %v", key.GetCS15MKey(), err)
+			continue
+		}
+	}
+	log.Printf("Set %d candles for %d in redis...", c, tokenId)
 }
 
 func WriteCandleToRedis(ctx context.Context, rdb *redis.Client, key redistypes.RedisKey, ohlcv models.OHLCV) {

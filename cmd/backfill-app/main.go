@@ -3,15 +3,14 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
 	"org.hbb/algo-trading/models"
 	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
-	redistypes "org.hbb/algo-trading/pkg/redis/types"
 	"org.hbb/algo-trading/pkg/utils"
 	redisutils "org.hbb/algo-trading/pkg/utils/redis"
 )
@@ -28,6 +27,8 @@ var (
 )
 
 func main() {
+	start := time.Now()
+	var wg sync.WaitGroup
 	ctx := context.Background()
 	cmdArgs := parseCmdLineArgs()
 	kc = utils.GetKiteClient()
@@ -37,36 +38,14 @@ func main() {
 	for tokenId, instrument := range instruments {
 		log.Printf("Token: %d, Instrument: %v", tokenId, instrument)
 		candles := getHistCandles(tokenId, cmdArgs.Interval, cmdArgs.From, cmdArgs.To)
-		c := 0
-		for _, candle := range *candles {
-			c++
-			key := redistypes.NewKey(candle.TS, candle.InstrumentToken)
-			idxKey := redistypes.NewIdxKey(candle.InstrumentToken)
-
-			ohlcv := candle.OHLCV
-			_, err := rdb.HSet(ctx, key.GetCS15MKey(),
-				"O", fmt.Sprintf("%f", ohlcv.Open),
-				"H", fmt.Sprintf("%f", ohlcv.High),
-				"L", fmt.Sprintf("%f", ohlcv.Low),
-				"C", fmt.Sprintf("%f", ohlcv.Close),
-				"V", fmt.Sprintf("%d", ohlcv.Volume)).Result()
-			if err != nil {
-				log.Printf("Failed writting candle: %s to reids. Err: %v", key.GetCS15MKey(), err)
-				continue
-			}
-
-			_, err = rdb.ZAdd(ctx, idxKey.GetCS15MIdxKey(),
-				&redis.Z{
-					Score:  key.GetScore(),
-					Member: key.GetCS15MKey(),
-				}).Result()
-			if err != nil {
-				log.Printf("Failed writting candle index: %s to reids. Err: %v", key.GetCS15MKey(), err)
-				continue
-			}
-		}
-		log.Printf("Set %d candles for %d in redis...", c, tokenId)
+		wg.Add(1)
+		go redisutils.WriteHistCandlesToRedis(ctx, rdb, candles, &wg)
 	}
+
+	log.Printf("Waiting for all goroutines to finish...")
+	wg.Wait()
+	end := time.Now()
+	log.Printf("Done writting all hist data to redis in %f seconds. Exiting...", end.Sub(start).Seconds())
 }
 
 func getBFInstruments() models.Instruments {
