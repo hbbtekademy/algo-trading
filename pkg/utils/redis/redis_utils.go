@@ -149,3 +149,10 @@ func GetVolume(ctx context.Context, rdb *redis.Client, key redistypes.RedisKey) 
 
 	return uint32(vol), nil
 }
+
+func PublishMsg(ctx context.Context, rdb *redis.Client, topic string, msg string) {
+	_, err := rdb.Publish(ctx, topic, msg).Result()
+	if err != nil {
+		log.Printf("Failed publishing msg to %s topic. Err: %v", topic, err)
+	}
+}

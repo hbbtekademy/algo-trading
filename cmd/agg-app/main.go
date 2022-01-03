@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -37,6 +38,7 @@ func main() {
 
 func candleTicker(ticker *time.Ticker) {
 	log.Println("Starting candle ticker...")
+	var wg sync.WaitGroup
 	ctx := context.Background()
 	for {
 		t := <-ticker.C
@@ -52,17 +54,21 @@ func candleTicker(ticker *time.Ticker) {
 			for iter.Next(ctx) {
 				counter++
 				key := redistypes.ParseKey(iter.Val())
-				go candleGenerator(ctx, key, redistypes.NewKey(pt, key.TokenId))
+				wg.Add(1)
+				go candleGenerator(ctx, key, redistypes.NewKey(pt, key.TokenId), &wg)
 			}
 			if err := iter.Err(); err != nil {
 				log.Println("Failed scanning keys: ", err)
 			}
-			msg := fmt.Sprintf("CS1M:ts:%s", keyTS)
-			_, err := rdb.Publish(ctx, "CS1M_NOTIFY", msg).Result()
-			if err != nil {
-				log.Printf("Failed publishing notification to CS1M_NOTIFY channel. Err: %v", err)
-			}
+
 			log.Printf("Submitted %d candles for generation for TS: %s", counter, keyTS)
+
+			wg.Wait()
+			log.Println("All 1M candles generated. Sending notification...")
+
+			msg := fmt.Sprintf("CS1M:ts:%s", keyTS)
+			redisutils.PublishMsg(ctx, rdb, redistypes.REDIS_CS1M_NOTIFY_TOPIC, msg)
+
 		} else if mktutil.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
 			log.Println("Outside mkt hrs. Exiting...")
 			done <- true
@@ -72,7 +78,8 @@ func candleTicker(ticker *time.Ticker) {
 	}
 }
 
-func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redistypes.RedisKey) {
+func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redistypes.RedisKey, wg *sync.WaitGroup) {
+	defer wg.Done()
 	values, err := rdb.LRange(ctx, cKey.GetLTPKey(), 0, -1).Result()
 	if err != nil {
 		log.Printf("Failed getting LTP values for Key: %s. Err: %v", cKey.GetLTPKey(), err)
