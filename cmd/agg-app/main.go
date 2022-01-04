@@ -50,7 +50,7 @@ func candleTicker(ticker *time.Ticker) {
 			keyTS := ct.Format(redistypes.REDIS_KEY_TS_FMT)
 
 			keyPat := redistypes.NewKeyPattern(keyTS, "*")
-			iter := rdb.Scan(ctx, 0, keyPat.GetLTPKey(), 0).Iterator()
+			iter := rdb.Scan(ctx, 0, keyPat.GetLTPKey(), 500).Iterator()
 			for iter.Next(ctx) {
 				counter++
 				key := redistypes.ParseKey(iter.Val())
