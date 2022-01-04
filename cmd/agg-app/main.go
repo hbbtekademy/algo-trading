@@ -40,8 +40,10 @@ func candleTicker(ticker *time.Ticker) {
 	log.Println("Starting candle ticker...")
 	var wg sync.WaitGroup
 	ctx := context.Background()
+	tCounter := 0
 	for {
 		t := <-ticker.C
+		tCounter++
 
 		if mktutil.IsValidMarketHrs(t.Add(-1 * time.Minute)) {
 			counter := 0
@@ -68,6 +70,11 @@ func candleTicker(ticker *time.Ticker) {
 
 			msg := fmt.Sprintf("CS1M:ts:%s", keyTS)
 			redisutils.PublishMsg(ctx, rdb, redistypes.REDIS_CS1M_NOTIFY_TOPIC, msg)
+			if tCounter%15 == 0 {
+				msg := fmt.Sprintf("CS15M:ts:%s", keyTS)
+				log.Println("Sending notification for 15M Candles...")
+				redisutils.PublishMsg(ctx, rdb, redistypes.REDIS_CS15M_NOTIFY_TOPIC, msg)
+			}
 
 		} else if mktutil.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
 			log.Println("Outside mkt hrs. Exiting...")
