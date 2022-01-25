@@ -1,8 +1,3 @@
-
-
-from unittest import signals
-
-
 class BackTestResult():
     def __init__(self, sym: str, signals: list) -> None:
         self.signals = signals
