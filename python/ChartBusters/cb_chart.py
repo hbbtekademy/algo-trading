@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import List
 import pandas as pd
 from ChartBusters import constants
 from ChartBusters.cb_candle import CBCandle
@@ -8,8 +9,9 @@ from ta.trend import MACD
 
 
 class CBChart():
-    def __init__(self, sym: str, df: pd.core.frame.DataFrame, sma_interval: int = 5, ema_interval: int = 10) -> None:
+    def __init__(self, sym: str, lot_size: int, df: pd.core.frame.DataFrame, sma_interval: int = 5, ema_interval: int = 10) -> None:
         self.sym = sym
+        self.lot_size = lot_size
         self.df = df
         self.df_60min = self.__get_hourly_df()
         self.__calc_indicators(sma_interval, ema_interval)
@@ -109,7 +111,7 @@ class CBChart():
         row = self.df.iloc[loc-1]
         return CBCandle(self.sym, row)
 
-    def sub_chart(self, start_ts, end_ts) -> list[CBCandle]:
+    def sub_chart(self, start_ts, end_ts) -> List[CBCandle]:
         candles = list()
         df = self.df[start_ts:end_ts]
         for _, row in df.iterrows():
@@ -118,7 +120,7 @@ class CBChart():
 
         return candles
 
-    def get_previous_candles(self, index, n: int, include_index: bool = False) -> list[CBCandle]:
+    def get_previous_candles(self, index, n: int, include_index: bool = False) -> List[CBCandle]:
         candles = list()
         loc = self.df.index.get_loc(index)
         fromIdx = loc-n
@@ -131,7 +133,7 @@ class CBChart():
 
         return candles
 
-    def get_next_candles(self, index, n: int) -> list[CBCandle]:
+    def get_next_candles(self, index, n: int) -> List[CBCandle]:
         candles = list()
         loc = self.df.index.get_loc(index)
 
