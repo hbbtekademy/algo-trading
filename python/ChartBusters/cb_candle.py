@@ -25,6 +25,11 @@ class CBCandle():
         self.macd_sig = row[constants.MACD_SIG]
         self.macd_diff = row[constants.MACD_DIFF]
 
+        self.sti_trend = row[constants.STI_TREND]
+        self.sti_dir = row[constants.STI_DIR]
+        self.sti_long = row[constants.STI_LONG]
+        self.sti_short = row[constants.STI_SHORT]
+
         self.sma_open = row[constants.SMA_OPEN]
         self.sma_high = row[constants.SMA_HIGH]
         self.sma_low = row[constants.SMA_LOW]

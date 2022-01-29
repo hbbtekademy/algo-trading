@@ -16,6 +16,11 @@ MACD = 'macd'
 MACD_SIG = 'macd_sig'
 MACD_DIFF = 'macd_diff'
 
+STI_TREND = 'sti_trend'
+STI_DIR = 'sti_dir'
+STI_LONG = 'sti_long'
+STI_SHORT = 'sti_short'
+
 EMA_OPEN = 'ema_open'
 EMA_HIGH = 'ema_high'
 EMA_LOW = 'ema_low'

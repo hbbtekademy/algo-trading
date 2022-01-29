@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import List
 import pandas as pd
+import pandas_ta as ta
 from ChartBusters import constants
 from ChartBusters.cb_candle import CBCandle
 from ta.momentum import RSIIndicator
@@ -20,6 +21,7 @@ class CBChart():
         self.__calc_rsi()
         self.__calc_adx()
         self.__calc_macd()
+        self.__calc_supertrend()
         self.__calc_rsi60()
         self.__calc_sma(sma_interval)
         self.__calc_ema(ema_interval)
@@ -45,6 +47,15 @@ class CBChart():
         self.df[constants.MACD] = macd.macd().values
         self.df[constants.MACD_SIG] = macd.macd_signal().values
         self.df[constants.MACD_DIFF] = macd.macd_diff().values
+
+    def __calc_supertrend(self) -> None:
+        sti = ta.supertrend(
+            self.df[constants.HIGH], self.df[constants.LOW], self.df[constants.CLOSE], 10, 3)
+
+        self.df[constants.STI_TREND] = sti.iloc[:, 0].values
+        self.df[constants.STI_DIR] = sti.iloc[:, 1].values
+        self.df[constants.STI_LONG] = sti.iloc[:, 2].values
+        self.df[constants.STI_SHORT] = sti.iloc[:, 3].values
 
     def __calc_sma(self, interval: int) -> None:
         open_sma = self.df[constants.OPEN].rolling(interval).mean()
