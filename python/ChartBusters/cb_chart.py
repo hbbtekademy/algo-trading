@@ -10,7 +10,7 @@ from ta.trend import MACD
 
 
 class CBChart():
-    def __init__(self, sym: str, lot_size: int, df: pd.core.frame.DataFrame, sma_interval: int = 5, ema_interval: int = 10) -> None:
+    def __init__(self, sym: str, lot_size: int, df: pd.DataFrame, sma_interval: int = 5, ema_interval: int = 10) -> None:
         self.sym = sym
         self.lot_size = lot_size
         self.df = df
@@ -23,7 +23,7 @@ class CBChart():
         self.__sti_interval = int(sti_interval)
         self.__sti_multiplier = int(sti_multiplier)
         self.__calc_rsi()
-        self.__calc_adx()
+        self.__calc_adx2()
         self.__calc_macd()
         self.__calc_supertrend()
         self.__calc_rsi60()
@@ -45,6 +45,14 @@ class CBChart():
         self.df[constants.ADX] = adx.adx().values
         self.df[constants.ADX_POS] = adx.adx_pos().values
         self.df[constants.ADX_NEG] = adx.adx_neg().values
+
+    def __calc_adx2(self) -> None:
+        adx_df = ta.adx(high=self.df['High'], low=self.df['Low'],
+                        close=self.df['Close'])
+
+        self.df[constants.ADX] = adx_df.iloc[:, 0].values
+        self.df[constants.ADX_POS] = adx_df.iloc[:, 1].values
+        self.df[constants.ADX_NEG] = adx_df.iloc[:, 2].values
 
     def __calc_macd(self) -> None:
         macd = MACD(self.df['Close'])
