@@ -17,7 +17,11 @@ class CBChart():
         self.df_60min = self.__get_hourly_df()
         self.__calc_indicators(sma_interval, ema_interval)
 
-    def __calc_indicators(self, sma_interval: int, ema_interval: int) -> None:
+    def __calc_indicators(self, sma_interval: int, ema_interval: int, sti_interval: int = 10, sti_multiplier: int = 2) -> None:
+        self.__sma_interval = int(sma_interval)
+        self.__ema_interval = int(ema_interval)
+        self.__sti_interval = int(sti_interval)
+        self.__sti_multiplier = int(sti_multiplier)
         self.__calc_rsi()
         self.__calc_adx()
         self.__calc_macd()
@@ -50,7 +54,7 @@ class CBChart():
 
     def __calc_supertrend(self) -> None:
         sti = ta.supertrend(
-            self.df[constants.HIGH], self.df[constants.LOW], self.df[constants.CLOSE], 10, 3)
+            self.df[constants.HIGH], self.df[constants.LOW], self.df[constants.CLOSE], self.__sti_interval, self.__sti_multiplier)
 
         self.df[constants.STI_TREND] = sti.iloc[:, 0].values
         self.df[constants.STI_DIR] = sti.iloc[:, 1].values

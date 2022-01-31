@@ -60,3 +60,11 @@ class CBBackTestResult():
     def __str__(self) -> str:
         return 'Sym,{},Total PnL,{},ProfitFactor,{},GrossProfit,{},GrossLoss,{},Total Signals,{}'.format(
             self.sym, self.total_pnl, self.profit_factor, self.gross_profit, self.gross_loss, len(self.signals))
+
+    def pretty_print(self) -> None:
+        print("{},{},{},{},{},{}".format(
+            self.sym, self.total_pnl, self.profit_factor, self.gross_profit, self.gross_loss, len(self.signals)))
+
+    @staticmethod
+    def print_header() -> None:
+        print("Sym,Total PnL,ProfitFactor,GrossProfit,GrossLoss,Total Signals")
