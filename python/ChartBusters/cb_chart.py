@@ -106,7 +106,7 @@ class CBChart():
             span=interval, adjust=False).mean()
         self.df[constants.EMA_VOL] = vol_ema.values
 
-    def __get_hourly_df(self) -> pd.core.frame.DataFrame:
+    def __get_hourly_df(self) -> pd.DataFrame:
         df_temp = self.df
         df_60min_o = df_temp['Open'].resample(
             '60Min', offset='30Min').apply({'Open': 'first'})

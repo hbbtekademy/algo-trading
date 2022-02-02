@@ -8,20 +8,31 @@ from typing import List, Tuple
 
 
 class CBSuperTrendStrategy(CBStrategy):
-    def __init__(self, chart: CBChart, stop_loss: float, stop_gain: float) -> None:
+    def __init__(self, chart: CBChart, stop_loss: float, stop_gain: float, expiry) -> None:
         super().__init__(chart)
         self.strategy = 'SuperTrend'
         self.stop_loss = stop_loss
         self.stop_gain = stop_gain
+        self.expiry = expiry
 
     def execute(self, candle: CBCandle, signal: CBSignal) -> Tuple[str, CBSignal]:
         prev_candle = self.chart.previous(candle)
-        ema_close_buy_passed = candle.ema_close > candle.close
-        ema_close_sell_passed = candle.ema_close < candle.close
         rsi = candle.rsi
         adx = candle.adx
 
-        # Stop Loss Checks
+        expiry_ts = self.expiry + ' 15:15:00+05:30'
+        if(str(candle.ts) == expiry_ts):
+            print(candle.ts, expiry_ts)
+            signal.exit_ts = candle.ts
+            signal.exit_price = candle.close
+            signal.pnl = round(
+                (signal.entry_price - candle.close)*signal.lot_size, 2)
+            if signal.strategy == 'ST_Buy':
+                signal.pnl = -1 * signal.pnl
+            signal.comment = 'Position squared off at expiry'
+            return 'SL', None
+
+            # Stop Loss Checks
         if (signal.strategy == 'ST_Buy'):
             if(candle.low < signal.stop_loss):
                 signal.exit_ts = candle.ts
@@ -44,6 +55,8 @@ class CBSuperTrendStrategy(CBStrategy):
         # Buy/Sell signal checks
         sti_buy_passed = candle.sti_dir == 1 and prev_candle.sti_dir == -1
         sti_sell_passed = candle.sti_dir == -1 and prev_candle.sti_dir == 1
+        ema_close_buy_passed = candle.close > candle.ema_close
+        ema_close_sell_passed = candle.close < candle.ema_close
         adx_passed = adx >= 30
         rsi_buy_passed = rsi >= 70
         rsi_sell_passed = rsi <= 30
@@ -63,6 +76,7 @@ class CBSuperTrendStrategy(CBStrategy):
 
             stop_loss = round(candle.close - self.stop_loss /
                               self.chart.lot_size, 2)
+            # stop_loss = candle.close - (candle.close - candle.sti_trend)/2
             buy_signal = CBSignal(
                 'ST_Buy', self.chart.sym, self.chart.lot_size, candle.ts, candle.close, stop_loss, candle)
             return 'New', buy_signal
@@ -77,6 +91,7 @@ class CBSuperTrendStrategy(CBStrategy):
 
             stop_loss = round(candle.close + self.stop_loss /
                               self.chart.lot_size, 2)
+            # stop_loss = (candle.sti_trend - candle.close)/2 + candle.close
             sell_signal = CBSignal(
                 'ST_Sell', self.chart.sym, self.chart.lot_size, candle.ts, candle.close, stop_loss, candle)
             return 'New', sell_signal

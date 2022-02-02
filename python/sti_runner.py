@@ -2,21 +2,28 @@ import pandas as pd
 from ChartBusters.cb_chart import CBChart
 from ChartBusters.Strategy.cb_supertrend_strategy import CBSuperTrendStrategy
 
-file = '/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/BackTest/Hist15min/NIFTY22FEBFUT-HIST-15M.csv'
-sym = 'NIFTY22JANFUT'
-lot_size = 100
+file = '/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/BackTest/temp.txt'
 
-df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
+input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 
-chart = CBChart(sym, lot_size, df, ema_interval=31)
+all_signals = list()
+for index, row in input_df.iterrows():
+    file = '/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/BackTest/Hist15min/' + \
+        index + '-HIST-15M.csv'
+    df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
 
-strategy = CBSuperTrendStrategy(chart, 6000, 13000)
-results = strategy.back_test('2022-01-26', '2022-02-01')
+    chart = CBChart(index, int(row['LotSize']), df, ema_interval=31)
+    strategy = CBSuperTrendStrategy(chart, 2500, 13000, row['Expiry'])
+    results = strategy.back_test(row['Start'].tz_localize(
+        'Asia/Kolkata'), row['End'].tz_localize('Asia/Kolkata'))
+
+    for result in results:
+        all_signals.append(result)
+        print(result)
 
 total_pnl = 0
-for result in results:
-    total_pnl = total_pnl + result.pnl
-    print(result)
+for signal in all_signals:
+    total_pnl = total_pnl + signal.pnl
 
 print(" ")
 print("Total PnL: {}".format(total_pnl))
