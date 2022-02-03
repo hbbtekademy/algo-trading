@@ -19,16 +19,21 @@ class CBSignal():
         self.cost = self.entry_price * self.lot_size
         self.comment = ""
 
+        # For SuperTrend strategy
+        self.sti_trend = 0
+        self.ema_close = 0
+
     def __str__(self) -> str:
         return "Strategy,{},Sym,{},TS,{},Exit TS,{},Entry,{},Exit,{},StopLoss,{},Lot Size,{},PnL,{},Comment,{}".format(
             self.strategy, self.sym, self.ts, self.exit_ts, self.entry_price, -1*self.exit_price,
             self.stop_loss, self.lot_size, round(self.pnl, 2), self.comment)
 
     def pretty_print(self) -> None:
-        print("{},{},{},{},{},{},{},{},{},{}".format(
+        print("{},{},{},{},{},{},{},{},{},{},{},{}".format(
             self.strategy, self.sym, self.ts, self.exit_ts, self.entry_price,
-            round(self.exit_price, 2), self.stop_loss, self.lot_size, round(self.pnl, 2), self.comment))
+            round(self.exit_price, 2), self.stop_loss, self.sti_trend, self.ema_close,
+            self.lot_size, round(self.pnl, 2), self.comment))
 
     @staticmethod
     def print_header() -> None:
-        print("Strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,Lot Size,PnL,Comment")
+        print("Strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,SuperTrend,EMA Close,Lot Size,PnL,Comment")

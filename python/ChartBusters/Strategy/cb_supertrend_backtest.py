@@ -14,10 +14,10 @@ class CBSuperTrendBackTest():
         self.rsi = rsi
         self.close_margin = close_margin
         self.stoploss_margin = stoploss_margin
-        self.strategy15 = CBSuperTrendStrategy(
-            chart15, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin)
-        self.strategy60 = CBSuperTrendStrategy(
-            chart60, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin)
+        self.strategy15 = CBSuperTrendStrategy('SuperTrend15',
+                                               chart15, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin)
+        self.strategy60 = CBSuperTrendStrategy('SuperTrend60',
+                                               chart60, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin)
 
     def back_test(self, start_ts, end_ts) -> Tuple[List[CBSignal], List[CBSignal]]:
         all_signals15 = list()
@@ -31,6 +31,7 @@ class CBSuperTrendBackTest():
             hourly_index = candle.ts if candle.is_start_of_hr() else hourly_index
             sig_type, new_signal = self.strategy15.execute(candle, signal)
             if (sig_type == 'New'):
+                # print('Adding new signal ', candle.ts)
                 all_signals15.append(new_signal)
                 signal = new_signal
             if(sig_type == 'SL'):
@@ -38,8 +39,8 @@ class CBSuperTrendBackTest():
 
             if(hourly_index != None and candle.is_end_of_hr() and
                ((len(all_signals15) > 0 and all_signals15[-1].status == 'O') or (len(all_signals60) > 0 and all_signals60[-1].status == 'O'))):
-                # print('15 min signal still open. Run hourly strategy')
-                # print(hourly_index)
+                #print('15 min signal still open. Run hourly strategy')
+                #print(hourly_index, len(all_signals15),all_signals15[-1].status)
                 candle60 = self.chart60.candle(hourly_index)
                 sig_type60, new_signal60 = self.strategy60.execute(
                     candle60, signal60)

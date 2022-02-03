@@ -7,22 +7,24 @@ from typing import List, Tuple
 
 
 class CBSuperTrendStrategy(CBStrategy):
-    def __init__(self, chart: CBChart, expiry, rsi: float = 30, close_margin: int = 50, stoploss_margin: int = 10) -> None:
+    def __init__(self, strategy: str, chart: CBChart, expiry, rsi: float = 30, close_margin: int = 50, stoploss_margin: int = 10) -> None:
         super().__init__(chart)
-        self.strategy = 'SuperTrend'
+        self.strategy = strategy
         self.rsi = rsi
         self.close_margin = close_margin
         self.stoploss_margin = stoploss_margin
         self.expiry = expiry
         self.stop_loss = 5000
+        self.expiry_ts = self.expiry + ' 15:00:00+05:30'
+        if(self.strategy == 'SuperTrend60'):
+            self.expiry_ts = self.expiry + ' 14:15:00+05:30'
 
     def execute(self, candle: CBCandle, signal: CBSignal) -> Tuple[str, CBSignal]:
         prev_candle = self.chart.previous(candle)
         next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
         rsi = candle.rsi
 
-        expiry_ts = self.expiry + ' 14:15:00+05:30'
-        if(str(candle.ts) == expiry_ts):
+        if(str(candle.ts) == self.expiry_ts):
             signal.status = 'C'
             signal.exit_ts = next_candle.ts
             signal.exit_price = next_candle.open
@@ -55,9 +57,11 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.comment = 'StopLoss breached'
                 return 'SL', None
 
-        rsi_passed = rsi > self.rsi
+        buy_rsi_passed = rsi > 30
+        sell_rsi_passed = rsi < 70
         close_margin_passed = abs(
             candle.close - prev_candle.sti_trend) <= self.close_margin
+
         sti_buy_passed = candle.sti_dir == 1 and prev_candle.sti_dir == -1
         sti_sell_passed = candle.sti_dir == -1 and prev_candle.sti_dir == 1
 
@@ -68,9 +72,9 @@ class CBSuperTrendStrategy(CBStrategy):
         buy_stoploss = candle.sti_trend - self.stoploss_margin
         sell_stoploss = candle.sti_trend + self.stoploss_margin
 
-        buy_passed = rsi_passed and close_margin_passed and sti_buy_passed and (
+        buy_passed = buy_rsi_passed and close_margin_passed and sti_buy_passed and (
             signal.strategy == '' or signal.strategy == 'ST_Sell')
-        sell_passed = rsi_passed and close_margin_passed and sti_sell_passed and (
+        sell_passed = sell_rsi_passed and close_margin_passed and sti_sell_passed and (
             signal.strategy == '' or signal.strategy == 'ST_Buy')
 
         if buy_passed:
@@ -88,6 +92,8 @@ class CBSuperTrendStrategy(CBStrategy):
 
             buy_signal = CBSignal(
                 'ST_Buy', self.chart.sym, self.chart.lot_size, next_candle.ts, next_candle.open, buy_stoploss, candle)
+            buy_signal.sti_trend = round(candle.sti_trend, 2)
+            buy_signal.ema_close = round(candle.ema_close, 2)
             return 'New', buy_signal
 
         if sell_passed:
@@ -105,6 +111,8 @@ class CBSuperTrendStrategy(CBStrategy):
 
             sell_signal = CBSignal(
                 'ST_Sell', self.chart.sym, self.chart.lot_size, next_candle.ts, next_candle.open, sell_stoploss, candle)
+            sell_signal.sti_trend = round(candle.sti_trend, 2)
+            sell_signal.ema_close = round(candle.ema_close, 2)
             return 'New', sell_signal
 
         return '', None
