@@ -14,7 +14,6 @@ class CBChart():
         self.sym = sym
         self.lot_size = lot_size
         self.df = df
-        self.df_60min = self.__get_hourly_df()
         self.__calc_indicators(sma_interval, ema_interval)
 
     def __calc_indicators(self, sma_interval: int, ema_interval: int, sti_interval: int = 10, sti_multiplier: int = 2) -> None:
@@ -26,17 +25,12 @@ class CBChart():
         self.__calc_adx2()
         self.__calc_macd()
         self.__calc_supertrend()
-        self.__calc_rsi60()
         self.__calc_sma(sma_interval)
         self.__calc_ema(ema_interval)
 
     def __calc_rsi(self) -> None:
         rsi = RSIIndicator(self.df['Close']).rsi()
         self.df[constants.RSI] = rsi.values
-
-    def __calc_rsi60(self) -> None:
-        rsi_60 = RSIIndicator(self.df_60min['Close']).rsi()
-        self.df_60min[constants.RSI_60] = rsi_60.values
 
     def __calc_adx(self) -> None:
         adx = ADXIndicator(high=self.df['High'],
@@ -105,25 +99,6 @@ class CBChart():
         vol_ema = self.df[constants.VOL].ewm(
             span=interval, adjust=False).mean()
         self.df[constants.EMA_VOL] = vol_ema.values
-
-    def __get_hourly_df(self) -> pd.DataFrame:
-        df_temp = self.df
-        df_60min_o = df_temp['Open'].resample(
-            '60Min', offset='30Min').apply({'Open': 'first'})
-        df_60min_h = df_temp['High'].resample(
-            '60Min', offset='30Min').apply({'High': 'max'})
-        df_60min_l = df_temp['Low'].resample(
-            '60Min', offset='30Min').apply({'Low': 'min'})
-        df_60min_c = df_temp['Close'].resample(
-            '60Min', offset='30Min').apply({'Close': 'last'})
-        df_60min_vol = df_temp['Volume'].resample(
-            '60Min', offset='30Min').apply({'Volume': 'sum'})
-
-        df_60min = pd.concat([df_60min_o, df_60min_h, df_60min_l,
-                              df_60min_c, df_60min_vol], axis=1)
-        df_60min.dropna(subset=['Open'], inplace=True)
-
-        return df_60min
 
     def candle(self, ts) -> CBCandle:
         row = self.df.loc[ts]

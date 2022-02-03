@@ -6,38 +6,42 @@ from ChartBusters.cb_signal import CBSignal
 from typing import List, Tuple
 
 
-class CBSuperTrendStrategy(CBStrategy):
+class CBSuperTrendStrategyV1(CBStrategy):
     def __init__(self, chart: CBChart, expiry, rsi: float = 30, close_margin: int = 50, stoploss_margin: int = 10) -> None:
         super().__init__(chart)
-        self.strategy = 'SuperTrend'
+        self.strategy = 'SuperTrendV1'
         self.rsi = rsi
         self.close_margin = close_margin
         self.stoploss_margin = stoploss_margin
+        self.stop_loss = 2500
         self.expiry = expiry
-        self.stop_loss = 5000
 
     def execute(self, candle: CBCandle, signal: CBSignal) -> Tuple[str, CBSignal]:
         prev_candle = self.chart.previous(candle)
-        next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
         rsi = candle.rsi
+        adx = candle.adx
 
-        expiry_ts = self.expiry + ' 14:15:00+05:30'
+        expiry_ts = self.expiry + ' 15:15:00+05:30'
         if(str(candle.ts) == expiry_ts):
-            signal.status = 'C'
-            signal.exit_ts = next_candle.ts
-            signal.exit_price = next_candle.open
+            signal.exit_ts = candle.ts
+            signal.exit_price = candle.close
             signal.pnl = round(
-                (signal.entry_price - next_candle.open)*signal.lot_size, 2)
+                (signal.entry_price - candle.close)*signal.lot_size, 2)
             if signal.strategy == 'ST_Buy':
                 signal.pnl = -1 * signal.pnl
             signal.comment = 'Position squared off at expiry'
 
             return 'SL', None
 
+        # Update Stop Loss
+        if signal.strategy == 'ST_Buy' and candle.sti_dir == 1:
+            signal.stop_loss = signal.stop_loss
+        if signal.strategy == 'ST_Sell' and candle.sti_dir == -1:
+            signal.stop_loss = signal.stop_loss
+
         # Stop Loss Checks
         if (signal.strategy == 'ST_Buy'):
             if(candle.low < signal.stop_loss):
-                signal.status = 'C'
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
                 signal.pnl = round(-1 *
@@ -47,64 +51,63 @@ class CBSuperTrendStrategy(CBStrategy):
 
         if (signal.strategy == 'ST_Sell'):
             if(candle.high > signal.stop_loss):
-                signal.status = 'C'
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
                 signal.pnl = round(-1 *
                                    (signal.stop_loss - signal.entry_price)*signal.lot_size, 2)
                 signal.comment = 'StopLoss breached'
                 return 'SL', None
+            pass
 
-        rsi_passed = rsi > self.rsi
-        close_margin_passed = abs(
-            candle.close - prev_candle.sti_trend) <= self.close_margin
+        # Buy/Sell signal checks
         sti_buy_passed = candle.sti_dir == 1 and prev_candle.sti_dir == -1
         sti_sell_passed = candle.sti_dir == -1 and prev_candle.sti_dir == 1
+        ema_close_buy_passed = candle.close > candle.ema_close
+        ema_close_sell_passed = candle.close < candle.ema_close
+        #ema_close_buy_passed = True
+        #ema_close_sell_passed = True
+        adx_passed = adx >= 30
+        rsi_buy_passed = rsi >= 70
+        rsi_sell_passed = rsi <= 30
 
-        # buy_stoploss = (candle.ema_close if (candle.sti_trend <
-        #                candle.ema_close and candle.ema_close < candle.close) else candle.sti_trend) - self.stoploss_margin
-        # sell_stoploss = (candle.ema_close if (candle.sti_trend >
-        #                 candle.ema_close and candle.ema_close > candle.close) else candle.sti_trend) + self.stoploss_margin
-        buy_stoploss = candle.sti_trend - self.stoploss_margin
-        sell_stoploss = candle.sti_trend + self.stoploss_margin
+        buy_stoploss = (candle.sti_trend if candle.sti_trend >
+                        candle.ema_close else candle.ema_close) - self.stoploss_margin
+        sell_stoploss = (candle.ema_close if candle.sti_trend >
+                         candle.ema_close else candle.sti_trend) + self.stoploss_margin
 
-        buy_passed = rsi_passed and close_margin_passed and sti_buy_passed and (
+        buy_passed = ema_close_buy_passed and sti_buy_passed and (
             signal.strategy == '' or signal.strategy == 'ST_Sell')
-        sell_passed = rsi_passed and close_margin_passed and sti_sell_passed and (
+        sell_passed = ema_close_sell_passed and sti_sell_passed and (
             signal.strategy == '' or signal.strategy == 'ST_Buy')
 
         if buy_passed:
             if(signal.strategy == 'ST_Sell'):
-                signal.status = 'C'
-                signal.exit_ts = next_candle.ts
-                signal.exit_price = next_candle.open
+                signal.exit_ts = candle.ts
+                signal.exit_price = candle.close
                 signal.pnl = round((signal.entry_price -
-                                    next_candle.open)*signal.lot_size, 2)
+                                    candle.close)*signal.lot_size, 2)
                 signal.comment = 'STI Reversal'
 
-            sl = round(candle.close - self.stop_loss /
-                       self.chart.lot_size, 2)
-            # buy_stoploss = sl
-
+            stop_loss = round(candle.close - self.stop_loss /
+                              self.chart.lot_size, 2)
+            #stop_loss = buy_stoploss
             buy_signal = CBSignal(
-                'ST_Buy', self.chart.sym, self.chart.lot_size, next_candle.ts, next_candle.open, buy_stoploss, candle)
+                'ST_Buy', self.chart.sym, self.chart.lot_size, candle.ts, candle.close, stop_loss, candle)
             return 'New', buy_signal
 
         if sell_passed:
             if(signal.strategy == 'ST_Buy'):
-                signal.status = 'C'
-                signal.exit_ts = next_candle.ts
-                signal.exit_price = next_candle.open
+                signal.exit_ts = candle.ts
+                signal.exit_price = candle.close
                 signal.pnl = round(
-                    (next_candle.open - signal.entry_price)*signal.lot_size, 2)
+                    (candle.close - signal.entry_price)*signal.lot_size, 2)
                 signal.comment = 'STI Reversal'
 
-            sl = round(candle.close + self.stop_loss /
-                       self.chart.lot_size, 2)
-            # sell_stoploss = sl
-
+            stop_loss = round(candle.close + self.stop_loss /
+                              self.chart.lot_size, 2)
+            #stop_loss = sell_stoploss
             sell_signal = CBSignal(
-                'ST_Sell', self.chart.sym, self.chart.lot_size, next_candle.ts, next_candle.open, sell_stoploss, candle)
+                'ST_Sell', self.chart.sym, self.chart.lot_size, candle.ts, candle.close, stop_loss, candle)
             return 'New', sell_signal
 
         return '', None

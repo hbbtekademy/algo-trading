@@ -1,0 +1,21 @@
+import pandas as pd
+
+
+def get_hourly_df(df: pd.DataFrame, offset: str = '15Min') -> pd.DataFrame:
+    df_temp = df[:]
+    df_60min_o = df_temp['Open'].resample(
+        '60Min', offset=offset).apply({'Open': 'first'})
+    df_60min_h = df_temp['High'].resample(
+        '60Min', offset=offset).apply({'High': 'max'})
+    df_60min_l = df_temp['Low'].resample(
+        '60Min', offset=offset).apply({'Low': 'min'})
+    df_60min_c = df_temp['Close'].resample(
+        '60Min', offset=offset).apply({'Close': 'last'})
+    df_60min_vol = df_temp['Volume'].resample(
+        '60Min', offset=offset).apply({'Volume': 'sum'})
+
+    df_60min = pd.concat([df_60min_o, df_60min_h, df_60min_l,
+                         df_60min_c, df_60min_vol], axis=1)
+    df_60min.dropna(subset=['Open'], inplace=True)
+
+    return df_60min

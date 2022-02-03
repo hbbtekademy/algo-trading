@@ -3,7 +3,7 @@ from ChartBusters import constants
 
 
 class CBCandle():
-    def __init__(self, sym: str, row: pd.core.series.Series) -> None:
+    def __init__(self, sym: str, row: pd.Series) -> None:
         self.__row = row
         self.sym = sym
         self.ts = row.name
@@ -15,7 +15,7 @@ class CBCandle():
         self.vol = row[constants.VOL]
 
         self.rsi = row[constants.RSI]
-        #self.rsi_60 = row[constants.RSI_60]
+        # self.rsi_60 = row[constants.RSI_60]
 
         self.adx = row[constants.ADX]
         self.adx_neg = row[constants.ADX_NEG]
@@ -46,3 +46,37 @@ class CBCandle():
         return 'Sym: {}, TS: {}, O: {}, H: {}, L: {}, C: {}, Vol: {}, RSI: {}, ADX: {}'.format(self.sym, self.ts,
                                                                                                self.open, self.high, self.low, self.close, self.vol,
                                                                                                self.rsi, self.adx)
+
+    def is_start_of_hr(self) -> bool:
+        ts = str(self.ts)
+        if ts.find('09:15:00') != -1:
+            return True
+        if ts.find('10:15:00') != -1:
+            return True
+        if ts.find('11:15:00') != -1:
+            return True
+        if ts.find('12:15:00') != -1:
+            return True
+        if ts.find('13:15:00') != -1:
+            return True
+        if ts.find('14:15:00') != -1:
+            return True
+
+        return False
+
+    def is_end_of_hr(self) -> bool:
+        ts = str(self.ts)
+        if ts.find('10:00:00') != -1:
+            return True
+        if ts.find('11:00:00') != -1:
+            return True
+        if ts.find('12:00:00') != -1:
+            return True
+        if ts.find('13:00:00') != -1:
+            return True
+        if ts.find('14:00:00') != -1:
+            return True
+        if ts.find('15:00:00') != -1:
+            return True
+
+        return False
