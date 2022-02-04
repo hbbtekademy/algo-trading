@@ -41,8 +41,8 @@ class CBSuperTrendBackTest():
                 signal = CBSignal('', '', 0, '', 0, 0, None)
 
             if(hourly_index != None and candle.is_end_of_hr()):
-                #print('15 min signal still open. Run hourly strategy')
-                #print(hourly_index, len(all_signals15),all_signals15[-1].status)
+                # print('15 min signal still open. Run hourly strategy')
+                # print(hourly_index, len(all_signals15),all_signals15[-1].status)
                 candle60 = self.chart60.candle(hourly_index)
                 sig_type60, new_signal60 = self.strategy60.execute(
                     candle60, signal60)
@@ -50,8 +50,7 @@ class CBSuperTrendBackTest():
                     all_signals60.append(new_signal60)
                     signal60 = new_signal60
                 if (sig_type60 == 'PSig'):
-                    print('PSignal generated on hourly strategy. TS:{}'.format(
-                        new_signal60.ts))
+                    # print('PSignal generated on hourly strategy. TS:{}'.format(new_signal60.ts))
                     signal60 = new_signal60
                 if(sig_type60 == 'SL'):
                     signal60 = CBSignal('', '', 0, '', 0, 0, None)

@@ -44,12 +44,13 @@ class CBSuperTrendStrategy(CBStrategy):
             close_margin_passed = abs(
                 signal.prev_sti_trend - candle.close) <= self.close_margin
 
-            if(self.strategy == 'SuperTrend60'):
-                print('TS:{},SL:{},'.format(candle.ts, abs(
-                    signal.sti_trend - candle.close)))
+            if(self.strategy == 'SuperTrend15'):
+                # print('PBuy TS:{},SL:{},'.format(
+                #    candle.ts, abs(signal.sti_trend - candle.close)))
+                pass
 
             if(rsi_passed and stop_loss_passed):
-                print('Converting PSig to Buy. TS: {}'.format(candle.ts))
+                # print('Converting PSig to Buy. TS: {}'.format(candle.ts))
                 buy_stoploss = signal.sti_trend - 10
                 buy_signal = CBSignal(
                     'ST_Buy', self.chart.sym, self.chart.lot_size, next_candle.ts, next_candle.open, buy_stoploss, candle)
@@ -64,8 +65,13 @@ class CBSuperTrendStrategy(CBStrategy):
             close_margin_passed = abs(
                 signal.prev_sti_trend - candle.close) <= self.close_margin
 
+            if(self.strategy == 'SuperTrend15'):
+                # print('PSell TS:{},SL:{},'.format(
+                #    candle.ts, abs(signal.sti_trend - candle.close)))
+                pass
+
             if(rsi_passed and stop_loss_passed):
-                print('Converting PSig to Sell. TS: {}'.format(candle.ts))
+                # print('Converting PSig to Sell. TS: {}'.format(candle.ts))
                 sell_stoploss = signal.sti_trend + 10
                 sell_signal = CBSignal(
                     'ST_Sell', self.chart.sym, self.chart.lot_size, next_candle.ts, next_candle.open, sell_stoploss, candle)
@@ -117,9 +123,9 @@ class CBSuperTrendStrategy(CBStrategy):
         sell_stoploss = candle.sti_trend + 10
 
         initial_buy_passed = sti_buy_passed and (
-            signal.strategy == '' or signal.strategy == 'ST_Sell')
+            signal.strategy in ('', 'ST_Sell', 'P_Sell'))
         initial_sell_passed = sti_sell_passed and (
-            signal.strategy == '' or signal.strategy == 'ST_Buy')
+            signal.strategy in ('', 'ST_Buy', 'P_Buy'))
 
         if initial_buy_passed:
             if(signal.strategy == 'ST_Sell'):
