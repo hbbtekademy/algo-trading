@@ -21,6 +21,7 @@ class CBSignal():
 
         # For SuperTrend strategy
         self.sti_trend = 0
+        self.prev_sti_trend = 0
         self.ema_close = 0
 
     def __str__(self) -> str:

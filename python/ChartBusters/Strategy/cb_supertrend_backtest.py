@@ -7,17 +7,18 @@ from typing import List, Tuple
 
 
 class CBSuperTrendBackTest():
-    def __init__(self, chart15: CBChart, chart60: CBChart, expiry, rsi: float = 30, close_margin: int = 50, stoploss_margin: int = 10) -> None:
+    def __init__(self, chart15: CBChart, chart60: CBChart, expiry, rsi: float = 30, close_margin: int = 50,
+                 stoploss_margin15: int = 120, stoploss_margin60: int = 180) -> None:
         self.chart15 = chart15
         self.chart60 = chart60
         self.expiry = expiry
         self.rsi = rsi
         self.close_margin = close_margin
-        self.stoploss_margin = stoploss_margin
+        # self.stoploss_margin = stoploss_margin
         self.strategy15 = CBSuperTrendStrategy('SuperTrend15',
-                                               chart15, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin)
+                                               chart15, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin15)
         self.strategy60 = CBSuperTrendStrategy('SuperTrend60',
-                                               chart60, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin)
+                                               chart60, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin60)
 
     def back_test(self, start_ts, end_ts) -> Tuple[List[CBSignal], List[CBSignal]]:
         all_signals15 = list()
@@ -34,11 +35,12 @@ class CBSuperTrendBackTest():
                 # print('Adding new signal ', candle.ts)
                 all_signals15.append(new_signal)
                 signal = new_signal
+            if (sig_type == 'PSig'):
+                signal = new_signal
             if(sig_type == 'SL'):
                 signal = CBSignal('', '', 0, '', 0, 0, None)
 
-            if(hourly_index != None and candle.is_end_of_hr() and
-               ((len(all_signals15) > 0 and all_signals15[-1].status == 'O') or (len(all_signals60) > 0 and all_signals60[-1].status == 'O'))):
+            if(hourly_index != None and candle.is_end_of_hr()):
                 #print('15 min signal still open. Run hourly strategy')
                 #print(hourly_index, len(all_signals15),all_signals15[-1].status)
                 candle60 = self.chart60.candle(hourly_index)
@@ -46,6 +48,10 @@ class CBSuperTrendBackTest():
                     candle60, signal60)
                 if (sig_type60 == 'New'):
                     all_signals60.append(new_signal60)
+                    signal60 = new_signal60
+                if (sig_type60 == 'PSig'):
+                    print('PSignal generated on hourly strategy. TS:{}'.format(
+                        new_signal60.ts))
                     signal60 = new_signal60
                 if(sig_type60 == 'SL'):
                     signal60 = CBSignal('', '', 0, '', 0, 0, None)
