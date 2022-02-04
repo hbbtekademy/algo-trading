@@ -14,10 +14,14 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-# python venv
+# python
 .venv
+__pycache__/
+*.py[cod]
 
 #vscode
 .vscode
 
 .DS_Store
+
+BTResults/
