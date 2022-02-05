@@ -7,11 +7,13 @@ from ChartBusters.cb_signal import CBSignal
 from ChartBusters import helpers
 from typing import List
 
-# file = '/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/BackTest/temp.txt'
+file = '/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/BackTest/temp.txt'
 # file = './python/config/BackTest/STI_Nifty_BackTest_2021.csv'
 # file = './python/config/BackTest/STI_Nifty_BackTest_2020.csv'
+# file = './python/config/BackTest/STI_Nifty_BackTest_2019.csv'
+# file = './python/config/BackTest/STI_Nifty_BackTest_2018.csv'
 # file = './python/config/BackTest/STI_BankNifty_BackTest_2021.csv'
-file = './python/config/BackTest/STI_NiftyFut_Verify.csv'
+# file = './python/config/BackTest/STI_NiftyFut_Verify.csv'
 
 input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 
@@ -31,14 +33,14 @@ for index, row in input_df.iterrows():
         'Asia/Kolkata'), row['End'].tz_localize('Asia/Kolkata'))
 
     total_monthly_pnl = 0
-    for signal in signals15:
-        total_monthly_pnl = total_monthly_pnl + signal.pnl
-        all_signals.append(signal)
+    for s in signals15:
+        total_monthly_pnl = total_monthly_pnl + s.pnl
+        all_signals.append(s)
 
     total_monthly_pnl60 = 0
-    for signal in signals60:
-        total_monthly_pnl60 = total_monthly_pnl60 + signal.pnl
-        all_signals60.append(signal)
+    for s in signals60:
+        total_monthly_pnl60 = total_monthly_pnl60 + s.pnl
+        all_signals60.append(s)
 
     print('Monthly 15Min Pnl,{}'.format(total_monthly_pnl))
     print('Monthly 60Min Pnl,{}'.format(total_monthly_pnl60))
