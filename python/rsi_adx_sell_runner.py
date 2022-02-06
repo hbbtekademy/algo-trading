@@ -8,14 +8,14 @@ from ChartBusters.Strategy.Sell.cb_rsi_adx_sell_strategy import RSI_ADX_Sell_Str
 from ChartBusters.Strategy.cb_backtest_result import CBBackTestResult
 from ChartBusters.cb_signal import CBSignal
 
-file = '/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/BackTest/temp.txt'
+file = './python/BackTest/config/RSI_ADX_Sell_BackTest.csv'
 
 input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 
 CBBackTestResult.print_header()
 all_signals = list()
 for index, row in input_df.iterrows():
-    file = '/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/BackTest/Hist15min/' + \
+    file = './python/BackTest/Hist15min/' + \
         index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
 
@@ -32,5 +32,9 @@ for index, row in input_df.iterrows():
 
 print(" ")
 CBSignal.print_header()
+total_pnl = 0
 for signal in all_signals:
     signal.pretty_print()
+    total_pnl = total_pnl + signal.pnl
+
+print('Total PnL: {}'.format(total_pnl))
