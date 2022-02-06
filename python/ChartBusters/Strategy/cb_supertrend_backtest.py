@@ -40,6 +40,7 @@ class CBSuperTrendBackTest():
             if(sig_type == 'SL'):
                 signal = CBSignal('', '', 0, '', 0, 0, None)
 
+            hourly_index = None
             if(hourly_index != None and candle.is_end_of_hr()):
                 # print('15 min signal still open. Run hourly strategy')
                 # print(hourly_index, len(all_signals15),all_signals15[-1].status)
