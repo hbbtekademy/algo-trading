@@ -17,9 +17,19 @@ df_15min['DateStr'] = df_15min.index.strftime('%d-%m %H:%M')
 
 rsi = RSIIndicator(df_15min['Close']).rsi()
 df_rsi_full_15min = df_15min.assign(rsi=rsi.values)
+print(df_15min)
+print('Full df')
+print(df_rsi_full_15min)
+
+rsi = RSIIndicator(df_15min[-16:]['Close']).rsi()
+df_rsi_back16_15min = df_15min[-16:].assign(rsi=rsi.values)
+print('Last 16 df')
+print(df_rsi_back16_15min)
 
 rsi = RSIIndicator(df_15min[-45:]['Close']).rsi()
 df_rsi_back45_15min = df_15min[-45:].assign(rsi=rsi.values)
+print('Last 45 df')
+print(df_rsi_back45_15min)
 
 rsi = RSIIndicator(df_15min[-60:]['Close']).rsi()
 df_rsi_back60_15min = df_15min[-60:].assign(rsi=rsi.values)

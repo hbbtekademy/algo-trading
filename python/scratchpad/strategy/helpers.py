@@ -85,17 +85,26 @@ def generate_buy_signal_pnl(signal: Signal, df: pd.DataFrame, stop_gain: int) ->
     rnum = 0
     stop_loss_gap = signal.entry_price - signal.stop_loss
     rsi_breached = False
+    adx = 0
+    prev_adx = 0
+    adx_breached = False
 
     for index, row in df.iterrows():
+        adx = row['adx']
         if (row['Low'] < signal.stop_loss):
             #print('rnum: {}, index: {}, low: {}, sl: {}'.format(rnum, index, row['Low'], signal.stop_loss))
             signal.pnl = -1 * (signal.entry_price -
                                signal.stop_loss) * signal.lot_size
+            signal.exit_ts = index
+            signal.exit_price = signal.stop_loss
             signal.comment = "Stop Loss Breached at {}".format(index)
             break
 
         if ((row['High'] - signal.entry_price) * signal.lot_size >= stop_gain):
             signal.pnl = stop_gain
+            signal.exit_ts = index
+            signal.exit_price = round(
+                stop_gain/signal.lot_size + signal.entry_price, 2)
             signal.comment = "Stop Gain reached at {}".format(index)
             break
 
@@ -104,22 +113,34 @@ def generate_buy_signal_pnl(signal: Signal, df: pd.DataFrame, stop_gain: int) ->
             signal.comment = "RSI Breached at {}".format(index)
             break
 
+        if (adx_breached == True and prev_adx - adx >= 0.25):
+            adx_breached = False
+            signal.pnl = (row['Open'] - signal.entry_price) * signal.lot_size
+            signal.comment = "ADX Breached at {}".format(index)
+            break
+
+        if (prev_adx != 0 and prev_adx - adx >= 0.25):
+            adx_breached = False
+
         if (row['High'] - signal.stop_loss > 2*stop_loss_gap):
             # print('New Stoploss: {}, Old Stoploss: {}, Stoploss gap: {}'.format(                row['High'] - stop_loss_gap, signal.stop_loss, stop_loss_gap))
             # signal.stop_loss = row['High'] - stop_loss_gap
             signal.stop_loss = signal.stop_loss
 
-        if (row['rsi'] < 70 and row['Volume'] > 2*row['vol_sma5']):
-            rsi_breached = True
+        '''if (row['rsi'] < 70 and row['Volume'] >= 2*row['vol_sma5']):
+            rsi_breached = True'''
 
         if(rnum > 50):
             signal.pnl = (row['Close'] -
                           signal.entry_price) * signal.lot_size
+            signal.exit_ts = index
+            signal.exit_price = row['Close']
             # print('Signal failed to generate PnL: {}'.format(signal.pnl))
             signal.comment = "Signal failed to generate {}".format(index)
             break
 
         rnum = rnum+1
+        prev_adx = adx
 
 
 def generate_sell_signal_pnl(signal: Signal, df: pd.DataFrame, stop_gain: float) -> None:
@@ -131,14 +152,24 @@ def generate_sell_signal_pnl(signal: Signal, df: pd.DataFrame, stop_gain: float)
             #print('rnum: {}, index: {}, low: {}, sl: {}'.format(rnum, index, row['Low'], signal.stop_loss))
             signal.pnl = (signal.entry_price -
                           signal.stop_loss) * signal.lot_size
+            signal.exit_ts = index
+            signal.exit_price = signal.stop_loss
+            signal.comment = "Stop Loss Breached at {}".format(index)
             break
 
         if ((signal.entry_price - row['Low']) * signal.lot_size >= stop_gain):
             signal.pnl = stop_gain
+            signal.exit_ts = index
+            signal.exit_price = round(
+                signal.entry_price - stop_gain/signal.lot_size, 2)
+            signal.comment = "Stop Gain reached at {}".format(index)
             break
 
         if(rnum > 50):
             signal.pnl = (signal.entry_price - row['Close']) * signal.lot_size
+            signal.exit_ts = index
+            signal.exit_price = row['Close']
             # print('Signal failed to generate PnL: {}'.format(signal.pnl))
+            signal.comment = "Signal failed to generate {}".format(index)
             break
         rnum = rnum+1

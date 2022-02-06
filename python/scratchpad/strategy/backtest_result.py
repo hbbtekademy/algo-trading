@@ -6,6 +6,14 @@ class BackTestResult():
         self.gross_profit = self._calc_gross_profit()
         self.gross_loss = self._calc_gross_loss()
         self.profit_factor = self._calc_profit_factor()
+        self.total_cost = self._calc_cost()
+
+    def _calc_cost(self) -> float:
+        cost = 0
+        for signal in self.signals:
+            cost = cost + signal.cost
+
+        return cost
 
     def _calc_profit_factor(self) -> float:
         gross_profit = self._calc_gross_profit()
@@ -54,5 +62,5 @@ class BackTestResult():
         return round(total_pnl, 2)
 
     def __str__(self) -> str:
-        return 'Sym,{},Total PnL,{},ProfitFactor,{},GrossProfit,{},GrossLoss,{},Total Signals,{}'.format(
-            self.sym, self.total_pnl, self.profit_factor, self.gross_profit, self.gross_loss, len(self.signals))
+        return 'Sym,{},Total PnL,{},ProfitFactor,{},GrossProfit,{},GrossLoss,{},Total Signals,{},Total Cost: {}'.format(
+            self.sym, self.total_pnl, self.profit_factor, self.gross_profit, self.gross_loss, len(self.signals), self.total_cost)
