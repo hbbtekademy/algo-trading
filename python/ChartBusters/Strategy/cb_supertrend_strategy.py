@@ -74,7 +74,15 @@ class CBSuperTrendStrategy(CBStrategy):
 
         # Stop Loss Checks
         if (signal.strategy == 'ST_Buy' and signal.status == 'O'):
-            if(candle.low < signal.stop_loss):
+            if (abs(candle.close - candle.ema_close) > 111380):
+                signal.status = 'C'
+                signal.exit_ts = next_candle.ts
+                signal.exit_price = next_candle.open
+                signal.pnl = round(
+                    (next_candle.open - signal.entry_price)*signal.lot_size, 2)
+                signal.comment = 'Close EMA diff greater than 350'
+
+            elif (candle.low < signal.stop_loss):
                 signal.status = 'C'
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
@@ -84,7 +92,15 @@ class CBSuperTrendStrategy(CBStrategy):
                 # return 'SL', None
 
         if (signal.strategy == 'ST_Sell' and signal.status == 'O'):
-            if(candle.high > signal.stop_loss):
+            if (abs(candle.close - candle.ema_close) > 111380):
+                signal.status = 'C'
+                signal.exit_ts = next_candle.ts
+                signal.exit_price = next_candle.open
+                signal.pnl = round((signal.entry_price -
+                                    next_candle.open)*signal.lot_size, 2)
+                signal.comment = 'Close EMA diff greater than 350'
+
+            elif(candle.high > signal.stop_loss):
                 signal.status = 'C'
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
@@ -95,16 +111,16 @@ class CBSuperTrendStrategy(CBStrategy):
 
         # Update Stop Loss
         if signal.strategy in ('ST_Buy', 'P_Buy') and signal.status != 'C' and candle.sti_dir == 1:
-            # signal.stop_loss = round(candle.sti_trend - 10, 2)
+            signal.stop_loss = round(candle.sti_trend - 20, 2)
             if candle.ema_close < candle.sti_trend and abs(candle.ema_close - candle.sti_trend) <= 30:
                 # print("Stop loss updated")
-                signal.stop_loss = round(candle.ema_close, 2)
+                signal.stop_loss = round(candle.ema_close - 20, 2)
                 signal.ema_stoploss = True
         if signal.strategy in ('ST_Sell', 'P_Sell') and signal.status != 'C' and candle.sti_dir == -1:
-            # signal.stop_loss = round(candle.sti_trend + 10, 2)
+            signal.stop_loss = round(candle.sti_trend + 20, 2)
             if candle.ema_close > candle.sti_trend and abs(candle.ema_close - candle.sti_trend) <= 30:
                 # print("Stop loss updated")
-                signal.stop_loss = round(candle.ema_close, 2)
+                signal.stop_loss = round(candle.ema_close + 20, 2)
                 signal.ema_stoploss = True
 
         buy_rsi_passed = rsi > 30
