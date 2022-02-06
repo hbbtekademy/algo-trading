@@ -96,16 +96,16 @@ class CBSuperTrendStrategy(CBStrategy):
         # Update Stop Loss
         if signal.strategy in ('ST_Buy', 'P_Buy') and signal.status != 'C' and candle.sti_dir == 1:
             # signal.stop_loss = round(candle.sti_trend - 10, 2)
-            if candle.ema_close < candle.sti_trend and abs(candle.ema_close - candle.sti_trend) <= 40:
+            if candle.ema_close < candle.sti_trend and abs(candle.ema_close - candle.sti_trend) <= 30:
                 # print("Stop loss updated")
                 signal.stop_loss = round(candle.ema_close, 2)
-                stop_loss_updated_ema = True
+                signal.ema_stoploss = True
         if signal.strategy in ('ST_Sell', 'P_Sell') and signal.status != 'C' and candle.sti_dir == -1:
             # signal.stop_loss = round(candle.sti_trend + 10, 2)
-            if candle.ema_close > candle.sti_trend and abs(candle.ema_close - candle.sti_trend) <= 40:
+            if candle.ema_close > candle.sti_trend and abs(candle.ema_close - candle.sti_trend) <= 30:
                 # print("Stop loss updated")
                 signal.stop_loss = round(candle.ema_close, 2)
-                stop_loss_updated_ema = True
+                signal.ema_stoploss = True
 
         buy_rsi_passed = rsi > 30
         sell_rsi_passed = rsi < 70
@@ -135,7 +135,7 @@ class CBSuperTrendStrategy(CBStrategy):
                                     next_candle.open)*signal.lot_size, 2)
                 signal.comment = 'STI Reversal'
 
-            if(not buy_rsi_passed or not close_margin_passed or not stop_loss_passed):
+            if(not buy_rsi_passed or not stop_loss_passed):
                 pbuy_sig = CBSignal(
                     'P_Buy', self.chart.sym, self.chart.lot_size, candle.ts, 0, candle.sti_trend, candle)
                 signal.status = 'P'
@@ -159,7 +159,7 @@ class CBSuperTrendStrategy(CBStrategy):
                     (next_candle.open - signal.entry_price)*signal.lot_size, 2)
                 signal.comment = 'STI Reversal'
 
-            if(not sell_rsi_passed or not close_margin_passed or not stop_loss_passed):
+            if(not sell_rsi_passed or not stop_loss_passed):
                 psell_sig = CBSignal(
                     'P_Sell', self.chart.sym, self.chart.lot_size, candle.ts, 0, candle.sti_trend, candle)
                 signal.status = 'P'

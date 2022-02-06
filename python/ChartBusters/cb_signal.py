@@ -23,6 +23,7 @@ class CBSignal():
         self.sti_trend = 0
         self.prev_sti_trend = 0
         self.ema_close = 0
+        self.ema_stoploss = False
 
     def __str__(self) -> str:
         return "Strategy,{},Sym,{},TS,{},Exit TS,{},Entry,{},Exit,{},StopLoss,{},Lot Size,{},PnL,{},Comment,{}".format(
