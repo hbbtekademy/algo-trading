@@ -8,7 +8,9 @@ from typing import List, Tuple
 
 class CBSuperTrendBackTest():
     def __init__(self, chart15: CBChart, chart60: CBChart, expiry, rsi: float = 30, close_margin: int = 50,
-                 stoploss_margin15: int = 120, stoploss_margin60: int = 180) -> None:
+                 stoploss_margin15: int = 120, stoploss_margin60: int = 180,
+                 supertrend_ema_margin: int = 30, stoploss_gap: int = 20,
+                 close_ema_margin: int = 350) -> None:
         self.chart15 = chart15
         self.chart60 = chart60
         self.expiry = expiry
@@ -16,9 +18,13 @@ class CBSuperTrendBackTest():
         self.close_margin = close_margin
         # self.stoploss_margin = stoploss_margin
         self.strategy15 = CBSuperTrendStrategy('SuperTrend15',
-                                               chart15, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin15)
+                                               chart15, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin15,
+                                               supertrend_ema_margin=supertrend_ema_margin, stoploss_gap=stoploss_gap,
+                                               close_ema_margin=close_ema_margin)
         self.strategy60 = CBSuperTrendStrategy('SuperTrend60',
-                                               chart60, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin60)
+                                               chart60, expiry, rsi=rsi, close_margin=close_margin, stoploss_margin=stoploss_margin60,
+                                               supertrend_ema_margin=supertrend_ema_margin, stoploss_gap=stoploss_gap,
+                                               close_ema_margin=close_ema_margin)
 
     def back_test(self, start_ts, end_ts) -> Tuple[List[CBSignal], List[CBSignal]]:
         all_signals15 = list()
