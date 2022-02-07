@@ -10,11 +10,14 @@ from ta.trend import MACD
 
 
 class CBChart():
-    def __init__(self, sym: str, lot_size: int, df: pd.DataFrame, sma_interval: int = 5, ema_interval: int = 10) -> None:
+    def __init__(self, sym: str, lot_size: int, df: pd.DataFrame,
+                 sma_interval: int = 5, ema_interval: int = 10,
+                 sti_interval: int = 10, sti_multiplier: int = 2) -> None:
         self.sym = sym
         self.lot_size = lot_size
         self.df = df
-        self.__calc_indicators(sma_interval, ema_interval)
+        self.__calc_indicators(sma_interval, ema_interval,
+                               sti_interval, sti_multiplier)
 
     def __calc_indicators(self, sma_interval: int, ema_interval: int, sti_interval: int = 10, sti_multiplier: int = 2) -> None:
         self.__sma_interval = int(sma_interval)
