@@ -11,7 +11,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/models"
 	redistypes "org.hbb/algo-trading/pkg/redis/types"
-	"org.hbb/algo-trading/pkg/utils"
+	envutils "org.hbb/algo-trading/pkg/utils/env"
 )
 
 const (
@@ -21,14 +21,14 @@ const (
 )
 
 func GetHistRedisClient() *redis.Client {
-	host := utils.MustGetEnv("REDIS_HIST_HOST")
-	port := utils.MustGetEnv("REDIS_HIST_PORT")
+	host := envutils.MustGetEnv("REDIS_HIST_HOST")
+	port := envutils.MustGetEnv("REDIS_HIST_PORT")
 	return getRedisClient(host, port, REDIS_HIST_DB)
 }
 
 func GetRTRedisClient() *redis.Client {
-	host := utils.MustGetEnv("REDIS_RT_HOST")
-	port := utils.MustGetEnv("REDIS_RT_PORT")
+	host := envutils.MustGetEnv("REDIS_RT_HOST")
+	port := envutils.MustGetEnv("REDIS_RT_PORT")
 	return getRedisClient(host, port, REDIS_RT_DB)
 }
 

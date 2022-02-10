@@ -16,6 +16,7 @@ func Start() {
 	fmt.Println("Starting token service")
 
 	http.HandleFunc("/token", tokenHandler)
+	http.HandleFunc("/local", localTokenHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {

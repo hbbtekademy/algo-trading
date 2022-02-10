@@ -7,6 +7,7 @@ import (
 
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
 	secretmanager "org.hbb/algo-trading/pkg/secret-manager"
+	envutils "org.hbb/algo-trading/pkg/utils/env"
 )
 
 func tokenHandler(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +35,30 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Failed creating Access Token secret: %v", err)
 		return
 	}
+
+	fmt.Fprint(w, "Successfully created Access Token secret...")
+}
+
+func localTokenHandler(w http.ResponseWriter, r *http.Request) {
+	requestToken = r.URL.Query()["request_token"][0]
+
+	log.Println("request token", requestToken)
+
+	apiKey := envutils.MustGetEnv("KITE_API_KEY")
+	apiSecret := envutils.MustGetEnv("KITE_API_SECRET")
+
+	// Get user details and access token
+	kc := kiteconnect.New(apiKey)
+
+	log.Println("Got API Key and request token. Generating Access Token...")
+	data, err := kc.GenerateSession(requestToken, apiSecret)
+	if err != nil {
+		log.Println("Error getting Access Token:", err)
+		fmt.Fprintf(w, "Error: %v", err)
+		return
+	}
+
+	log.Printf("Got Access Token. Generating Access Token: %s", data.AccessToken)
 
 	fmt.Fprint(w, "Successfully created Access Token secret...")
 }
