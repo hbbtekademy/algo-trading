@@ -79,7 +79,7 @@ class CBSuperTrendStrategy(CBStrategy):
 
         # Stop Loss Checks
         if (signal.strategy == 'ST_Buy' and signal.status == 'O'):
-            if (abs(candle.close - candle.ema_close) > self.close_ema_margin):
+            if (abs(candle.high - candle.ema_close) > self.close_ema_margin):
                 signal.status = 'C'
                 signal.exit_ts = next_candle.ts
                 signal.exit_price = next_candle.open
@@ -92,13 +92,17 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.status = 'C'
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
+                if (candle.high < signal.stop_loss):
+                    print('TS: {}, Gap down opening. Actual SL: {}, Actual Exit: {}. PnL impact: {}'.format(
+                        candle.ts, signal.stop_loss, candle.open, abs(candle.open-signal.stop_loss)*signal.lot_size))
+                    signal.exit_price = candle.open
                 signal.pnl = round(-1 *
-                                   (signal.entry_price - signal.stop_loss)*signal.lot_size, 2)
+                                   (signal.entry_price - signal.exit_price)*signal.lot_size, 2)
                 signal.comment = 'StopLoss breached'
                 # return 'SL', None
 
         if (signal.strategy == 'ST_Sell' and signal.status == 'O'):
-            if (abs(candle.close - candle.ema_close) > self.close_ema_margin):
+            if (abs(candle.low - candle.ema_close) > self.close_ema_margin):
                 signal.status = 'C'
                 signal.exit_ts = next_candle.ts
                 signal.exit_price = next_candle.open
@@ -111,8 +115,12 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.status = 'C'
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
+                if (candle.low > signal.stop_loss):
+                    print('TS: {}, Gap up opening. Actual SL: {}, Actual Exit: {}, PnL impact: {}'.format(
+                        candle.ts, signal.stop_loss, candle.open, abs(candle.open-signal.stop_loss)*signal.lot_size))
+                    signal.exit_price = candle.open
                 signal.pnl = round(-1 *
-                                   (signal.stop_loss - signal.entry_price)*signal.lot_size, 2)
+                                   (signal.exit_price - signal.entry_price)*signal.lot_size, 2)
                 signal.comment = 'StopLoss breached'
                 # return 'SL', None
 
