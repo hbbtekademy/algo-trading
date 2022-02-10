@@ -156,3 +156,27 @@ func PublishMsg(ctx context.Context, rdb *redis.Client, topic string, msg string
 		log.Printf("Failed publishing msg to %s topic. Err: %v", topic, err)
 	}
 }
+
+func GetOHLCV(ctx context.Context, rdb *redis.Client, key string) (models.OHLCV, error) {
+	v, err := rdb.HGetAll(ctx, key).Result()
+	if err != nil {
+		log.Printf("Failed getting Candlestick value for Key: %v. Err: %v", key, err)
+		return models.OHLCV{}, err
+	}
+
+	o, err := strconv.ParseFloat(v["O"], 32)
+	h, err := strconv.ParseFloat(v["H"], 32)
+	l, err := strconv.ParseFloat(v["L"], 32)
+	c, err := strconv.ParseFloat(v["C"], 32)
+	vol, err := strconv.ParseInt(v["V"], 10, 32)
+
+	ohlcv := models.OHLCV{
+		Open:   float32(o),
+		High:   float32(h),
+		Low:    float32(l),
+		Close:  float32(c),
+		Volume: uint32(vol),
+	}
+
+	return ohlcv, nil
+}
