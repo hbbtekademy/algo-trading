@@ -20,6 +20,11 @@ file = './python/BackTest/config/STI_NiftyFut_Verify.csv'
 # file = './python/BackTest/config/STI_BankNifty_BackTest_2018.csv'
 # file = './python/BackTest/config/STI_BankNiftyFut_Verify.csv'
 
+ema_interval = 31
+supertrend_ema_margin = 30
+stoploss_gap = 20
+close_ema_margin = 35000000
+
 input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 
 all_signals = list()
@@ -28,12 +33,16 @@ for index, row in input_df.iterrows():
     file = './python/BackTest/Hist15min/' + index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
     df_60min = helpers.get_hourly_df(df)
-    chart = CBChart(index, int(row['LotSize']), df, ema_interval=31)
-    chart60 = CBChart(index, int(row['LotSize']), df_60min, ema_interval=31)
+    chart = CBChart(index, int(row['LotSize']), df, ema_interval=ema_interval)
+    chart60 = CBChart(index, int(row['LotSize']),
+                      df_60min, ema_interval=ema_interval)
 
     backtest = CBSuperTrendBackTest(
-        chart, chart60, row['Expiry'], stoploss_margin15=int(row['StopLoss15']), stoploss_margin60=int(row['StopLoss60']),
-        close_margin=50)
+        chart, chart60, row['Expiry'],
+        stoploss_margin15=int(row['StopLoss15']), stoploss_margin60=int(row['StopLoss60']),
+        supertrend_ema_margin=supertrend_ema_margin, stoploss_gap=stoploss_gap,
+        close_ema_margin=close_ema_margin)
+
     signals15, signals60 = backtest.back_test(row['Start'].tz_localize(
         'Asia/Kolkata'), row['End'].tz_localize('Asia/Kolkata'))
 
