@@ -7,12 +7,14 @@ from ChartBusters.cb_signal import CBSignal
 from ChartBusters import helpers
 from typing import List
 
+from ChartBusters import constants
+
 # file = './python/BackTest/config/STI_Nifty_BackTest_2021.csv'
-# file = './python/BackTest/config/STI_Nifty_BackTest_2020.csv'
+file = './python/BackTest/config/STI_Nifty_BackTest_2020.csv'
 # file = './python/BackTest/config/STI_Nifty_BackTest_2019.csv'
 # file = './python/BackTest/config/STI_Nifty_BackTest_2018.csv'
 # file = './python/BackTest/config/STI_Nifty_BackTest_2017.csv'
-file = './python/BackTest/config/STI_NiftyFut_Verify.csv'
+# file = './python/BackTest/config/STI_NiftyFut_Verify.csv'
 
 # file = './python/BackTest/config/STI_BankNifty_BackTest_2021.csv'
 # file = './python/BackTest/config/STI_BankNifty_BackTest_2020.csv'
@@ -21,9 +23,11 @@ file = './python/BackTest/config/STI_NiftyFut_Verify.csv'
 # file = './python/BackTest/config/STI_BankNiftyFut_Verify.csv'
 
 ema_interval = 31
-supertrend_ema_margin = 30
+sma_interval = 29
+MA = constants.SMA
+supertrend_ma_margin = 50
 stoploss_gap = 20
-close_ema_margin = 35000000
+close_ema_margin = 2500000000
 
 input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 
@@ -33,14 +37,15 @@ for index, row in input_df.iterrows():
     file = './python/BackTest/Hist15min/' + index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
     df_60min = helpers.get_hourly_df(df)
-    chart = CBChart(index, int(row['LotSize']), df, ema_interval=ema_interval)
+    chart = CBChart(index, int(
+        row['LotSize']), df, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA)
     chart60 = CBChart(index, int(row['LotSize']),
                       df_60min, ema_interval=ema_interval)
 
     backtest = CBSuperTrendBackTest(
         chart, chart60, row['Expiry'],
         stoploss_margin15=int(row['StopLoss15']), stoploss_margin60=int(row['StopLoss60']),
-        supertrend_ema_margin=supertrend_ema_margin, stoploss_gap=stoploss_gap,
+        supertrend_ma_margin=supertrend_ma_margin, stoploss_gap=stoploss_gap,
         close_ema_margin=close_ema_margin)
 
     signals15, signals60 = backtest.back_test(row['Start'].tz_localize(
@@ -56,9 +61,8 @@ for index, row in input_df.iterrows():
         total_monthly_pnl60 = total_monthly_pnl60 + s.pnl
         all_signals60.append(s)
 
-    print('Monthly 15Min Pnl,{}'.format(total_monthly_pnl))
+    print('{}'.format(total_monthly_pnl))
     # print('Monthly 60Min Pnl,{}'.format(total_monthly_pnl60))
-    print(" ")
 
 total_pnl = 0
 total_count = 0

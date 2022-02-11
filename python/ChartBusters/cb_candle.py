@@ -3,7 +3,7 @@ from ChartBusters import constants
 
 
 class CBCandle():
-    def __init__(self, sym: str, row: pd.Series) -> None:
+    def __init__(self, sym: str, row: pd.Series, MA: str = constants.EMA) -> None:
         self.__row = row
         self.sym = sym
         self.ts = row.name
@@ -42,6 +42,19 @@ class CBCandle():
         self.ema_close = row[constants.EMA_CLOSE]
         self.ema_vol = row[constants.EMA_VOL]
 
+        if MA == constants.SMA:
+            self.ma_open = row[constants.SMA_OPEN]
+            self.ma_high = row[constants.SMA_HIGH]
+            self.ma_low = row[constants.SMA_LOW]
+            self.ma_close = row[constants.SMA_CLOSE]
+            self.ma_vol = row[constants.SMA_VOL]
+        elif MA == constants.EMA:
+            self.ma_open = row[constants.EMA_OPEN]
+            self.ma_high = row[constants.EMA_HIGH]
+            self.ma_low = row[constants.EMA_LOW]
+            self.ma_close = row[constants.EMA_CLOSE]
+            self.ma_vol = row[constants.EMA_VOL]
+
     def __str__(self) -> str:
         return 'Sym: {}, TS: {}, O: {}, H: {}, L: {}, C: {}, Vol: {}, RSI: {}, ADX: {}'.format(self.sym, self.ts,
                                                                                                self.open, self.high, self.low, self.close, self.vol,
@@ -77,6 +90,23 @@ class CBCandle():
         if ts.find('14:00:00') != -1:
             return True
         if ts.find('15:00:00') != -1:
+            return True
+
+        return False
+
+    def is_last_candle(self) -> bool:
+        ts = str(self.ts)
+        if ts.find('15:15:00') != -1:
+            return True
+
+        return False
+
+    def is_sod_candle(self) -> bool:
+        ts = str(self.ts)
+
+        if ts.find('09:15:00') != -1:
+            return True
+        if ts.find('09:30:00') != -1:
             return True
 
         return False

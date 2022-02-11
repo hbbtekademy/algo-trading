@@ -32,3 +32,6 @@ SMA_HIGH = 'sma_high'
 SMA_LOW = 'sma_low'
 SMA_CLOSE = 'sma_close'
 SMA_VOL = 'sma_vol'
+
+SMA = 'S'
+EMA = 'E'

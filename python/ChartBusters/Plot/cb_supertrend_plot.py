@@ -30,22 +30,37 @@ class CBSuperTrendPlot(CBPlot):
                                      increasing_line_color='yellow',
                                      increasing_fillcolor='yellow',
                                      decreasing_line_color='red',
-                                     decreasing_fillcolor='red',),
+                                     decreasing_fillcolor='red',
+                                     hoverinfo='skip'),
                       row=1, col=1)
 
         # EMA Close
         fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.EMA_CLOSE], name='EMA Close',
                                  marker_color='Blue'),
                       row=1, col=1)
-
-        # Close
-        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.CLOSE], name='Close',
-                                 marker_color='Yellow'),
+        # SMA Close
+        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.SMA_CLOSE], name='SMA Close',
+                                 marker_color='Green'),
                       row=1, col=1)
 
         # SuperTrend
         fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.STI_TREND], name='SuperTrend',
                                  marker_color='Cyan'),
+                      row=1, col=1)
+
+        # Open
+        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.OPEN], name='Open',
+                                 marker_color='Black', mode='markers', marker=dict(size=0.5)),
+                      row=1, col=1)
+        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.HIGH], name='High',
+                                 marker_color='Black', mode='markers', marker=dict(size=0.5)),
+                      row=1, col=1)
+        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.LOW], name='Low',
+                                 marker_color='Black', mode='markers', marker=dict(size=0.5)),
+                      row=1, col=1)
+        # Close
+        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.CLOSE], name='Close',
+                                 marker_color='Yellow'),
                       row=1, col=1)
 
         fig.update_xaxes(type='category', rangeslider=dict(visible=False))
@@ -55,6 +70,7 @@ class CBSuperTrendPlot(CBPlot):
             title='SuperTrend Strategy Chart',
             title_x=0.5,
             autosize=True,
+            hovermode='x unified',
             # width=1450,
             # height=650,
             plot_bgcolor='rgb(5,5,5)',
