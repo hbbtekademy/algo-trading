@@ -29,12 +29,13 @@ class CBSuperTrendStrategy(CBStrategy):
 
     def execute(self, candle: CBCandle, signal: CBSignal) -> Tuple[str, CBSignal]:
         prev_candle = self.chart.previous(candle)
-        next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
         rsi = candle.rsi
 
         stop_loss_updated_ema = False
         if(str(candle.ts) == self.expiry_ts2):
             return '', None
+
+        next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
 
         # Series Expiry Signal Closure
         if(str(candle.ts) == self.expiry_ts):
@@ -53,9 +54,13 @@ class CBSuperTrendStrategy(CBStrategy):
         buy_ma_passed = candle.ma_close < candle.low
         sell_ma_passed = candle.ma_close > candle.high
 
+        # if str(candle.ts).find('2022-01-21 09:') != -1:
+        #    print(candle.ts, signal.status, signal.strategy)
+
         # Verify potential signals
         if (signal.strategy == 'P_Buy' and candle.sti_dir == 1):
             rsi_passed = rsi > 30
+            # rsi_passed = True
             stop_loss_passed = abs(
                 candle.sti_trend - candle.close) <= self.stoploss_margin
             close_margin_passed = abs(
@@ -72,6 +77,7 @@ class CBSuperTrendStrategy(CBStrategy):
 
         if (signal.strategy == 'P_Sell' and candle.sti_dir == -1):
             rsi_passed = rsi < 70
+            # rsi_passed = True
             stop_loss_passed = abs(
                 candle.sti_trend - candle.close) <= self.stoploss_margin
             close_margin_passed = abs(
@@ -162,7 +168,7 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.ema_stoploss = True
         elif signal.strategy in ('ST_Buy', 'P_Buy') and signal.status != 'C' and candle.sti_dir == -1:
             signal.stop_loss = round(
-                candle.ma_close, 2)
+                candle.ma_close - self.stoploss_gap, 2)
             signal.ema_stoploss = True
 
         if signal.strategy in ('ST_Sell', 'P_Sell') and signal.status != 'C' and candle.sti_dir == -1:
@@ -174,11 +180,13 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.ema_stoploss = True
         elif signal.strategy in ('ST_Sell', 'P_Sell') and signal.status != 'C' and candle.sti_dir == 1:
             signal.stop_loss = round(
-                candle.ma_close, 2)
+                candle.ma_close + self.stoploss_gap, 2)
             signal.ema_stoploss = True
 
         buy_rsi_passed = rsi > 30
         sell_rsi_passed = rsi < 70
+        #buy_rsi_passed = True
+        #sell_rsi_passed = True
         close_margin_passed = abs(
             candle.close - prev_candle.sti_trend) <= self.close_margin
 
@@ -192,15 +200,19 @@ class CBSuperTrendStrategy(CBStrategy):
         sell_stoploss = candle.sti_trend + self.stoploss_gap
 
         initial_buy_passed = sti_buy_passed and (
-            signal.strategy in ('', 'ST_Sell', 'P_Sell'))
+            signal.strategy in ('', 'ST_Sell', 'P_Sell', 'ST_Buy', 'P_Buy'))
         initial_sell_passed = sti_sell_passed and (
-            signal.strategy in ('', 'ST_Buy', 'P_Buy'))
+            signal.strategy in ('', 'ST_Buy', 'P_Buy', 'ST_Sell', 'P_Sell'))
 
-        if initial_buy_passed and signal.status in ('X', 'C'):
+        # if str(candle.ts).find('2022-01-21 09:') != -1:
+        #    print(initial_buy_passed, sti_buy_passed,
+        #          initial_sell_passed, sti_sell_passed, signal.status)
+
+        if initial_buy_passed and signal.status in ('X', 'C', 'P'):
             if(not buy_rsi_passed or not stop_loss_passed or not buy_ma_passed):
                 pbuy_sig = CBSignal(
                     'P_Buy', self.chart.sym, self.chart.lot_size, candle.ts, 0, candle.sti_trend, candle)
-                signal.status = 'P'
+                pbuy_sig.status = 'P'
                 pbuy_sig.sti_trend = candle.sti_trend
                 pbuy_sig.prev_sti_trend = prev_candle.sti_trend
                 pbuy_sig.ema_close = candle.ma_close
@@ -212,11 +224,11 @@ class CBSuperTrendStrategy(CBStrategy):
                 buy_signal.ema_close = round(candle.ma_close, 2)
                 return 'New', buy_signal
 
-        if initial_sell_passed and signal.status in ('X', 'C'):
+        if initial_sell_passed and signal.status in ('X', 'C', 'P'):
             if(not sell_rsi_passed or not stop_loss_passed or not sell_ma_passed):
                 psell_sig = CBSignal(
                     'P_Sell', self.chart.sym, self.chart.lot_size, candle.ts, 0, candle.sti_trend, candle)
-                signal.status = 'P'
+                psell_sig.status = 'P'
                 psell_sig.sti_trend = candle.sti_trend
                 psell_sig.prev_sti_trend = prev_candle.sti_trend
                 psell_sig.ema_close = candle.ma_close
