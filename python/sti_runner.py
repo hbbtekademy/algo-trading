@@ -10,11 +10,11 @@ from typing import List
 from ChartBusters import constants
 
 # file = './python/BackTest/config/STI_Nifty_BackTest_2021.csv'
-file = './python/BackTest/config/STI_Nifty_BackTest_2020.csv'
+# file = './python/BackTest/config/STI_Nifty_BackTest_2020.csv'
 # file = './python/BackTest/config/STI_Nifty_BackTest_2019.csv'
 # file = './python/BackTest/config/STI_Nifty_BackTest_2018.csv'
 # file = './python/BackTest/config/STI_Nifty_BackTest_2017.csv'
-# file = './python/BackTest/config/STI_NiftyFut_Verify.csv'
+file = './python/BackTest/config/STI_NiftyFut_Verify.csv'
 
 # file = './python/BackTest/config/STI_BankNifty_BackTest_2021.csv'
 # file = './python/BackTest/config/STI_BankNifty_BackTest_2020.csv'
@@ -24,10 +24,10 @@ file = './python/BackTest/config/STI_Nifty_BackTest_2020.csv'
 
 ema_interval = 31
 sma_interval = 29
-MA = constants.SMA
+MA = constants.EMA
 supertrend_ma_margin = 50
 stoploss_gap = 20
-close_ema_margin = 2500000000
+# close_ema_margin = 2500000000
 
 input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 
@@ -38,38 +38,37 @@ for index, row in input_df.iterrows():
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
     df_60min = helpers.get_hourly_df(df)
     chart = CBChart(index, int(
-        row['LotSize']), df, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA)
+        row['LotSize']), df, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA, sti_interval=11, sti_multiplier=2)
     chart60 = CBChart(index, int(row['LotSize']),
-                      df_60min, ema_interval=ema_interval)
+                      df_60min, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA, sti_interval=11, sti_multiplier=2)
 
-    backtest = CBSuperTrendBackTest(
+    backtest=CBSuperTrendBackTest(
         chart, chart60, row['Expiry'],
-        stoploss_margin15=int(row['StopLoss15']), stoploss_margin60=int(row['StopLoss60']),
-        supertrend_ma_margin=supertrend_ma_margin, stoploss_gap=stoploss_gap,
-        close_ema_margin=close_ema_margin)
+        stoploss_margin15 = int(row['StopLoss15']), stoploss_margin60 = int(row['StopLoss60']),
+        supertrend_ma_margin = supertrend_ma_margin, stoploss_gap = stoploss_gap)
 
-    signals15, signals60 = backtest.back_test(row['Start'].tz_localize(
+    signals15, signals60=backtest.back_test(row['Start'].tz_localize(
         'Asia/Kolkata'), row['End'].tz_localize('Asia/Kolkata'))
 
-    total_monthly_pnl = 0
+    total_monthly_pnl=0
     for s in signals15:
-        total_monthly_pnl = total_monthly_pnl + s.pnl
+        total_monthly_pnl=total_monthly_pnl + s.pnl
         all_signals.append(s)
 
-    total_monthly_pnl60 = 0
+    total_monthly_pnl60=0
     for s in signals60:
-        total_monthly_pnl60 = total_monthly_pnl60 + s.pnl
+        total_monthly_pnl60=total_monthly_pnl60 + s.pnl
         all_signals60.append(s)
 
     print('{}'.format(total_monthly_pnl))
     # print('Monthly 60Min Pnl,{}'.format(total_monthly_pnl60))
 
-total_pnl = 0
-total_count = 0
+total_pnl=0
+total_count=0
 CBSignal.print_header()
 for signal in all_signals:
-    total_pnl = total_pnl + signal.pnl
-    total_count = total_count + 1
+    total_pnl=total_pnl + signal.pnl
+    total_count=total_count + 1
     signal.pretty_print()
 
 print(" ")
@@ -86,7 +85,7 @@ for signal in all_signals60:
 
 
 print(" ")
-print("Total PnL,{},Total Count,{}".format(total_pnl, total_count))
+print("Total PnL,{},Total Trades,{}".format(total_pnl, total_count*2))
 
 # print(" ")
 # print("Total PnL,{},Total Count,{}".format(total_pnl60, total_count60))

@@ -22,8 +22,9 @@ class CBSignal():
         # For SuperTrend strategy
         self.sti_trend = 0
         self.prev_sti_trend = 0
-        self.ema_close = 0
-        self.ema_stoploss = False
+        self.sti_ma_diff = 0
+        self.ma_close = 0
+        self.ma_stoploss = False
 
     def __str__(self) -> str:
         return "Strategy,{},Sym,{},TS,{},Exit TS,{},Entry,{},Exit,{},StopLoss,{},Lot Size,{},PnL,{},Comment,{}".format(
@@ -33,9 +34,20 @@ class CBSignal():
     def pretty_print(self) -> None:
         print("{},{},{},{},{},{},{},{},{},{},{},{}".format(
             self.strategy, self.sym, self.ts, self.exit_ts, self.entry_price,
-            round(self.exit_price, 2), self.stop_loss, self.sti_trend, self.ema_close,
+            round(self.exit_price,
+                  2), self.stop_loss, self.sti_ma_diff, self.ma_stoploss,
             self.lot_size, round(self.pnl, 2), self.comment))
+
+    def is_eod_signal(self) -> bool:
+        if str(self.ts).find(' 14:45:00+05:30') != -1:
+            return False
+        if str(self.ts).find(' 15:00:00+05:30') != -1:
+            return False
+        if str(self.ts).find(' 15:15:00+05:30') != -1:
+            return False
+
+        return False
 
     @staticmethod
     def print_header() -> None:
-        print("Strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,SuperTrend,EMA Close,Lot Size,PnL,Comment")
+        print("Strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,ST MA Diff,MA StopLoss,Lot Size,PnL,Comment")
