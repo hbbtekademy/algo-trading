@@ -39,9 +39,9 @@ class CBSuperTrendPlot(CBPlot):
                                  marker_color='Blue'),
                       row=1, col=1)
         # SMA Close
-        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.SMA_CLOSE], name='SMA Close',
-                                 marker_color='Green'),
-                      row=1, col=1)
+        #fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.SMA_CLOSE], name='SMA Close',
+        #                         marker_color='Green'),
+        #              row=1, col=1)
 
         # SuperTrend
         fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.STI_TREND], name='SuperTrend',
