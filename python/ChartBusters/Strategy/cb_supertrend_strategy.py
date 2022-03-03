@@ -111,7 +111,8 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
                 comment = ' StopLoss breached'
-                if (candle.high < signal.stop_loss):
+                if (candle.high < signal.stop_loss or
+                        (candle.open < signal.stop_loss and candle.is_sod_candle())):
                     signal.exit_price = candle.open
                     comment = ' StopLoss breached. Gap down opening. PnL Impact: {}'.format(
                         round(abs(candle.open-signal.stop_loss)*signal.lot_size), 2)
@@ -126,7 +127,8 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
                 comment = ' StopLoss breached'
-                if (candle.low > signal.stop_loss):
+                if (candle.low > signal.stop_loss or
+                        (candle.open > signal.stop_loss and candle.is_sod_candle())):
                     signal.exit_price = candle.open
                     comment = ' StopLoss breached. Gap up opening. PnL Impact: {}'.format(
                         round(abs(candle.open-signal.stop_loss)*signal.lot_size), 2)

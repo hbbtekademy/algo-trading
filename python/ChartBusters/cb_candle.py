@@ -106,7 +106,5 @@ class CBCandle():
 
         if ts.find('09:15:00') != -1:
             return True
-        if ts.find('09:30:00') != -1:
-            return True
 
         return False
