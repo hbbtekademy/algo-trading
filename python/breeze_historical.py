@@ -7,9 +7,9 @@ import os
 import sys
 
 STOCK_CODE = 'NIFTY'
-FROM_DATE = '2022-03-02T00:00:00.000Z'
+FROM_DATE = '2022-01-01T00:00:00.000Z'
 TO_DATE = '2022-03-31T00:00:00.000Z'
-EXPIRY_DATE = '2022-03-31T07:00:00.000Z'
+EXPIRY_DATE = '2022-04-28T07:00:00.000Z'
 INTERVAL = '5minute'
 
 API_KEY = os.getenv('BREEZE_API_KEY')
@@ -33,7 +33,7 @@ isec = BreezeConnect(api_key=API_KEY)
 isec.generate_session(api_secret=API_SECRET, session_token=SESSION_TOKEN)
 
 hist_resp = isec.get_historical_data(interval=INTERVAL, from_date=FROM_DATE, to_date=TO_DATE,
-                                     stock_code=STOCK_CODE, exchange_code='NFO', option_type='Others',
+                                     stock_code=STOCK_CODE, exchange_code='NFO',
                                      product_type='Futures', expiry_date=EXPIRY_DATE, strike_price='0')
 
 
