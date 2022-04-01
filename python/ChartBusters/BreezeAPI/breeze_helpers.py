@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def write_ohlc_to_file(fn: str, hist_ohlc: List) -> bool:
-    if (len(hist_ohlc) > 0):
+    if (hist_ohlc != None and len(hist_ohlc) > 0):
         with open(fn, 'w+') as file1:
             header = 'Date,Open,High,Low,Close,Volume'
             # print(header)
