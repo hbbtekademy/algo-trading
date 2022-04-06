@@ -12,25 +12,29 @@ from ta.trend import MACD
 class CBChart():
     def __init__(self, sym: str, lot_size: int, df: pd.DataFrame,
                  sma_interval: int = 5, ema_interval: int = 10,
-                 sti_interval: int = 11, sti_multiplier: int = 2, MA: str = constants.EMA) -> None:
+                 sti_interval: int = 11, sti_multiplier: int = 2, MA: str = constants.EMA,
+                 macd_slow: int = 26, macd_fast: int = 12, macd_sign: int = 9) -> None:
         self.sym = sym
         self.lot_size = lot_size
         self.df = df
         self.__MA = MA
         self.__calc_indicators(sma_interval, ema_interval,
-                               sti_interval, sti_multiplier)
+                               sti_interval, sti_multiplier,
+                               macd_slow, macd_fast, macd_sign)
 
-    def __calc_indicators(self, sma_interval: int, ema_interval: int, sti_interval: int = 10, sti_multiplier: int = 2) -> None:
+    def __calc_indicators(self, sma_interval: int, ema_interval: int, sti_interval: int, sti_multiplier: int,
+                          macd_slow: int, macd_fast: int, macd_sign: int) -> None:
         self.__sma_interval = int(sma_interval)
         self.__ema_interval = int(ema_interval)
         self.__sti_interval = int(sti_interval)
         self.__sti_multiplier = int(sti_multiplier)
         self.__calc_rsi()
         self.__calc_adx2()
-        self.__calc_macd()
+        self.__calc_macd(macd_slow, macd_fast, macd_sign)
         self.__calc_supertrend()
         self.__calc_sma(sma_interval)
         self.__calc_ema(ema_interval)
+        self.__calc_secondary_values()
 
     def __calc_rsi(self) -> None:
         rsi = RSIIndicator(self.df['Close']).rsi()
@@ -52,8 +56,9 @@ class CBChart():
         self.df[constants.ADX_POS] = adx_df.iloc[:, 1].values
         self.df[constants.ADX_NEG] = adx_df.iloc[:, 2].values
 
-    def __calc_macd(self) -> None:
-        macd = MACD(self.df['Close'])
+    def __calc_macd(self, macd_slow: int, macd_fast: int, macd_sign: int) -> None:
+        macd = MACD(self.df['Close'], window_slow=macd_slow,
+                    window_fast=macd_fast, window_sign=macd_sign)
         self.df[constants.MACD] = macd.macd().values
         self.df[constants.MACD_SIG] = macd.macd_signal().values
         self.df[constants.MACD_DIFF] = macd.macd_diff().values
@@ -103,6 +108,14 @@ class CBChart():
         vol_ema = self.df[constants.VOL].ewm(
             span=interval, adjust=False).mean()
         self.df[constants.EMA_VOL] = vol_ema.values
+
+    def __calc_secondary_values(self) -> None:
+        if self.__MA == constants.EMA:
+            self.df[constants.ST_MA_DIFF] = self.df[constants.STI_TREND] - \
+                self.df[constants.EMA_CLOSE]
+        elif self.__MA == constants.SMA:
+            self.df[constants.ST_MA_DIFF] = self.df[constants.STI_TREND] - \
+                self.df[constants.SMA_CLOSE]
 
     def candle(self, ts) -> CBCandle:
         row = self.df.loc[ts]
