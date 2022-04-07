@@ -10,6 +10,7 @@ import (
 var (
 	requestToken string
 	accessToken  string
+	apiSession   string
 )
 
 func Start() {
@@ -17,6 +18,8 @@ func Start() {
 
 	http.HandleFunc("/token", tokenHandler)
 	http.HandleFunc("/local", localTokenHandler)
+	http.HandleFunc("/", localBreezeTokenHandler)
+	http.HandleFunc("/sensor-data", localSensorData)
 
 	port := os.Getenv("PORT")
 	if port == "" {

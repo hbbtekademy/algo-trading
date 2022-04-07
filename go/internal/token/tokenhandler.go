@@ -2,6 +2,7 @@ package tokenservice
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -61,4 +62,26 @@ func localTokenHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Got Access Token. Generating Access Token: %s", data.AccessToken)
 
 	fmt.Fprint(w, "Successfully created Access Token secret...")
+}
+
+func localBreezeTokenHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		return
+	}
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	log.Println("URL Query Params: ", string(reqBody))
+	apiSession = ""
+
+	//log.Println("API Session: ", apiSession)
+
+	fmt.Fprint(w, "Successfully retrieved API Session...")
+}
+
+func localSensorData(w http.ResponseWriter, r *http.Request) {
+	temp := r.URL.Query()["temp"][0]
+
+	log.Println("Temp: ", temp)
+
+	fmt.Fprint(w, "Successfully logged Temperature.")
 }

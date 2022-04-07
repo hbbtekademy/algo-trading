@@ -50,5 +50,5 @@ func initVars() {
 	mktutil = utils.NewMktUtil(mst, met)
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", mst, met)
 
-	instruments = instmanager.GetAllInstruments()
+	instruments = instmanager.GetNiftyFutInstruments()
 }

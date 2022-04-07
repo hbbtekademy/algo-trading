@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
@@ -25,10 +26,14 @@ func Start() {
 	kc = kiteconnect.New(apiKey)
 	kc.SetAccessToken(accessToken)
 
-	instruments := instmanager.GetNifty100()
+	instruments := instmanager.GetNiftyFutInstruments()
 	for _, inst := range instruments {
+		if !strings.Contains(inst.Sym, "NIFTY22") {
+			//continue
+		}
 		log.Printf("Getting historical data for %s", inst.Sym)
 		processHistData(inst)
+		time.Sleep(2 * time.Second)
 	}
 
 	perfEndTime := time.Now()
@@ -37,7 +42,7 @@ func Start() {
 
 func processHistData(instrument *models.Instrument) {
 	histFile := openHistFile(instrument)
-	getKiteHistData(instrument.Id, "60minute", histFile)
+	getKiteHistData(instrument.Id, "15minute", histFile)
 	closeHistFile(histFile)
 }
 
@@ -51,18 +56,20 @@ func getKiteHistData(id uint32, interval string, file *os.File) {
 	}
 
 	now := time.Now()
-	fromTime, _ := time.Parse("2006-01-02 15:04:05", "2015-01-01 00:00:00")
+	//fromTime, _ := time.Parse("2006-01-02 15:04:05", "2015-01-01 00:00:00")
+	fromTime, _ := time.Parse("2006-01-02 15:04:05", "2022-01-01 00:00:00")
 	for {
-		toTime := fromTime.AddDate(0, 0, 200)
+		toTime := fromTime.AddDate(0, 0, 120)
 
-		if toTime.After(now.AddDate(0, 0, 200)) {
+		if toTime.After(now.AddDate(0, 0, 120)) {
 			log.Println("Got required duration data. Exiting loop")
 			break
 		}
 
 		histData, err := kc.GetHistoricalData(int(id), interval, fromTime, toTime, false, false)
 		if err != nil {
-			log.Fatalln("Failed to get Hist data: ", err)
+			log.Println("Failed to get Hist data: ", err)
+			break
 		}
 
 		log.Printf("Getting batch From:%s, To:%s, records:%d", fromTime, toTime, len(histData))
@@ -85,7 +92,7 @@ func closeHistFile(histFile *os.File) {
 }
 
 func openHistFile(instrument *models.Instrument) *os.File {
-	fn := fmt.Sprintf("../TickData/Nifty100Hist60min/%s-HIST-60M.csv", instrument.Sym)
+	fn := fmt.Sprintf("./python/BackTest/Hist15min/%s-HIST-15M.csv", instrument.Sym)
 
 	histFile, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
