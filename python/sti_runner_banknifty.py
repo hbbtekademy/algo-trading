@@ -22,6 +22,9 @@ supertrend_ma_margin = 300
 stoploss_gap = 100
 sti_interval = 11
 sti_multiplier = 1
+macd_fast = 19
+macd_slow = 41
+macd_sign = 11
 # close_ema_margin = 2500000000
 
 input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
@@ -36,7 +39,8 @@ for index, row in input_df.iterrows():
     # print(df_30min.head(20))
 
     chart = CBChart(index, int(
-        row['LotSize']), df, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA, sti_interval=sti_interval, sti_multiplier=sti_multiplier)
+        row['LotSize']), df, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA,
+        sti_interval=sti_interval, sti_multiplier=sti_multiplier, macd_fast=macd_fast, macd_slow=macd_slow, macd_sign=macd_sign)
 
     strategy = CBSuperTrendBankNiftyStrategy('SuperTrendBankNifty',
                                              chart, row['Expiry'],
