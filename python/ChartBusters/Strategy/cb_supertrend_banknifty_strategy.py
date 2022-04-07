@@ -15,7 +15,6 @@ class CBSuperTrendStrategy(CBStrategy):
         self.supertrend_ma_margin = supertrend_ma_margin
         self.expiry = expiry
         self.expiry_ts = self.expiry + ' 14:30:00+05:30'
-        self.expiry_ts2 = self.expiry + ' 15:15:00+05:30'
 
     def execute(self, candle: CBCandle, signal: CBSignal) -> Tuple[str, CBSignal]:
         prev_candle = self.chart.previous(candle)
@@ -34,6 +33,11 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.comment = signal.comment + 'Position squared off at expiry'
 
                 return 'SL', None
+
+        buy_ma_passed = candle.ma_close < candle.low
+        sell_ma_passed = candle.ma_close > candle.high
+        buy_macd_passed = candle.macd > candle.macd_sig
+        sell_macd_passed = candle.macd < candle.macd_sig
 
         # Verify potential signals
         if (signal.strategy == 'P_Buy' and str(candle.ts).find(' 09:15:00+05:30') == -1):
@@ -149,7 +153,7 @@ class CBSuperTrendStrategy(CBStrategy):
         sell_stoploss = candle.sti_trend + self.stoploss_gap
 
         if sti_buy_passed and signal.status in ('X', 'C', 'P'):
-            if(buy_ma_passed):
+            if(buy_ma_passed and buy_macd_passed):
                 pbuy_sig = CBSignal(
                     'P_Buy', self.chart.sym, self.chart.lot_size, candle.ts, 0, buy_stoploss, candle)
                 pbuy_sig.status = 'P'
@@ -161,7 +165,7 @@ class CBSuperTrendStrategy(CBStrategy):
             return 'SL', None
 
         if sti_sell_passed and signal.status in ('X', 'C', 'P'):
-            if(sell_ma_passed):
+            if(sell_ma_passed and sell_macd_passed):
                 psell_sig = CBSignal(
                     'P_Sell', self.chart.sym, self.chart.lot_size, candle.ts, 0, sell_stoploss, candle)
                 psell_sig.status = 'P'
