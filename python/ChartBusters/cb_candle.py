@@ -104,6 +104,8 @@ class CBCandle():
     def is_sod_candle(self) -> bool:
         ts = str(self.ts)
 
+        if ts.find('09:00:00') != -1:
+            return True
         if ts.find('09:15:00') != -1:
             return True
 
