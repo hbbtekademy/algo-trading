@@ -21,6 +21,26 @@ def get_hourly_df(df: pd.DataFrame, offset: str = '15Min') -> pd.DataFrame:
     return df_60min
 
 
+def get_30min_df(df: pd.DataFrame, offset: str = '0Min') -> pd.DataFrame:
+    df_temp = df[:]
+    df_30min_o = df_temp['Open'].resample(
+        '30Min', offset=offset).apply({'Open': 'first'})
+    df_30min_h = df_temp['High'].resample(
+        '30Min', offset=offset).apply({'High': 'max'})
+    df_30min_l = df_temp['Low'].resample(
+        '30Min', offset=offset).apply({'Low': 'min'})
+    df_30min_c = df_temp['Close'].resample(
+        '30Min', offset=offset).apply({'Close': 'last'})
+    df_30min_vol = df_temp['Volume'].resample(
+        '30Min', offset=offset).apply({'Volume': 'sum'})
+
+    df_30min = pd.concat([df_30min_o, df_30min_h, df_30min_l,
+                         df_30min_c, df_30min_vol], axis=1)
+    df_30min.dropna(subset=['Open'], inplace=True)
+
+    return df_30min
+
+
 def get_15min_df(df: pd.DataFrame, offset: str = '0Min') -> pd.DataFrame:
     df_temp = df[:]
     df_15min_o = df_temp['Open'].resample(

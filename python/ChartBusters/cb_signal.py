@@ -32,10 +32,10 @@ class CBSignal():
             self.stop_loss, self.lot_size, round(self.pnl, 2), self.comment)
 
     def pretty_print(self) -> None:
-        print("{},{},{},{},{},{},{},{},{},{},{},{}".format(
+        print("{},{},{},{},{},{},{},{},{},{},{}".format(
             self.strategy, self.sym, self.ts, self.exit_ts, self.entry_price,
             round(self.exit_price,
-                  2), self.stop_loss, self.sti_ma_diff, self.ma_stoploss,
+                  2), self.stop_loss, self.ma_stoploss,
             self.lot_size, round(self.pnl, 2), self.comment))
 
     def is_eod_signal(self) -> bool:
@@ -50,4 +50,5 @@ class CBSignal():
 
     @staticmethod
     def print_header() -> None:
-        print("Strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,ST MA Diff,MA StopLoss,Lot Size,PnL,Comment")
+        print(
+            "Strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,MA StopLoss,Lot Size,PnL,Comment")

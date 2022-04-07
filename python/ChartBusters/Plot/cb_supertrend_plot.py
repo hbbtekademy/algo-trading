@@ -14,11 +14,13 @@ class CBSuperTrendPlot(CBPlot):
         candles = self.chart.df[start_ts:end_ts].copy(deep=True)
         candles['DateStr'] = candles.index.strftime('%d-%m %H:%M')
 
-        fig = make_subplots(rows=1, cols=1, shared_xaxes=False,
-                            subplot_titles=('OHLC', ''),
+        fig = make_subplots(rows=2, cols=1, shared_xaxes=True,
+                            subplot_titles=('OHLC', 'MACD'),
                             vertical_spacing=0.1,
                             horizontal_spacing=0.01,
-                            specs=[[{"secondary_y": False, "type": "candlestick"}]])
+                            row_heights=[0.75, 0.25],
+                            specs=[[{"secondary_y": False, "type": "candlestick"}],
+                                   [{}]])
 
         # Candlesticks
         fig.add_trace(go.Candlestick(x=candles['DateStr'],
@@ -34,16 +36,18 @@ class CBSuperTrendPlot(CBPlot):
                                      hoverinfo='skip'),
                       row=1, col=1)
 
-        # EMA Close
-        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.EMA_CLOSE], name='EMA Close',
-                                 marker_color='Blue'),
-                      row=1, col=1)
-        # SMA Close
-        #fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.SMA_CLOSE], name='SMA Close',
-        #                         marker_color='Green'),
-        #              row=1, col=1)
+        if self.chart.MA == constants.EMA:
+            # EMA Close
+            fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.EMA_CLOSE], name='EMA Close',
+                                     marker_color='Blue'),
+                          row=1, col=1)
+        elif self.chart.MA == constants.SMA:
+            # SMA Close
+            fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.SMA_CLOSE], name='SMA Close',
+                                     marker_color='Blue'),
+                          row=1, col=1)
 
-        # SuperTrend
+            # SuperTrend
         fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.STI_TREND], name='SuperTrend',
                                  marker_color='Cyan'),
                       row=1, col=1)
@@ -63,9 +67,20 @@ class CBSuperTrendPlot(CBPlot):
                                  marker_color='Yellow'),
                       row=1, col=1)
 
+        # MACD Line
+        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.MACD], name='MACD',
+                                 marker_color='Blue'),
+                      row=2, col=1)
+
+        # MACD Signal
+        fig.add_trace(go.Scatter(x=candles['DateStr'], y=candles[constants.MACD_SIG], name='MACD Signal',
+                                 marker_color='Green'),
+                      row=2, col=1)
+
         fig.update_xaxes(type='category', rangeslider=dict(visible=False))
         fig.update_xaxes(showgrid=False, nticks=5)
         fig.update_yaxes(showgrid=False)
+        fig.update_traces(xaxis='x')
         fig.update_layout(
             title='SuperTrend Strategy Chart',
             title_x=0.5,

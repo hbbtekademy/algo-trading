@@ -17,7 +17,7 @@ class CBChart():
         self.sym = sym
         self.lot_size = lot_size
         self.df = df
-        self.__MA = MA
+        self.MA = MA
         self.__calc_indicators(sma_interval, ema_interval,
                                sti_interval, sti_multiplier,
                                macd_slow, macd_fast, macd_sign)
@@ -110,27 +110,27 @@ class CBChart():
         self.df[constants.EMA_VOL] = vol_ema.values
 
     def __calc_secondary_values(self) -> None:
-        if self.__MA == constants.EMA:
+        if self.MA == constants.EMA:
             self.df[constants.ST_MA_DIFF] = self.df[constants.STI_TREND] - \
                 self.df[constants.EMA_CLOSE]
-        elif self.__MA == constants.SMA:
+        elif self.MA == constants.SMA:
             self.df[constants.ST_MA_DIFF] = self.df[constants.STI_TREND] - \
                 self.df[constants.SMA_CLOSE]
 
     def candle(self, ts) -> CBCandle:
         row = self.df.loc[ts]
-        return CBCandle(self.sym, row, MA=self.__MA)
+        return CBCandle(self.sym, row, MA=self.MA)
 
     def previous(self, current_candle: CBCandle) -> CBCandle:
         loc = self.df.index.get_loc(current_candle.ts)
         row = self.df.iloc[loc-1]
-        return CBCandle(self.sym, row, MA=self.__MA)
+        return CBCandle(self.sym, row, MA=self.MA)
 
     def sub_chart(self, start_ts, end_ts) -> List[CBCandle]:
         candles = list()
         df = self.df[start_ts:end_ts]
         for _, row in df.iterrows():
-            candle = CBCandle(self.sym, row, MA=self.__MA)
+            candle = CBCandle(self.sym, row, MA=self.MA)
             candles.append(candle)
 
         return candles
@@ -143,7 +143,7 @@ class CBChart():
 
         df = self.df.iloc[fromIdx:toIdx]
         for _, row in df.iterrows():
-            candle = CBCandle(self.sym, row, MA=self.__MA)
+            candle = CBCandle(self.sym, row, MA=self.MA)
             candles.append(candle)
 
         return candles
@@ -154,7 +154,7 @@ class CBChart():
 
         df = self.df.iloc[loc+1:loc+1+n]
         for _, row in df.iterrows():
-            candle = CBCandle(self.sym, row, MA=self.__MA)
+            candle = CBCandle(self.sym, row, MA=self.MA)
             candles.append(candle)
 
         return candles
