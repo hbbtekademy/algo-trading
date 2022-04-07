@@ -9,7 +9,7 @@ import (
 
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
-	envutils "org.hbb/algo-trading/pkg/utils/env"
+	envutils "org.hbb/algo-trading/go/pkg/utils/env"
 )
 
 const (

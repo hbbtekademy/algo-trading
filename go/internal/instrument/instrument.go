@@ -4,7 +4,7 @@ import (
 	"log"
 
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
-	secretmanager "org.hbb/algo-trading/pkg/secret-manager"
+	secretmanager "org.hbb/algo-trading/go/pkg/secret-manager"
 )
 
 var (

@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	redistypes "org.hbb/algo-trading/pkg/redis/types"
-	redisutils "org.hbb/algo-trading/pkg/utils/redis"
+	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
+	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 func main() {

@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/gocarina/gocsv"
-	"org.hbb/algo-trading/internal/instrument"
+	"org.hbb/algo-trading/go/internal/instrument"
 )
 
 func main() {

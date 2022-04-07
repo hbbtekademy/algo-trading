@@ -9,10 +9,10 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
-	"org.hbb/algo-trading/models"
-	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
-	"org.hbb/algo-trading/pkg/utils"
-	redisutils "org.hbb/algo-trading/pkg/utils/redis"
+	"org.hbb/algo-trading/go/models"
+	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	"org.hbb/algo-trading/go/pkg/utils"
+	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 type CmdArgs struct {

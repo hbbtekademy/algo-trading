@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"org.hbb/algo-trading/models"
-	redistypes "org.hbb/algo-trading/pkg/redis/types"
-	envutils "org.hbb/algo-trading/pkg/utils/env"
+	"org.hbb/algo-trading/go/models"
+	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
+	envutils "org.hbb/algo-trading/go/pkg/utils/env"
 )
 
 const (

@@ -9,9 +9,9 @@ import (
 	"time"
 
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
-	"org.hbb/algo-trading/models"
-	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
-	secretmanager "org.hbb/algo-trading/pkg/secret-manager"
+	"org.hbb/algo-trading/go/models"
+	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	secretmanager "org.hbb/algo-trading/go/pkg/secret-manager"
 )
 
 var (

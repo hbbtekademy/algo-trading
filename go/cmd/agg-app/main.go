@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"org.hbb/algo-trading/models"
-	redistypes "org.hbb/algo-trading/pkg/redis/types"
-	"org.hbb/algo-trading/pkg/utils"
-	redisutils "org.hbb/algo-trading/pkg/utils/redis"
+	"org.hbb/algo-trading/go/models"
+	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
+	"org.hbb/algo-trading/go/pkg/utils"
+	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 var (

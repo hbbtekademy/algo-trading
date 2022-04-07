@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"org.hbb/algo-trading/models"
-	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
-	redisutils "org.hbb/algo-trading/pkg/utils/redis"
+	"org.hbb/algo-trading/go/models"
+	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 type Instruments map[string]uint32

@@ -6,8 +6,8 @@ import (
 
 	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
 	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
-	"org.hbb/algo-trading/models"
-	redisutils "org.hbb/algo-trading/pkg/utils/redis"
+	"org.hbb/algo-trading/go/models"
+	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 var (

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
-	redistypes "org.hbb/algo-trading/pkg/redis/types"
+	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
 )
 
 var ctx = context.Background()

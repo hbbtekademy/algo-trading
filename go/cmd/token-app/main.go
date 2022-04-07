@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	tokenservice "org.hbb/algo-trading/internal/token"
+	tokenservice "org.hbb/algo-trading/go/internal/token"
 )
 
 func main() {

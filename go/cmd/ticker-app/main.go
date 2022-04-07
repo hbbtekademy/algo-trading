@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	ticker "org.hbb/algo-trading/internal/ticker"
+	ticker "org.hbb/algo-trading/go/internal/ticker"
 )
 
 func main() {

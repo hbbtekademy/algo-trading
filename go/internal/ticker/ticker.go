@@ -8,11 +8,11 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
-	"org.hbb/algo-trading/models"
-	instmanager "org.hbb/algo-trading/pkg/instrument-manager"
-	secretmanager "org.hbb/algo-trading/pkg/secret-manager"
-	utils "org.hbb/algo-trading/pkg/utils"
-	redisutils "org.hbb/algo-trading/pkg/utils/redis"
+	"org.hbb/algo-trading/go/models"
+	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	secretmanager "org.hbb/algo-trading/go/pkg/secret-manager"
+	utils "org.hbb/algo-trading/go/pkg/utils"
+	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 var (

@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
-	secretmanager "org.hbb/algo-trading/pkg/secret-manager"
-	envutils "org.hbb/algo-trading/pkg/utils/env"
+	secretmanager "org.hbb/algo-trading/go/pkg/secret-manager"
+	envutils "org.hbb/algo-trading/go/pkg/utils/env"
 )
 
 func tokenHandler(w http.ResponseWriter, r *http.Request) {

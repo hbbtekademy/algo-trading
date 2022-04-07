@@ -1,7 +1,7 @@
 package instmanager
 
 import (
-	models "org.hbb/algo-trading/models"
+	models "org.hbb/algo-trading/go/models"
 )
 
 func GetAllInstruments() models.Instruments {

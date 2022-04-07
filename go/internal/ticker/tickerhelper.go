@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"org.hbb/algo-trading/models"
+	"org.hbb/algo-trading/go/models"
 )
 
 func createTickFile() (*os.File, error) {
