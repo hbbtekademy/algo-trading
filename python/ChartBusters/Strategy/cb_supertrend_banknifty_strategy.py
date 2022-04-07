@@ -5,9 +5,9 @@ from ChartBusters.cb_chart import CBChart
 from ChartBusters.cb_signal import CBSignal
 
 
-class CBSuperTrendStrategy(CBStrategy):
-    def __init__(self, strategy: str, chart: CBChart, expiry, stoploss_margin: int = 200, supertrend_ma_margin: int = 30,
-                 stoploss_gap: int = 20) -> None:
+class CBSuperTrendBankNiftyStrategy(CBStrategy):
+    def __init__(self, strategy: str, chart: CBChart, expiry, stoploss_margin: int = 200, supertrend_ma_margin: int = 300,
+                 stoploss_gap: int = 100) -> None:
         super().__init__(chart)
         self.strategy = strategy
         self.stoploss_margin = stoploss_margin
