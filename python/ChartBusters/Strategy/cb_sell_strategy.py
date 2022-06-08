@@ -49,5 +49,5 @@ class CBSellStrategy(CBStrategy):
                 # print('Signal failed to generate PnL: {}'.format(signal.pnl))
                 signal.comment = "Signal failed to generate {}".format(index)
                 break
-        # @HBB - Can we remove the below?
-        rnum = rnum+1
+            
+            rnum = rnum+1
