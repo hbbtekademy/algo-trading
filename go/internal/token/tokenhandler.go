@@ -32,7 +32,7 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Got Access Token. Generating Access Token Secret...")
 	err = secretmanager.CreateSecret(secretmanager.KiteAccessTokenSK, data.AccessToken)
 	if err != nil {
-		log.Println("Failed creating Acces Token Secret:", err)
+		log.Println("Failed creating Access Token Secret:", err)
 		fmt.Fprintf(w, "Failed creating Access Token secret: %v", err)
 		return
 	}
@@ -72,16 +72,11 @@ func localBreezeTokenHandler(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	log.Println("URL Query Params: ", string(reqBody))
 	apiSession = ""
-
-	//log.Println("API Session: ", apiSession)
-
 	fmt.Fprint(w, "Successfully retrieved API Session...")
 }
 
 func localSensorData(w http.ResponseWriter, r *http.Request) {
 	temp := r.URL.Query()["temp"][0]
-
 	log.Println("Temp: ", temp)
-
 	fmt.Fprint(w, "Successfully logged Temperature.")
 }

@@ -139,7 +139,7 @@ func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redisty
 		"C", fmt.Sprintf("%f", ohlcv.Close),
 		"V", fmt.Sprintf("%d", ohlcv.Volume)).Result()
 	if err != nil {
-		log.Printf("Failed writting candle :%s to reids. Err: %v", candleKey, err)
+		log.Printf("Failed writing candle :%s to redis. Err: %v", candleKey, err)
 		return
 	}
 
