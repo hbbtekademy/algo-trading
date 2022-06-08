@@ -57,7 +57,9 @@ class CBCandle():
 
     def __str__(self) -> str:
         return 'Sym: {}, TS: {}, O: {}, H: {}, L: {}, C: {}, Vol: {}, RSI: {}, ADX: {}'.format(self.sym, self.ts,
-                                                                                               self.open, self.high, self.low, self.close, self.vol,
+                                                                                               self.open, self.high,
+                                                                                               self.low, self.close,
+                                                                                               self.vol,
                                                                                                self.rsi, self.adx)
 
     def is_start_of_hr(self) -> bool:

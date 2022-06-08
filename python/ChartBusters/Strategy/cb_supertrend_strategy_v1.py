@@ -81,7 +81,7 @@ class CBSuperTrendStrategyV1(CBStrategy):
             signal.strategy == '' or signal.strategy == 'ST_Buy')
 
         if buy_passed:
-            if(signal.strategy == 'ST_Sell'):
+            if signal.strategy == 'ST_Sell':
                 signal.exit_ts = candle.ts
                 signal.exit_price = candle.close
                 signal.pnl = round((signal.entry_price -
@@ -96,7 +96,7 @@ class CBSuperTrendStrategyV1(CBStrategy):
             return 'New', buy_signal
 
         if sell_passed:
-            if(signal.strategy == 'ST_Buy'):
+            if signal.strategy == 'ST_Buy':
                 signal.exit_ts = candle.ts
                 signal.exit_price = candle.close
                 signal.pnl = round(

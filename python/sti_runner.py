@@ -40,7 +40,8 @@ for index, row in input_df.iterrows():
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
 
     chart = CBChart(index, int(
-        row['LotSize']), df, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA, sti_interval=sti_interval, sti_multiplier=sti_multiplier)
+        row['LotSize']), df, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA, sti_interval=sti_interval,
+                    sti_multiplier=sti_multiplier)
 
     strategy = CBSuperTrendStrategy('SuperTrend15',
                                     chart, row['Expiry'],
@@ -71,4 +72,4 @@ for signal in all_signals:
 
 print(" ")
 print(" ")
-print("Total PnL,{},Total Trades,{}".format(total_pnl, total_count*2))
+print("Total PnL,{},Total Trades,{}".format(total_pnl, total_count * 2))

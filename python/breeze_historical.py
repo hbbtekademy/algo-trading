@@ -37,7 +37,7 @@ hist_resp = isec.get_historical_data(interval=INTERVAL, from_date=FROM_DATE, to_
                                      product_type='Futures', expiry_date=EXPIRY_DATE, strike_price='0')
 
 
-if(hist_resp['Status'] != 200):
+if hist_resp['Status'] != 200:
     print('Failed getting historical data. Status: ' +
           str(hist_resp['Status']) + '. Error: ' + hist_resp['Error'])
 else:
@@ -45,7 +45,7 @@ else:
     fn5m = STOCK_CODE + '-5M.csv'
     fn15m = STOCK_CODE + '-15M.csv'
     rc = breeze_helpers.write_ohlc_to_file(fn5m, hist_ohlc=hist_ohlc)
-    if rc == True:
+    if rc:
         df = pd.read_csv(fn5m, parse_dates=['Date'], index_col=['Date'])
 
         df_15min = helpers.get_15min_df(df)
