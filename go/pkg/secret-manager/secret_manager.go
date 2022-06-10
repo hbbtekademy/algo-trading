@@ -89,7 +89,7 @@ func getClient() *secretmanager.Client {
 	ctx := context.Background()
 	client, err := secretmanager.NewClient(ctx)
 	if err != nil {
-		log.Fatalln("Failed creating sceret manager client", err)
+		log.Fatalln("Failed creating secret manager client", err)
 	}
 
 	return client

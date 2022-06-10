@@ -8,7 +8,6 @@ from typing import List
 
 from ChartBusters import constants
 
-
 file = './python/BackTest/config/STI_BankNifty_BackTest_2021.csv'
 # file = './python/BackTest/config/STI_BankNifty_BackTest_2020.csv'
 # file = './python/BackTest/config/STI_BankNifty_BackTest_2019.csv'
@@ -40,7 +39,8 @@ for index, row in input_df.iterrows():
 
     chart = CBChart(index, int(
         row['LotSize']), df, ema_interval=ema_interval, sma_interval=sma_interval, MA=MA,
-        sti_interval=sti_interval, sti_multiplier=sti_multiplier, macd_fast=macd_fast, macd_slow=macd_slow, macd_sign=macd_sign)
+                    sti_interval=sti_interval, sti_multiplier=sti_multiplier, macd_fast=macd_fast, macd_slow=macd_slow,
+                    macd_sign=macd_sign)
 
     strategy = CBSuperTrendBankNiftyStrategy('SuperTrendBankNifty',
                                              chart, row['Expiry'],
@@ -72,4 +72,4 @@ for signal in all_signals:
 
 print(" ")
 print(" ")
-print("Total PnL,{},Total Trades,{}".format(total_pnl, total_count*2))
+print("Total PnL,{},Total Trades,{}".format(total_pnl, total_count * 2))

@@ -11,7 +11,7 @@ class CBStrategy():
         self.chart = chart
 
     def adx_filter(self, candle: CBCandle, adx_min: float, adx_max: float) -> bool:
-        return (candle.adx >= adx_min and candle.adx <= adx_max)
+        return adx_min <= candle.adx <= adx_max
 
     def execute(self, candle: CBCandle):
         pass
@@ -23,6 +23,7 @@ class CBStrategy():
         signals = list()
         candles = self.chart.sub_chart(start_ts, end_ts)
         for candle in candles:
+            # self.execute does not return anything.
             result = self.execute(candle)
             if (result.passed):
                 signal = CBSignal(self.strategy, self.chart.sym, self.chart.lot_size, candle.ts,

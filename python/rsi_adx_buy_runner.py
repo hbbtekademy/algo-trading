@@ -16,13 +16,14 @@ CBBackTestResult.print_header()
 all_signals = list()
 for index, row in input_df.iterrows():
     file = './python/BackTest/Hist15min/' + \
-        index + '-HIST-15M.csv'
+           index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
 
     chart = CBChart(index, int(row['LotSize']), df, ema_interval=10)
 
     strategy = RSI_ADX_Buy_Strategy(
-        chart, float(row['StopLoss']), float(row['StopGain']), float(row['RSI']), float(row['ADXMin']), float(row['ADXMax']))
+        chart, float(row['StopLoss']), float(row['StopGain']), float(row['RSI']), float(row['ADXMin']),
+        float(row['ADXMax']))
 
     btResult = strategy.back_test(row['Start'].tz_localize(
         'Asia/Kolkata'), row['End'].tz_localize('Asia/Kolkata'))

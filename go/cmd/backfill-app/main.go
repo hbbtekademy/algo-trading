@@ -45,7 +45,7 @@ func main() {
 	log.Printf("Waiting for all goroutines to finish...")
 	wg.Wait()
 	end := time.Now()
-	log.Printf("Done writting all hist data to redis in %f seconds. Exiting...", end.Sub(start).Seconds())
+	log.Printf("Done writing all hist data to redis in %f seconds. Exiting...", end.Sub(start).Seconds())
 }
 
 func getBFInstruments() models.Instruments {

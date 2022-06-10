@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
@@ -28,9 +27,6 @@ func Start() {
 
 	instruments := instmanager.GetNiftyFutInstruments()
 	for _, inst := range instruments {
-		if !strings.Contains(inst.Sym, "NIFTY22") {
-			//continue
-		}
 		log.Printf("Getting historical data for %s", inst.Sym)
 		processHistData(inst)
 		time.Sleep(2 * time.Second)

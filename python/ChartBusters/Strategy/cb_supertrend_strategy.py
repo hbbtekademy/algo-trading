@@ -19,7 +19,7 @@ class CBSuperTrendStrategy(CBStrategy):
         self.expiry_ts = self.expiry + ' 15:00:00+05:30'
         self.expiry_ts2 = self.expiry + ' 15:15:00+05:30'
 
-        if(self.strategy == 'SuperTrend60'):
+        if self.strategy == 'SuperTrend60':
             self.expiry_ts = self.expiry + ' 14:15:00+05:30'
 
     def execute(self, candle: CBCandle, signal: CBSignal) -> Tuple[str, CBSignal]:
@@ -27,13 +27,13 @@ class CBSuperTrendStrategy(CBStrategy):
         rsi = candle.rsi
 
         stop_loss_updated_ema = False
-        if(str(candle.ts) == self.expiry_ts2):
+        if str(candle.ts) == self.expiry_ts2:
             return '', None
 
         # Series Expiry Signal Closure
-        if(str(candle.ts) == self.expiry_ts):
+        if str(candle.ts) == self.expiry_ts:
             next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
-            if (signal.status == 'O'):
+            if signal.status == 'O':
                 signal.status = 'C'
                 signal.exit_ts = next_candle.ts
                 signal.exit_price = next_candle.open
@@ -51,16 +51,16 @@ class CBSuperTrendStrategy(CBStrategy):
             candle.close < candle.open and candle.close < candle.ma_close and candle.high-(candle.high-candle.low)/2 < candle.ma_close)
 
         # Verify potential signals
-        if (signal.strategy == 'P_Buy' and str(candle.ts).find(' 09:15:00+05:30') == -1):
+        if signal.strategy == 'P_Buy' and str(candle.ts).find(' 09:15:00+05:30') == -1:
             stop_loss_passed = abs(
                 prev_candle.sti_trend - candle.low) <= self.stoploss_margin
 
             ma_sl = False
             entry_price = prev_candle.sti_trend + self.stoploss_margin
-            if(candle.open <= entry_price):
+            if candle.open <= entry_price:
                 entry_price = candle.open
 
-            if(stop_loss_passed):
+            if stop_loss_passed:
                 buy_stoploss = candle.sti_trend - self.stoploss_gap
                 if candle.ma_close < candle.sti_trend and abs(candle.ma_close - candle.sti_trend) <= self.supertrend_ma_margin:
                     buy_stoploss = round(
@@ -77,16 +77,16 @@ class CBSuperTrendStrategy(CBStrategy):
                         round(prev_candle.sti_trend, 2), round(abs(prev_candle.sti_trend - entry_price), 2))
                 return 'New', buy_signal
 
-        if (signal.strategy == 'P_Sell' and str(candle.ts).find(' 09:15:00+05:30') == -1):
+        if signal.strategy == 'P_Sell' and str(candle.ts).find(' 09:15:00+05:30') == -1:
             stop_loss_passed = abs(
                 prev_candle.sti_trend - candle.high) <= self.stoploss_margin
 
             ma_sl = False
             entry_price = prev_candle.sti_trend - self.stoploss_margin
-            if(candle.open >= entry_price):
+            if candle.open >= entry_price:
                 entry_price = candle.open
 
-            if(stop_loss_passed):
+            if stop_loss_passed:
                 sell_stoploss = candle.sti_trend + self.stoploss_gap
                 if candle.ma_close > candle.sti_trend and abs(candle.ma_close - candle.sti_trend) <= self.supertrend_ma_margin:
                     sell_stoploss = round(
@@ -104,9 +104,9 @@ class CBSuperTrendStrategy(CBStrategy):
                 return 'New', sell_signal
 
         # Stop Loss Checks
-        if (signal.strategy == 'ST_Buy' and signal.status == 'O'):
+        if signal.strategy == 'ST_Buy' and signal.status == 'O':
             comment = ''
-            if (candle.low < signal.stop_loss):
+            if candle.low < signal.stop_loss:
                 signal.status = 'C'
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
@@ -120,9 +120,9 @@ class CBSuperTrendStrategy(CBStrategy):
                                    (signal.entry_price - signal.exit_price)*signal.lot_size, 2)
                 signal.comment = signal.comment + comment
 
-        if (signal.strategy == 'ST_Sell' and signal.status == 'O'):
+        if signal.strategy == 'ST_Sell' and signal.status == 'O':
             comment = ''
-            if(candle.high > signal.stop_loss):
+            if candle.high > signal.stop_loss:
                 signal.status = 'C'
                 signal.exit_ts = candle.ts
                 signal.exit_price = signal.stop_loss
@@ -172,7 +172,7 @@ class CBSuperTrendStrategy(CBStrategy):
         sell_stoploss = candle.sti_trend + self.stoploss_gap
 
         if sti_buy_passed and signal.status in ('X', 'C', 'P'):
-            if(buy_ma_passed):
+            if buy_ma_passed:
                 pbuy_sig = CBSignal(
                     'P_Buy', self.chart.sym, self.chart.lot_size, candle.ts, 0, buy_stoploss, candle)
                 pbuy_sig.status = 'P'
@@ -184,7 +184,7 @@ class CBSuperTrendStrategy(CBStrategy):
             return 'SL', None
 
         if sti_sell_passed and signal.status in ('X', 'C', 'P'):
-            if(sell_ma_passed):
+            if sell_ma_passed:
                 psell_sig = CBSignal(
                     'P_Sell', self.chart.sym, self.chart.lot_size, candle.ts, 0, sell_stoploss, candle)
                 psell_sig.status = 'P'
