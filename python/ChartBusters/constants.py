@@ -35,3 +35,5 @@ SMA_VOL = 'sma_vol'
 
 SMA = 'S'
 EMA = 'E'
+
+ST_MA_DIFF = 'sta_ma_diff'

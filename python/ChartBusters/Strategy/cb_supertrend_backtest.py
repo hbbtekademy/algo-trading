@@ -6,7 +6,7 @@ from ChartBusters.Strategy.cb_strategy import CBStrategy
 from typing import List, Tuple
 
 
-class CBSuperTrendBackTest():
+class CBSuperTrendBackTest:
     def __init__(self, chart: CBChart, strategy: CBStrategy) -> None:
         self.chart15 = chart
         self.strategy15 = strategy
@@ -22,14 +22,14 @@ class CBSuperTrendBackTest():
         for candle in candles:
             hourly_index = candle.ts if candle.is_start_of_hr() else hourly_index
             sig_type, new_signal = self.strategy15.execute(candle, signal)
-            if (sig_type == 'New' and new_signal.is_eod_signal() != True):
+            if sig_type == 'New' and new_signal.is_eod_signal() is not True:
                 # print('Adding new signal ', candle.ts)
                 all_signals15.append(new_signal)
                 signal = new_signal
-            if (sig_type == 'PSig'):
+            if sig_type == 'PSig':
                 signal = new_signal
-            if(sig_type == 'SL'):
+            if sig_type == 'SL':
                 signal = CBSignal('', '', 0, '', 0, 0, None)
                 signal.status = 'X'
 
-        return (all_signals15)
+        return all_signals15

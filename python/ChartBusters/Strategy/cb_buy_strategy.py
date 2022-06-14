@@ -13,7 +13,7 @@ class CBBuyStrategy(CBStrategy):
 
     def rsi_filter(self, candle: CBCandle, rsi: float) -> bool:
         prev_candle = self.chart.previous(candle)
-        return (candle.rsi >= rsi and prev_candle.rsi < rsi)
+        return candle.rsi >= rsi > prev_candle.rsi
 
     def stop_loss_filter(self, candle: CBCandle, stop_loss: float) -> Tuple[bool, float]:
         prev_candle = self.chart.previous(candle)
@@ -26,7 +26,7 @@ class CBBuyStrategy(CBStrategy):
 
         for index, row in df.iterrows():
             adx = row[constants.ADX]
-            if (row[constants.LOW] < signal.stop_loss):
+            if row[constants.LOW] < signal.stop_loss:
                 # print('rnum: {}, index: {}, low: {}, sl: {}'.format(rnum, index, row['Low'], signal.stop_loss))
                 signal.pnl = -1 * (signal.entry_price -
                                    signal.stop_loss) * signal.lot_size
@@ -35,7 +35,7 @@ class CBBuyStrategy(CBStrategy):
                 signal.comment = "Stop Loss Breached at {}".format(index)
                 break
 
-            if ((row[constants.HIGH] - signal.entry_price) * signal.lot_size >= stop_gain):
+            if (row[constants.HIGH] - signal.entry_price) * signal.lot_size >= stop_gain:
                 signal.pnl = stop_gain
                 signal.exit_ts = index
                 signal.exit_price = round(
@@ -43,7 +43,7 @@ class CBBuyStrategy(CBStrategy):
                 signal.comment = "Stop Gain reached at {}".format(index)
                 break
 
-            if(rnum > 50):
+            if rnum > 50:
                 signal.pnl = (row[constants.CLOSE] -
                               signal.entry_price) * signal.lot_size
                 signal.exit_ts = index

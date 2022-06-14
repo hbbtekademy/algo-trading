@@ -2,7 +2,7 @@ from ChartBusters.cb_chart import CBChart
 from ChartBusters.cb_signal import CBSignal
 
 
-class CBPlot():
+class CBPlot:
     def __init__(self, chart: CBChart) -> None:
         self.chart = chart
 

@@ -4,9 +4,9 @@ export GOOGLE_CLOUD_PROJECT="mymdapp-dev"
 export REDIS_RT_HOST="10.160.0.3"
 export REDIS_RT_PORT="6892"
 
-cd $HOME/algo-trading
+# shellcheck disable=SC2086
+cd $HOME/algo-trading || { echo "Failure. Could not cd into directory "; exit 1;}
 
-today=`date +"%Y%m%d"`
 server="$HOME/algo-trading/candle-generator.exe"
 
 until $server; do
