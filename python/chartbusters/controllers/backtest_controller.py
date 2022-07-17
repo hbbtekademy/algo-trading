@@ -3,14 +3,14 @@ import pandas as pd
 from python.chartbusters import constants
 from python.chartbusters.cb_chart import CBChart
 from python.chartbusters.cb_signal import CBSignal
-from python.chartbusters.strategies.supertrend_strategy import CBSuperTrendStrategy
 from python.chartbusters.strategy.cb_supertrend_backtest import CBSuperTrendBackTest
+from python.chartbusters.strategy.cb_supertrend_strategy import CBSuperTrendStrategy
 
 
 class BacktestExecutor:
 
-    def __init__(self,driver_file,lot_size:int,symbol):
-        self.driver_file=driver_file
+    def __init__(self, driver_file, lot_size: int, symbol):
+        self.driver_file = driver_file
         self.lot_size = lot_size
         self.symbol = symbol
         '''
@@ -37,8 +37,8 @@ class BacktestExecutor:
     def broadcast_result(self):
         print('b result')
 
-    def execute(self,message) -> str:
-        print('exec',message)
+    def execute(self, message) -> str:
+        print('exec', message)
         all_signals = list()
         driver_file = self.get_driver_file()
 
@@ -48,7 +48,8 @@ class BacktestExecutor:
             cb_chart = self.get_cbchart(df)
             strategy = self.get_strategy(row, cb_chart)
             backtest = self.get_backtest(row, cb_chart, strategy)
-            signals15 = backtest.back_test(row['Start'].tz_localize('Asia/Kolkata'), row['End'].tz_localize('Asia/Kolkata'))
+            signals15 = backtest.back_test(row['Start'].tz_localize('Asia/Kolkata'),
+                                           row['End'].tz_localize('Asia/Kolkata'))
             total_monthly_pnl = self.calc_total_monthly_pnl(all_signals, signals15)
 
         print('{}'.format(total_monthly_pnl))
@@ -58,7 +59,7 @@ class BacktestExecutor:
         print(" ")
         print(" ")
         print("Total PnL,{},Total Trades,{}".format(total_pnl, total_count * 2))
-        
+
         return 'total_pnl'
 
     def get_driver_file(self):
@@ -73,7 +74,7 @@ class BacktestExecutor:
             total_pnl = total_pnl + signal.pnl
             total_count = total_count + 1
             signal.pretty_print()
-        return total_pnl,total_count
+        return total_pnl, total_count
 
     def calc_total_monthly_pnl(self, all_signals, signals15):
         total_monthly_pnl = 0
@@ -86,8 +87,8 @@ class BacktestExecutor:
         df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
         return df
 
-    def get_backtest(self, row, cb_chart,strategy):
-        return CBSuperTrendBackTest(cb_chart,strategy)
+    def get_backtest(self, row, cb_chart, strategy):
+        return CBSuperTrendBackTest(cb_chart, strategy)
 
     def get_hist_data_filename(self, index):
         file = './backtest/hist15min/' + index + '-HIST-15M.csv'
@@ -100,6 +101,7 @@ class BacktestExecutor:
                                     supertrend_ma_margin=self.supertrend_ma_margin, stoploss_gap=self.stoploss_gap)
 
     def get_cbchart(self, df):
-        return CBChart(self.symbol,self.lot_size
-        , df, ema_interval=self.ema_interval, sma_interval=self.sma_interval, MA=self.MA, sti_interval=self.sti_interval,
-                    sti_multiplier=self.sti_multiplier)
+        return CBChart(self.symbol, self.lot_size
+                       , df, ema_interval=self.ema_interval, sma_interval=self.sma_interval, MA=self.MA,
+                       sti_interval=self.sti_interval,
+                       sti_multiplier=self.sti_multiplier)

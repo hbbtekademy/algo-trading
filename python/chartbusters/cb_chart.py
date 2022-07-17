@@ -12,7 +12,7 @@ from python.chartbusters import constants
 from python.chartbusters.cb_candle import CBCandle
 
 
-class CBChart():
+class CBChart:
     def __init__(self, sym: str, lot_size: int, df: pd.DataFrame,
                  sma_interval: int = 5, ema_interval: int = 10,
                  sti_interval: int = 11, sti_multiplier: int = 2, MA: str = constants.EMA,

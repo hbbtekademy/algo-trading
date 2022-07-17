@@ -4,11 +4,12 @@ from python.chartbusters.cb_signal import CBSignal
 from python.chartbusters.strategy.cb_backtest_result import CBBackTestResult
 
 
-class CBStrategy():
+class CBStrategy:
     def __init__(self, chart: CBChart) -> None:
         self.chart = chart
 
-    def adx_filter(self, candle: CBCandle, adx_min: float, adx_max: float) -> bool:
+    @staticmethod
+    def adx_filter(candle: CBCandle, adx_min: float, adx_max: float) -> bool:
         return adx_min <= candle.adx <= adx_max
 
     def execute(self, candle: CBCandle):

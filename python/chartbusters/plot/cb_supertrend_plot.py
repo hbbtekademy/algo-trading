@@ -1,13 +1,13 @@
 import plotly.graph_objects as go
 import plotly.offline as py
 from plotly.subplots import make_subplots
-from python.chartbusters.Plot.cb_plot import CBPlot
 
 from python.chartbusters import constants
 from python.chartbusters.cb_chart import CBChart
+# We're doing this to provide visual verification mechanism to Sameer?
+from python.chartbusters.plot.cb_plot import CBPlot
 
 
-#We doing this to provide visual verification mechanism to Sameer?
 class CBSuperTrendPlot(CBPlot):
     def __init__(self, chart: CBChart) -> None:
         super().__init__(chart)

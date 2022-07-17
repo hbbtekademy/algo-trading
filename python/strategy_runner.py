@@ -1,5 +1,5 @@
-from python.chartbusters.executors.backtest_executor import BacktestExecutor
-from python.chartbusters.executors.realtime_executor import RealtimeExecutor
+from python.chartbusters.controllers.backtest_controller import BacktestExecutor
+from python.chartbusters.controllers.realtime_controller import RealtimeExecutor
 
 strategy = input("Select strategy. Options - STI,RSI. Enter:")
 print("strategy is:", strategy)

@@ -3,7 +3,7 @@ from datetime import date
 from python.chartbusters.cb_candle import CBCandle
 
 
-class CBSignal():
+class CBSignal:
     def __init__(self, strategy: str, sym: str, lot_size: int, ts: date, stop_loss: float,
                  candle: CBCandle) -> None:
         self.id = sym + '-' + str(ts)

@@ -4,8 +4,9 @@ from python.chartbusters.strategy.cb_sell_strategy import CBSellStrategy
 from python.chartbusters.strategy.cb_strategy_result import CBStrategyResult
 
 
-class RSI_ADX_Sell_Strategy(CBSellStrategy):
-    def __init__(self, chart: CBChart, stop_loss: float, stop_gain: float, rsi_filter: float = 70, adx_min: float = 30, adx_max: float = 40) -> None:
+class RsiAdxSellStrategy(CBSellStrategy):
+    def __init__(self, chart: CBChart, stop_loss: float, stop_gain: float, rsi_filter: float = 70, adx_min: float = 30,
+                 adx_max: float = 40) -> None:
         super().__init__(chart)
         self.strategy = 'RSI_ADX_Sell'
         self.stop_loss = stop_loss

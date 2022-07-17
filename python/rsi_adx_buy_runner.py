@@ -2,7 +2,7 @@ import pandas as pd
 
 from chartbusters.cb_chart import CBChart
 from chartbusters.cb_signal import CBSignal
-from chartbusters.strategy.buy.cb_rsi_adx_buy_strategy import RSI_ADX_Buy_Strategy
+from chartbusters.strategy.buy.cb_rsi_adx_buy_strategy import RsiAdxBuyStrategy
 from chartbusters.strategy.cb_backtest_result import CBBackTestResult
 
 file = './python/backtest/config/RSI_ADX_Buy_Verify_Feb.csv'
@@ -18,7 +18,7 @@ for index, row in input_df.iterrows():
 
     chart = CBChart(index, int(row['LotSize']), df, ema_interval=10)
 
-    strategy = RSI_ADX_Buy_Strategy(
+    strategy = RsiAdxBuyStrategy(
         chart, float(row['StopLoss']), float(row['StopGain']), float(row['RSI']), float(row['ADXMin']),
         float(row['ADXMax']))
 
