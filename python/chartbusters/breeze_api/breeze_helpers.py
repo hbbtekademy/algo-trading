@@ -1,5 +1,4 @@
 from typing import List
-import pandas as pd
 
 
 def write_ohlc_to_file(fn: str, hist_ohlc: List) -> bool:

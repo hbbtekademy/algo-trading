@@ -1,11 +1,12 @@
 import pandas as pd
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.Plot.cb_supertrend_plot import CBSuperTrendPlot
 
-# file = './python/BackTest/Hist15min/NIFTY22FEBFUT-HIST-15M.csv'
-# file = './python/BackTest/Hist15min/NIFTY22MARFUT-HIST-15M.csv'
-file = './python/BackTest/Hist15min/NIFTY22APRFUT-HIST-15M.csv'
-# file = './python/BackTest/Hist15min/NIFTY-HIST-15M.csv'
+from chartbusters.cb_chart import CBChart
+from chartbusters.plot.cb_supertrend_plot import CBSuperTrendPlot
+
+# file = './python/backtest/hist15min/NIFTY22FEBFUT-HIST-15M.csv'
+# file = './python/backtest/hist15min/NIFTY22MARFUT-HIST-15M.csv'
+file = './python/backtest/hist15min/NIFTY22APRFUT-HIST-15M.csv'
+# file = './python/backtest/hist15min/NIFTY-HIST-15M.csv'
 sym = 'NIFTY'
 lot_size = 50
 df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])

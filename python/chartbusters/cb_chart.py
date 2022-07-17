@@ -1,12 +1,15 @@
 from __future__ import annotations
+
 from typing import List
+
 import pandas as pd
 import pandas_ta as ta
-from ChartBusters import constants
-from ChartBusters.cb_candle import CBCandle
 from ta.momentum import RSIIndicator
 from ta.trend import ADXIndicator
 from ta.trend import MACD
+
+from python.chartbusters import constants
+from python.chartbusters.cb_candle import CBCandle
 
 
 class CBChart():

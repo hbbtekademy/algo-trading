@@ -1,23 +1,22 @@
-from backtest_executor import BacktestExecutor
-from realtime_executor import RealtimeExecutor
-
+from python.chartbusters.executors.backtest_executor import BacktestExecutor
+from python.chartbusters.executors.realtime_executor import RealtimeExecutor
 
 strategy = input("Select strategy. Options - STI,RSI. Enter:")
-print("strategy is:",strategy)
+print("strategy is:", strategy)
 
 execution_mode = input("Select Execution Mode. options: RT or BT. Enter:")
-print("execution_mode is:",execution_mode)
+print("execution_mode is:", execution_mode)
 
-if(execution_mode == 'RT'):
+if execution_mode == 'RT':
     print('Executing in Real Time mode')
     rte = RealtimeExecutor()
-    rte.execute
+    rte.execute()
 
-elif(execution_mode == 'BT' or 1==1):
+elif execution_mode == 'BT' or 1 == 1:
     print('Executing in Back Test mode')
-    driver_file = './BackTest/config/STI_NiftyFut_Verify.csv'
-    bte = BacktestExecutor(driver_file,50,'NIFTY22JUNFUT')
+    driver_file = 'backtest/config/STI_NiftyFut_Verify.csv'
+    bte = BacktestExecutor(driver_file, 50, 'NIFTY22JUNFUT')
     result = bte.execute('invoked')
     print('Result', result)
 else:
-    print('Execution mode not recognized.')    
+    print('Execution mode not recognized.')

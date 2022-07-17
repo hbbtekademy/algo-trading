@@ -1,10 +1,11 @@
 import pandas as pd
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.Plot.cb_supertrend_plot import CBSuperTrendPlot
-from ChartBusters import helpers
-from ChartBusters import constants
 
-file = './python/BackTest/Hist15min/BANKNIFTY-HIST-15M.csv'
+from chartbusters import constants
+from chartbusters import helpers
+from chartbusters.cb_chart import CBChart
+from chartbusters.plot.cb_supertrend_plot import CBSuperTrendPlot
+
+file = 'backtest/hist15min/BANKNIFTY-HIST-15M.csv'
 sym = 'BANKNIFTY'
 lot_size = 50
 MA = constants.SMA

@@ -1,8 +1,9 @@
 from typing import Tuple
-from ChartBusters.Strategy.cb_strategy import CBStrategy
-from ChartBusters.cb_candle import CBCandle
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.cb_signal import CBSignal
+
+from python.chartbusters.cb_candle import CBCandle
+from python.chartbusters.cb_chart import CBChart
+from python.chartbusters.cb_signal import CBSignal
+from python.chartbusters.strategy.cb_strategy import CBStrategy
 
 
 class CBSuperTrendBankNiftyStrategy(CBStrategy):
@@ -62,7 +63,7 @@ class CBSuperTrendBankNiftyStrategy(CBStrategy):
                 buy_signal.ma_close = round(signal.ma_close, 2)
                 buy_signal.ma_stoploss = ma_sl
                 buy_signal.comment = buy_signal.comment + \
-                    "Enter Buy. Prev ST: {} | Diff:{}".format(
+                    "Enter buy. Prev ST: {} | Diff:{}".format(
                         round(prev_candle.sti_trend, 2), round(abs(prev_candle.sti_trend - entry_price), 2))
                 return 'New', buy_signal
 
@@ -88,7 +89,7 @@ class CBSuperTrendBankNiftyStrategy(CBStrategy):
                 sell_signal.ma_close = round(signal.ma_close, 2)
                 sell_signal.ma_stoploss = ma_sl
                 sell_signal.comment = sell_signal.comment + \
-                    "Enter Sell. Prev ST: {} | Diff:{}".format(
+                    "Enter sell. Prev ST: {} | Diff:{}".format(
                         round(prev_candle.sti_trend, 2), round(abs(prev_candle.sti_trend - entry_price), 2))
                 return 'New', sell_signal
 

@@ -1,5 +1,6 @@
 from datetime import date
-from ChartBusters.cb_candle import CBCandle
+
+from python.chartbusters.cb_candle import CBCandle
 
 
 class CBSignal():
@@ -29,7 +30,7 @@ class CBSignal():
         self.pnl = 0
 
     def __str__(self) -> str:
-        return "Strategy,{},Sym,{},TS,{},Exit TS,{},Entry,{},Exit,{},StopLoss,{},Lot Size,{},PnL,{},Comment,{}".format(
+        return "strategy,{},Sym,{},TS,{},Exit TS,{},Entry,{},Exit,{},StopLoss,{},Lot Size,{},PnL,{},Comment,{}".format(
             self.strategy, self.sym, self.ts, self.exit_ts, self.entry_price, -1*self.exit_price,
             self.stop_loss, self.lot_size, round(self.pnl, 2), self.comment)
 
@@ -41,4 +42,4 @@ class CBSignal():
 
     @staticmethod
     def print_header() -> None:
-        print("ID,Status,Strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,Lot Size,PnL,Comment")
+        print("ID,Status,strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,Lot Size,PnL,Comment")

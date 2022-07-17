@@ -1,5 +1,6 @@
 from typing import List
-from ChartBusters.cb_signal import CBSignal
+
+from python.chartbusters.cb_signal import CBSignal
 
 
 class CBBackTestResult():

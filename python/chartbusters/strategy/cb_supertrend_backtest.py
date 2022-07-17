@@ -1,9 +1,8 @@
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.cb_candle import CBCandle
-from ChartBusters.cb_signal import CBSignal
-from ChartBusters.Strategy.cb_strategy import CBStrategy
+from typing import List
 
-from typing import List, Tuple
+from python.chartbusters.cb_chart import CBChart
+from python.chartbusters.cb_signal import CBSignal
+from python.chartbusters.strategy.cb_strategy import CBStrategy
 
 
 class CBSuperTrendBackTest:

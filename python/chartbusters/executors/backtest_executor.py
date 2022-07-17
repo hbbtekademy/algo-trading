@@ -1,10 +1,10 @@
 import pandas as pd
-from ChartBusters import constants
-from ChartBusters.Strategy.cb_supertrend_backtest import CBSuperTrendBackTest
 
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.cb_signal import CBSignal
-from ChartBusters.strategies.supertrend_strategy import CBSuperTrendStrategy
+from python.chartbusters import constants
+from python.chartbusters.cb_chart import CBChart
+from python.chartbusters.cb_signal import CBSignal
+from python.chartbusters.strategies.supertrend_strategy import CBSuperTrendStrategy
+from python.chartbusters.strategy.cb_supertrend_backtest import CBSuperTrendBackTest
 
 
 class BacktestExecutor:
@@ -90,7 +90,7 @@ class BacktestExecutor:
         return CBSuperTrendBackTest(cb_chart,strategy)
 
     def get_hist_data_filename(self, index):
-        file = './BackTest/Hist15min/' + index + '-HIST-15M.csv'
+        file = './backtest/hist15min/' + index + '-HIST-15M.csv'
         return file
 
     def get_strategy(self, row, cb_chart):

@@ -1,16 +1,13 @@
-from typing import List, Tuple
-from ChartBusters.Strategy.cb_buy_strategy import CBBuyStrategy
-from ChartBusters.Strategy.cb_strategy_result import CBStrategyResult
-from ChartBusters.Strategy.cb_backtest_result import CBBackTestResult
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.cb_candle import CBCandle
-from ChartBusters.cb_signal import CBSignal
+from python.chartbusters.cb_candle import CBCandle
+from python.chartbusters.cb_chart import CBChart
+from python.chartbusters.strategy.cb_sell_strategy import CBSellStrategy
+from python.chartbusters.strategy.cb_strategy_result import CBStrategyResult
 
 
-class RSI_ADX_Buy_Strategy(CBBuyStrategy):
+class RSI_ADX_Sell_Strategy(CBSellStrategy):
     def __init__(self, chart: CBChart, stop_loss: float, stop_gain: float, rsi_filter: float = 70, adx_min: float = 30, adx_max: float = 40) -> None:
         super().__init__(chart)
-        self.strategy = 'RSI_ADX_Buy'
+        self.strategy = 'RSI_ADX_Sell'
         self.stop_loss = stop_loss
         self.stop_gain = stop_gain
         self._rsi_filter = rsi_filter
@@ -31,7 +28,7 @@ class RSI_ADX_Buy_Strategy(CBBuyStrategy):
         stop_loss = 0
 
         if passed:
-            entry_price = candle.high
+            entry_price = candle.low
             stop_loss = sl
 
         result = CBStrategyResult(passed, entry_price, stop_loss)

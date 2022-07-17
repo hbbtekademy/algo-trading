@@ -1,9 +1,9 @@
-from ChartBusters.Strategy.cb_strategy import CBStrategy
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.cb_candle import CBCandle
-from ChartBusters.Strategy.cb_strategy_result import CBStrategyResult
-from ChartBusters.cb_signal import CBSignal
 from typing import List, Tuple
+
+from python.chartbusters.cb_candle import CBCandle
+from python.chartbusters.cb_chart import CBChart
+from python.chartbusters.cb_signal import CBSignal
+from python.chartbusters.strategy.cb_strategy import CBStrategy
 
 
 class CBSuperTrendStrategyV1(CBStrategy):
@@ -59,7 +59,7 @@ class CBSuperTrendStrategyV1(CBStrategy):
                 return 'SL', None
             pass
 
-        # Buy/Sell signal checks
+        # buy/sell signal checks
         sti_buy_passed = candle.sti_dir == 1 and prev_candle.sti_dir == -1
         sti_sell_passed = candle.sti_dir == -1 and prev_candle.sti_dir == 1
         ema_close_buy_passed = candle.close > candle.ema_close

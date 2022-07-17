@@ -1,9 +1,10 @@
-from ChartBusters.Strategy.cb_strategy import CBStrategy
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.cb_candle import CBCandle
-from ChartBusters.cb_signal_v3 import CBSignal
-from typing import List, Tuple
 import copy
+from typing import List
+
+from python.chartbusters.cb_candle import CBCandle
+from python.chartbusters.cb_chart import CBChart
+from python.chartbusters.cb_signal_v3 import CBSignal
+from python.chartbusters.strategy.cb_strategy import CBStrategy
 
 
 class CBSuperTrendStrategyV3(CBStrategy):
@@ -53,7 +54,7 @@ class CBSuperTrendStrategyV3(CBStrategy):
                 candle.sti_trend - candle.close) <= self.stoploss_margin
 
             if rsi_passed and stop_loss_passed:
-                # print('Converting PSig to Buy. TS: {}'.format(candle.ts))
+                # print('Converting PSig to buy. TS: {}'.format(candle.ts))
                 buy_stoploss = candle.sti_trend - self.stoploss_gap
                 buy_signal = CBSignal(
                     'ST_Buy', self.chart.sym, self.chart.lot_size, candle.ts, buy_stoploss, candle)
@@ -66,7 +67,7 @@ class CBSuperTrendStrategyV3(CBStrategy):
                 candle.sti_trend - candle.close) <= self.stoploss_margin
 
             if rsi_passed and stop_loss_passed:
-                # print('Converting PSig to Sell. TS: {}'.format(candle.ts))
+                # print('Converting PSig to sell. TS: {}'.format(candle.ts))
                 sell_stoploss = candle.sti_trend + self.stoploss_gap
                 sell_signal = CBSignal(
                     'ST_Sell', self.chart.sym, self.chart.lot_size, candle.ts, sell_stoploss, candle)
