@@ -43,6 +43,7 @@ class CBChart:
         rsi = RSIIndicator(self.df['Close']).rsi()
         self.df[constants.RSI] = rsi.values
 
+    # why 2 ADX calculators ?
     def __calc_adx(self) -> None:
         adx = ADXIndicator(high=self.df['High'],
                            low=self.df['Low'], close=self.df['Close'])
@@ -68,7 +69,8 @@ class CBChart:
 
     def __calc_supertrend(self) -> None:
         sti = ta.supertrend(
-            self.df[constants.HIGH], self.df[constants.LOW], self.df[constants.CLOSE], self.__sti_interval, self.__sti_multiplier)
+            self.df[constants.HIGH], self.df[constants.LOW], self.df[constants.CLOSE], self.__sti_interval,
+            self.__sti_multiplier)
 
         self.df[constants.STI_TREND] = sti.iloc[:, 0].values
         self.df[constants.STI_DIR] = sti.iloc[:, 1].values
@@ -126,7 +128,7 @@ class CBChart:
 
     def previous(self, current_candle: CBCandle) -> CBCandle:
         loc = self.df.index.get_loc(current_candle.ts)
-        row = self.df.iloc[loc-1]
+        row = self.df.iloc[loc - 1]
         return CBCandle(self.sym, row, MA=self.MA)
 
     def sub_chart(self, start_ts, end_ts) -> List[CBCandle]:
@@ -141,10 +143,10 @@ class CBChart:
     def get_previous_candles(self, index, n: int, include_index: bool = False) -> List[CBCandle]:
         candles = list()
         loc = self.df.index.get_loc(index)
-        fromIdx = loc-n
-        toIdx = loc+1 if include_index else loc
+        from_idx = loc - n
+        to_idx = loc + 1 if include_index else loc
 
-        df = self.df.iloc[fromIdx:toIdx]
+        df = self.df.iloc[from_idx:to_idx]
         for _, row in df.iterrows():
             candle = CBCandle(self.sym, row, MA=self.MA)
             candles.append(candle)
@@ -155,7 +157,7 @@ class CBChart:
         candles = list()
         loc = self.df.index.get_loc(index)
 
-        df = self.df.iloc[loc+1:loc+1+n]
+        df = self.df.iloc[loc + 1:loc + 1 + n]
         for _, row in df.iterrows():
             candle = CBCandle(self.sym, row, MA=self.MA)
             candles.append(candle)

@@ -1,8 +1,8 @@
 from typing import List
 
 from python.chartbusters.model.cb_chart import CBChart
-from python.chartbusters.model.cb_signal import CBSignal
-from python.chartbusters.strategy.cb_strategy import CBStrategy
+from python.chartbusters.model.cb_signal_v1 import CBSignalV1
+from python.chartbusters.strategies.cb_strategy import CBStrategy
 
 
 class CBSuperTrendBackTest:
@@ -10,10 +10,10 @@ class CBSuperTrendBackTest:
         self.chart15 = chart
         self.strategy15 = strategy
 
-    def back_test(self, start_ts, end_ts) -> List[CBSignal]:
+    def back_test(self, start_ts, end_ts) -> List[CBSignalV1]:
         all_signals15 = list()
 
-        signal = CBSignal('', '', 0, '', 0, 0, None)
+        signal = CBSignalV1('', '', 0, '', 0, 0, None)
         signal.status = 'X'
 
         candles = self.chart15.sub_chart(start_ts, end_ts)
@@ -28,7 +28,7 @@ class CBSuperTrendBackTest:
             if sig_type == 'PSig':
                 signal = new_signal
             if sig_type == 'SL':
-                signal = CBSignal('', '', 0, '', 0, 0, None)
+                signal = CBSignalV1('', '', 0, '', 0, 0, None)
                 signal.status = 'X'
 
         return all_signals15

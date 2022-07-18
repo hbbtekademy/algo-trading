@@ -1,9 +1,9 @@
 import pandas as pd
 
-from chartbusters.strategy.cb_supertrend_backtest import CBSuperTrendBackTest
-from chartbusters.strategy.cb_supertrend_strategy import CBSuperTrendStrategy
 from python.chartbusters.model.cb_chart import CBChart
-from python.chartbusters.model.cb_signal import CBSignal
+from python.chartbusters.model.cb_signal_v1 import CBSignalV1
+from python.chartbusters.strategies.supertrend.basic.cb_supertrend_strategy import CBSuperTrendStrategy
+from python.chartbusters.strategies.supertrend.cb_supertrend_backtest import CBSuperTrendBackTest
 from python.chartbusters.util import constants
 
 # file = './python/backtest/config/STI_Nifty_BackTest_2021.csv'
@@ -62,7 +62,7 @@ for index, row in input_df.iterrows():
 
 total_pnl = 0
 total_count = 0
-CBSignal.print_header()
+CBSignalV1.print_header()
 for signal in all_signals:
     total_pnl = total_pnl + signal.pnl
     total_count = total_count + 1

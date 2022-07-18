@@ -1,5 +1,5 @@
 from python.chartbusters.model.cb_chart import CBChart
-from python.chartbusters.model.cb_signal import CBSignal
+from python.chartbusters.model.cb_signal_v1 import CBSignalV1
 
 
 # why do we need this class ?
@@ -10,5 +10,5 @@ class CBPlot:
     def plot(self, start_ts, end_ts):
         pass
 
-    def plot_signal(self, signal: CBSignal):
+    def plot_signal(self, signal: CBSignalV1):
         pass

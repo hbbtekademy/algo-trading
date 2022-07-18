@@ -1,10 +1,10 @@
 from typing import List
 
-from python.chartbusters.model.cb_signal import CBSignal
+from python.chartbusters.model.cb_signal_v1 import CBSignalV1
 
 
 class CBBackTestResult:
-    def __init__(self, sym: str, signals: List[CBSignal]) -> None:
+    def __init__(self, sym: str, signals: List[CBSignalV1]) -> None:
         self.signals = signals
         self.sym = sym
         self.total_pnl = self._calc_total_pnl()

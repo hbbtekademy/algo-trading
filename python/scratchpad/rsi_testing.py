@@ -98,7 +98,7 @@ fig.update_yaxes(showgrid=False)
 fig.update_yaxes(visible=False, row=1, col=2)
 fig.update_xaxes(visible=False, row=1, col=2)
 fig.update_layout(
-    title='Signal generated for RSI 15mins strategy',
+    title='Signal generated for RSI 15mins strategies',
     title_x=0.5,
     plot_bgcolor='rgb(15,15,15)',
     paper_bgcolor='rgb(0,0,0)',

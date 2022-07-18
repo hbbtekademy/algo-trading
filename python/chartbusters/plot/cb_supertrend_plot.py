@@ -3,11 +3,11 @@ import plotly.offline as py
 from plotly.subplots import make_subplots
 
 from python.chartbusters.model.cb_chart import CBChart
-# We're doing this to provide visual verification mechanism to Sameer?
 from python.chartbusters.plot.cb_plot import CBPlot
 from python.chartbusters.util import constants
 
 
+# We're doing this to provide visual verification mechanism to Sameer?
 class CBSuperTrendPlot(CBPlot):
     def __init__(self, chart: CBChart) -> None:
         super().__init__(chart)
@@ -84,7 +84,7 @@ class CBSuperTrendPlot(CBPlot):
         fig.update_yaxes(showgrid=False)
         fig.update_traces(xaxis='x')
         fig.update_layout(
-            title='SuperTrend strategy Chart',
+            title='SuperTrend strategies Chart',
             title_x=0.5,
             autosize=True,
             hovermode='x unified',

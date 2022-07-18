@@ -1,8 +1,8 @@
 from python.chartbusters.controllers.backtest_controller import BacktestExecutor
 from python.chartbusters.controllers.realtime_controller import RealtimeExecutor
 
-strategy = input("Select strategy. Options - STI,RSI. Enter:")
-print("strategy is:", strategy)
+strategy = input("Select strategies. Options - STI,RSI. Enter:")
+print("strategies is:", strategy)
 
 execution_mode = input("Select Execution Mode. options: RT or BT. Enter:")
 print("execution_mode is:", execution_mode)

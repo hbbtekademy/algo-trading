@@ -1,7 +1,7 @@
 import pandas as pd
 
 from python.chartbusters.model.cb_chart import CBChart
-from python.chartbusters.strategy.cb_supertrend_strategy_v3 import CBSuperTrendStrategyV3
+from python.chartbusters.strategies.supertrend.basic.cb_supertrend_strategy_v3 import CBSuperTrendStrategyV3
 # file = './python/backtest/config/STI_Nifty_BackTest_2021.csv'
 # file = './python/backtest/config/STI_Nifty_BackTest_2020.csv'
 # file = './python/backtest/config/STI_Nifty_BackTest_2019.csv'

@@ -3,7 +3,7 @@ import pandas as pd
 from python.chartbusters.util import constants
 
 
-class CBCandle():
+class CBCandle:
     def __init__(self, sym: str, row: pd.Series, MA: str = constants.EMA) -> None:
         self.__row = row
         self.sym = sym
@@ -63,6 +63,9 @@ class CBCandle():
                                                                                                self.vol,
                                                                                                self.rsi, self.adx)
 
+    # clarify with Sameer Bhate - why is 1015, 1115, etc start of hour.
+    # Also, this method is tightly coupled to Indian equity market. Need to read these constants from a config or DB.
+    # the constants must be an attribute of the market on which the startegy must run.
     def is_start_of_hr(self) -> bool:
         ts = str(self.ts)
         if ts.find('09:15:00') != -1:

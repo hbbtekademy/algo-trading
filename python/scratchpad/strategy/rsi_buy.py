@@ -19,7 +19,7 @@ file_exists = exists(file_15min)
 if (file_exists != True):
     exit(0)
 
-# strategy params
+# strategies params
 strategy = 'RSIBuy'
 sym = sys.argv[2]
 window_start = '2021-01-01 00:00:00'
@@ -38,7 +38,7 @@ check_volume = True
 rsi_60min_check = False
 macd_check = False
 
-print("Running RSI buy strategy for {}".format(sym))
+print("Running RSI rsi strategies for {}".format(sym))
 
 df_15min = pd.read_csv(file_15min, parse_dates=['Date'], index_col=['Date'])
 

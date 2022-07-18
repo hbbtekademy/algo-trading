@@ -3,7 +3,7 @@ from datetime import date
 from python.chartbusters.model.cb_candle import CBCandle
 
 
-class CBSignal:
+class CBSignalV3:
     def __init__(self, strategy: str, sym: str, lot_size: int, ts: date, stop_loss: float,
                  candle: CBCandle) -> None:
         self.id = sym + '-' + str(ts)
@@ -16,7 +16,7 @@ class CBSignal:
         self.candle = candle
         self.comment = ""
 
-        # For SuperTrend strategy
+        # For SuperTrend strategies
         self.sti_trend = 0
         self.prev_sti_trend = 0
         self.ema_close = 0
@@ -30,7 +30,7 @@ class CBSignal:
         self.pnl = 0
 
     def __str__(self) -> str:
-        return "strategy,{},Sym,{},TS,{},Exit TS,{},Entry,{},Exit,{},StopLoss,{},Lot Size,{},PnL,{},Comment,{}".format(
+        return "strategies,{},Sym,{},TS,{},Exit TS,{},Entry,{},Exit,{},StopLoss,{},Lot Size,{},PnL,{},Comment,{}".format(
             self.strategy, self.sym, self.ts, self.exit_ts, self.entry_price, -1*self.exit_price,
             self.stop_loss, self.lot_size, round(self.pnl, 2), self.comment)
 
@@ -42,4 +42,4 @@ class CBSignal:
 
     @staticmethod
     def print_header() -> None:
-        print("ID,Status,strategy,Sym,TS,Exit TS,Entry,Exit,StopLoss,Lot Size,PnL,Comment")
+        print("ID,Status,strategies,Sym,TS,Exit TS,Entry,Exit,StopLoss,Lot Size,PnL,Comment")

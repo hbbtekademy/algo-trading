@@ -2,8 +2,8 @@ from typing import List, Tuple
 
 from python.chartbusters.model.cb_candle import CBCandle
 from python.chartbusters.model.cb_chart import CBChart
-from python.chartbusters.model.cb_signal import CBSignal
-from python.chartbusters.strategy.cb_strategy import CBStrategy
+from python.chartbusters.model.cb_signal_v1 import CBSignalV1
+from python.chartbusters.strategies.cb_strategy import CBStrategy
 
 
 class CBSuperTrendStrategyV1(CBStrategy):
@@ -16,7 +16,7 @@ class CBSuperTrendStrategyV1(CBStrategy):
         self.stop_loss = 2500
         self.expiry = expiry
 
-    def execute(self, candle: CBCandle, signal: CBSignal) -> Tuple[str, CBSignal]:
+    def execute(self, candle: CBCandle, signal: CBSignalV1) -> Tuple[str, CBSignalV1]:
         prev_candle = self.chart.previous(candle)
         rsi = candle.rsi
         adx = candle.adx
@@ -59,7 +59,7 @@ class CBSuperTrendStrategyV1(CBStrategy):
                 return 'SL', None
             pass
 
-        # buy/sell signal checks
+        # rsi/sell signal checks
         sti_buy_passed = candle.sti_dir == 1 and prev_candle.sti_dir == -1
         sti_sell_passed = candle.sti_dir == -1 and prev_candle.sti_dir == 1
         ema_close_buy_passed = candle.close > candle.ema_close
@@ -91,7 +91,7 @@ class CBSuperTrendStrategyV1(CBStrategy):
             stop_loss = round(candle.close - self.stop_loss /
                               self.chart.lot_size, 2)
             #stop_loss = buy_stoploss
-            buy_signal = CBSignal(
+            buy_signal = CBSignalV1(
                 'ST_Buy', self.chart.sym, self.chart.lot_size, candle.ts, candle.close, stop_loss, candle)
             return 'New', buy_signal
 
@@ -106,15 +106,15 @@ class CBSuperTrendStrategyV1(CBStrategy):
             stop_loss = round(candle.close + self.stop_loss /
                               self.chart.lot_size, 2)
             #stop_loss = sell_stoploss
-            sell_signal = CBSignal(
+            sell_signal = CBSignalV1(
                 'ST_Sell', self.chart.sym, self.chart.lot_size, candle.ts, candle.close, stop_loss, candle)
             return 'New', sell_signal
 
         return '', None
 
-    def back_test(self, start_ts, end_ts) -> List[CBSignal]:
+    def back_test(self, start_ts, end_ts) -> List[CBSignalV1]:
         results = list()
-        signal = CBSignal('', '', 0, '', 0, 0, None)
+        signal = CBSignalV1('', '', 0, '', 0, 0, None)
         candles = self.chart.sub_chart(start_ts, end_ts)
         for candle in candles:
             sig_type, new_signal = self.execute(candle, signal)
@@ -122,6 +122,6 @@ class CBSuperTrendStrategyV1(CBStrategy):
                 results.append(new_signal)
                 signal = new_signal
             if(sig_type == 'SL'):
-                signal = CBSignal('', '', 0, '', 0, 0, None)
+                signal = CBSignalV1('', '', 0, '', 0, 0, None)
 
         return results
