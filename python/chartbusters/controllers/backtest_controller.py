@@ -9,10 +9,8 @@ from python.chartbusters.util import constants
 
 class BacktestExecutor:
 
-    def __init__(self, driver_file, lot_size: int, symbol):
+    def __init__(self, driver_file):
         self.driver_file = driver_file
-        self.lot_size = lot_size
-        self.symbol = symbol
         '''
         TODO: these constants are specific to each strategies but also needs to be passed to 
         the CBChart class which is agnostic to the strategies. Need to design this better.
@@ -43,9 +41,14 @@ class BacktestExecutor:
         driver_file = self.get_driver_file()
 
         for index, row in driver_file.iterrows():
+            lot_size = int(row['LotSize'])
+            expiry = row['Expiry']
+            stoploss_margin = int(row['StopLoss15'])
+            backtest_start = row['Start'].tz_localize('Asia/Kolkata')
+            backtest_end = row['End'].tz_localize('Asia/Kolkata')
             file = self.get_hist_data_filename(index)
             df = self.get_historical_data(file)
-            cb_chart = self.get_cbchart(df)
+            cb_chart = self.get_cbchart(df, index, lot_size)
             strategy = self.get_strategy(row, cb_chart)
             backtest = self.get_backtest(row, cb_chart, strategy)
             signals15 = backtest.back_test(row['Start'].tz_localize('Asia/Kolkata'),
@@ -105,8 +108,8 @@ class BacktestExecutor:
                                     stoploss_margin=int(row['StopLoss15']),
                                     supertrend_ma_margin=self.supertrend_ma_margin, stoploss_gap=self.stoploss_gap)
 
-    def get_cbchart(self, df):
-        return CBChart(self.symbol, self.lot_size
+    def get_cbchart(self, df, symbol, lot_size):
+        return CBChart(symbol, lot_size
                        , df, ema_interval=self.ema_interval, sma_interval=self.sma_interval, MA=self.MA,
                        sti_interval=self.sti_interval,
                        sti_multiplier=self.sti_multiplier)

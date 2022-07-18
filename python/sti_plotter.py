@@ -5,7 +5,7 @@ from python.chartbusters.model.cb_chart import CBChart
 
 # file = './python/backtest/hist15min/NIFTY22FEBFUT-HIST-15M.csv'
 # file = './python/backtest/hist15min/NIFTY22MARFUT-HIST-15M.csv'
-file = './python/backtest/hist15min/NIFTY22APRFUT-HIST-15M.csv'
+file = './backtest/hist15min/NIFTY22APRFUT-HIST-15M.csv'
 # file = './python/backtest/hist15min/NIFTY-HIST-15M.csv'
 sym = 'NIFTY'
 lot_size = 50
