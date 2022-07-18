@@ -8,8 +8,8 @@ from ta.momentum import RSIIndicator
 from ta.trend import ADXIndicator
 from ta.trend import MACD
 
-from python.chartbusters import constants
-from python.chartbusters.cb_candle import CBCandle
+from python.chartbusters.model.cb_candle import CBCandle
+from python.chartbusters.util import constants
 
 
 class CBChart:
@@ -115,10 +115,10 @@ class CBChart:
     def __calc_secondary_values(self) -> None:
         if self.MA == constants.EMA:
             self.df[constants.ST_MA_DIFF] = self.df[constants.STI_TREND] - \
-                self.df[constants.EMA_CLOSE]
+                                            self.df[constants.EMA_CLOSE]
         elif self.MA == constants.SMA:
             self.df[constants.ST_MA_DIFF] = self.df[constants.STI_TREND] - \
-                self.df[constants.SMA_CLOSE]
+                                            self.df[constants.SMA_CLOSE]
 
     def candle(self, ts) -> CBCandle:
         row = self.df.loc[ts]

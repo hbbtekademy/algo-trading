@@ -4,8 +4,8 @@ import sys
 import pandas as pd
 from breeze_connect import BreezeConnect
 
-from chartbusters import helpers
 from python.chartbusters.api_adapters.breeze import breeze_helpers
+from python.chartbusters.util import helpers
 
 STOCK_CODE = 'NIFTY'
 FROM_DATE = '2022-01-01T00:00:00.000Z'
@@ -49,7 +49,7 @@ else:
     if rc:
         df = pd.read_csv(fn5m, parse_dates=['Date'], index_col=['Date'])
 
-        df_15min = helpers.get_15min_df(df)
+        df_15min = helpers.get_revised_interval_df(df, '15Min', '0Min')
         df_15min.to_csv(fn15m, date_format='%Y-%m-%dT%H:%M:%S+05:30')
         print(df_15min)
     else:

@@ -1,6 +1,6 @@
 from typing import List
 
-from python.chartbusters.cb_signal import CBSignal
+from python.chartbusters.model.cb_signal import CBSignal
 
 
 class CBBackTestResult:

@@ -1,6 +1,6 @@
 from datetime import date
 
-from python.chartbusters.cb_candle import CBCandle
+from python.chartbusters.model.cb_candle import CBCandle
 
 
 class CBSignal():

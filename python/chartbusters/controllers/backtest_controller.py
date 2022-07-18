@@ -1,10 +1,10 @@
 import pandas as pd
 
-from python.chartbusters import constants
-from python.chartbusters.cb_chart import CBChart
-from python.chartbusters.cb_signal import CBSignal
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.model.cb_signal import CBSignal
 from python.chartbusters.strategy.cb_supertrend_backtest import CBSuperTrendBackTest
 from python.chartbusters.strategy.cb_supertrend_strategy import CBSuperTrendStrategy
+from python.chartbusters.util import constants
 
 
 class BacktestExecutor:

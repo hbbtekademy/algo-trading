@@ -1,7 +1,7 @@
 import pandas as pd
 
-from chartbusters.cb_chart import CBChart
 from chartbusters.plot.cb_supertrend_plot import CBSuperTrendPlot
+from python.chartbusters.model.cb_chart import CBChart
 
 # file = './python/backtest/hist15min/NIFTY22FEBFUT-HIST-15M.csv'
 # file = './python/backtest/hist15min/NIFTY22MARFUT-HIST-15M.csv'

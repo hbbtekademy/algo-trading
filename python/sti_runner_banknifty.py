@@ -1,11 +1,10 @@
 import pandas as pd
 
-from chartbusters import constants
-from chartbusters import helpers
-from chartbusters.cb_chart import CBChart
-from chartbusters.cb_signal import CBSignal
 from chartbusters.strategy.cb_supertrend_backtest import CBSuperTrendBackTest
 from chartbusters.strategy.cb_supertrend_banknifty_strategy import CBSuperTrendBankNiftyStrategy
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.model.cb_signal import CBSignal
+from python.chartbusters.util import constants, helpers
 
 file = './python/backtest/config/STI_BankNifty_BackTest_2021.csv'
 # file = './python/backtest/config/STI_BankNifty_BackTest_2020.csv'
@@ -32,7 +31,7 @@ all_signals60 = list()
 for index, row in input_df.iterrows():
     file = './python/backtest/hist15min/' + index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
-    df_30min = helpers.get_30min_df(df)
+    df_30min = helpers.get_revised_interval_df(df, '30Min', '0Min')
 
     # print(df_30min.head(20))
 

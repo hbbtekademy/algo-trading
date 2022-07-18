@@ -1,8 +1,8 @@
 from typing import Tuple
 
-from python.chartbusters.cb_candle import CBCandle
-from python.chartbusters.cb_chart import CBChart
-from python.chartbusters.cb_signal import CBSignal
+from python.chartbusters.model.cb_candle import CBCandle
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.model.cb_signal import CBSignal
 from python.chartbusters.strategy.cb_strategy import CBStrategy
 
 

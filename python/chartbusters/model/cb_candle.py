@@ -1,6 +1,6 @@
 import pandas as pd
 
-from python.chartbusters import constants
+from python.chartbusters.util import constants
 
 
 class CBCandle():

@@ -1,5 +1,5 @@
-from python.chartbusters.cb_candle import CBCandle
-from python.chartbusters.cb_chart import CBChart
+from python.chartbusters.model.cb_candle import CBCandle
+from python.chartbusters.model.cb_chart import CBChart
 from python.chartbusters.strategy.cb_buy_strategy import CBBuyStrategy
 from python.chartbusters.strategy.cb_strategy_result import CBStrategyResult
 

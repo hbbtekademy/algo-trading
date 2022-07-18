@@ -1,5 +1,5 @@
-from python.chartbusters.cb_chart import CBChart
-from python.chartbusters.cb_signal import CBSignal
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.model.cb_signal import CBSignal
 
 
 # why do we need this class ?

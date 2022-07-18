@@ -1,9 +1,9 @@
 import pandas as pd
 
-from chartbusters.cb_chart import CBChart
-from chartbusters.cb_signal import CBSignal
 from chartbusters.strategy.cb_backtest_result import CBBackTestResult
 from chartbusters.strategy.sell.cb_rsi_adx_sell_strategy import RsiAdxSellStrategy
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.model.cb_signal import CBSignal
 
 file = './python/backtest/config/RSI_ADX_Sell_BackTest.csv'
 

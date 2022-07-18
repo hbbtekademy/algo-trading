@@ -1,4 +1,3 @@
-
 OPEN = 'Open'
 HIGH = 'High'
 LOW = 'Low'

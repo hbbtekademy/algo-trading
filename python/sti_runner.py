@@ -1,10 +1,10 @@
 import pandas as pd
 
-from chartbusters import constants
-from chartbusters.cb_chart import CBChart
-from chartbusters.cb_signal import CBSignal
 from chartbusters.strategy.cb_supertrend_backtest import CBSuperTrendBackTest
 from chartbusters.strategy.cb_supertrend_strategy import CBSuperTrendStrategy
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.model.cb_signal import CBSignal
+from python.chartbusters.util import constants
 
 # file = './python/backtest/config/STI_Nifty_BackTest_2021.csv'
 # file = './python/backtest/config/STI_Nifty_BackTest_2020.csv'

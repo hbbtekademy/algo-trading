@@ -1,13 +1,13 @@
 import pandas as pd
 
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.strategy.cb_supertrend_strategy_v3 import CBSuperTrendStrategyV3
 # file = './python/backtest/config/STI_Nifty_BackTest_2021.csv'
 # file = './python/backtest/config/STI_Nifty_BackTest_2020.csv'
 # file = './python/backtest/config/STI_Nifty_BackTest_2019.csv'
 # file = './python/backtest/config/STI_Nifty_BackTest_2018.csv'
 # file = './python/backtest/config/STI_Nifty_BackTest_2017.csv'
-from python.chartbusters import helpers
-from python.chartbusters.cb_chart import CBChart
-from python.chartbusters.strategy.cb_supertrend_strategy_v3 import CBSuperTrendStrategyV3
+from python.chartbusters.util import helpers
 
 file = './backtest/config/STI_NiftyFut_Verify.csv'
 
@@ -28,7 +28,7 @@ all_signals = list()
 for index, row in input_df.iterrows():
     file = './backtest/hist15min/' + index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
-    df_60min = helpers.get_hourly_df(df)
+    df_60min = helpers.get_revised_interval_df(df, '60Min', '15Min')
     chart = CBChart(index, int(row['LotSize']), df, ema_interval=ema_interval)
 
     strategy = CBSuperTrendStrategyV3(
