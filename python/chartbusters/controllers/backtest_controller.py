@@ -3,18 +3,16 @@ import pandas as pd
 from python.chartbusters.model.cb_chart import CBChart
 from python.chartbusters.model.cb_signal_v1 import CBSignalV1
 from python.chartbusters.strategies.supertrend.basic.cb_supertrend_strategy import CBSuperTrendStrategy
-from python.chartbusters.strategies.supertrend.cb_supertrend_backtest import CBSuperTrendBackTest
+from python.chartbusters.strategies.supertrend.cb_supertrend_backtest import CBBackTest
 from python.chartbusters.util import constants
 
 
 class BacktestExecutor:
 
-    def __init__(self, driver_file):
+    def __init__(self, driver_file, param_file, strategy_params_dict):
         self.driver_file = driver_file
-        '''
-        TODO: these constants are specific to each strategies but also needs to be passed to 
-        the CBChart class which is agnostic to the strategies. Need to design this better.
-        '''
+        self.param_file = param_file
+        self.strategy_params_dict = strategy_params_dict
         self.ema_interval = 31
         self.sma_interval = 29
         self.MA = constants.EMA
@@ -35,24 +33,27 @@ class BacktestExecutor:
     def broadcast_result(self):
         print('b result')
 
-    def execute(self, message) -> str:
-        print('exec', message)
+    def execute(self, strategy_name) -> str:
+
+        print('exec', strategy_name)
         all_signals = list()
         driver_file = self.get_driver_file()
 
+        total_monthly_pnl = 0
+
         for index, row in driver_file.iterrows():
             lot_size = int(row['LotSize'])
-            expiry = row['Expiry']
-            stoploss_margin = int(row['StopLoss15'])
+
             backtest_start = row['Start'].tz_localize('Asia/Kolkata')
             backtest_end = row['End'].tz_localize('Asia/Kolkata')
+
             file = self.get_hist_data_filename(index)
             df = self.get_historical_data(file)
             cb_chart = self.get_cbchart(df, index, lot_size)
-            strategy = self.get_strategy(row, cb_chart)
-            backtest = self.get_backtest(row, cb_chart, strategy)
-            signals15 = backtest.back_test(row['Start'].tz_localize('Asia/Kolkata'),
-                                           row['End'].tz_localize('Asia/Kolkata'))
+            strategy = self.get_strategy(row, cb_chart, strategy_name)
+            backtest = self.get_backtest(row, cb_chart, strategy, strategy_name)
+            signals15 = backtest.back_test(backtest_start,
+                                           backtest_end)
             total_monthly_pnl = self.calc_total_monthly_pnl(all_signals, signals15)
 
         print('{}'.format(total_monthly_pnl))
@@ -81,9 +82,9 @@ class BacktestExecutor:
         return total_pnl, total_count
 
     @staticmethod
-    def calc_total_monthly_pnl(all_signals, signals15):
+    def calc_total_monthly_pnl(all_signals, new_signals):
         total_monthly_pnl = 0
-        for s in signals15:
+        for s in new_signals:
             total_monthly_pnl = total_monthly_pnl + s.pnl
             all_signals.append(s)
         return total_monthly_pnl
@@ -94,22 +95,32 @@ class BacktestExecutor:
         return df
 
     @staticmethod
-    def get_backtest(row, cb_chart, strategy):
-        return CBSuperTrendBackTest(cb_chart, strategy)
+    def get_backtest(row, cb_chart, strategy, strategy_name):
+        if strategy_name == 'STI':
+            return CBBackTest(cb_chart, strategy)
 
     @staticmethod
     def get_hist_data_filename(index):
         file = './backtest/hist15min/' + index + '-HIST-15M.csv'
         return file
 
-    def get_strategy(self, row, cb_chart):
-        return CBSuperTrendStrategy('SuperTrend15',
-                                    cb_chart, row['Expiry'],
-                                    stoploss_margin=int(row['StopLoss15']),
-                                    supertrend_ma_margin=self.supertrend_ma_margin, stoploss_gap=self.stoploss_gap)
+    def get_strategy(self, row, cb_chart, strategy_name):
+        expiry = row['Expiry']
+        stoploss_margin = int(row['StopLoss15'])
+        if strategy_name == 'STI':
+            return CBSuperTrendStrategy('SuperTrend15',
+                                        cb_chart, expiry,
+                                        stoploss_margin=stoploss_margin,
+                                        supertrend_ma_margin=self.get_strategy_param_value('supertrend_ma_margin'),
+                                        stoploss_gap=self.get_strategy_param_value('stoploss_gap'))
 
     def get_cbchart(self, df, symbol, lot_size):
         return CBChart(symbol, lot_size
-                       , df, ema_interval=self.ema_interval, sma_interval=self.sma_interval, MA=self.MA,
-                       sti_interval=self.sti_interval,
-                       sti_multiplier=self.sti_multiplier)
+                       , df, ema_interval=self.get_strategy_param_value('ema_interval'),
+                       sma_interval=self.get_strategy_param_value('sma_interval'),
+                       MA=self.get_strategy_param_value('MA'),
+                       sti_interval=self.get_strategy_param_value('sti_interval'),
+                       sti_multiplier=self.get_strategy_param_value('sti_multiplier'))
+
+    def get_strategy_param_value(self, strategy_param_key):
+        return self.strategy_params_dict.get(strategy_param_key).get(0)

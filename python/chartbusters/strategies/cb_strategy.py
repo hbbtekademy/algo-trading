@@ -12,7 +12,7 @@ class CBStrategy:
     def adx_filter(candle: CBCandle, adx_min: float, adx_max: float) -> bool:
         return adx_min <= candle.adx <= adx_max
 
-    def execute(self, candle: CBCandle):
+    def execute(self, candle: CBCandle, signal: CBSignalV1):
         pass
 
     def generate_signal_pnl(self, signal: CBSignalV1, stop_gain: float) -> None:

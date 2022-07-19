@@ -32,7 +32,7 @@ SMA_LOW = 'sma_low'
 SMA_CLOSE = 'sma_close'
 SMA_VOL = 'sma_vol'
 
-SMA = 'S'
-EMA = 'E'
+SMA = 'SMA'
+EMA = 'EMA'
 
 ST_MA_DIFF = 'sta_ma_diff'

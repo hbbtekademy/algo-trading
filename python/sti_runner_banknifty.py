@@ -4,7 +4,7 @@ from python.chartbusters.model.cb_chart import CBChart
 from python.chartbusters.model.cb_signal_v1 import CBSignalV1
 from python.chartbusters.strategies.supertrend.banknifty.cb_supertrend_banknifty_strategy import \
     CBSuperTrendBankNiftyStrategy
-from python.chartbusters.strategies.supertrend.cb_supertrend_backtest import CBSuperTrendBackTest
+from python.chartbusters.strategies.supertrend.cb_supertrend_backtest import CBBackTest
 from python.chartbusters.util import constants, helpers
 
 file = './python/backtest/config/STI_BankNifty_BackTest_2021.csv'
@@ -47,7 +47,7 @@ for index, row in input_df.iterrows():
                                                  row['StopLoss']),
                                              supertrend_ma_margin=supertrend_ma_margin, stoploss_gap=stoploss_gap)
 
-    backtest = CBSuperTrendBackTest(chart, strategy)
+    backtest = CBBackTest(chart, strategy)
 
     # print(df.tail(50))
 

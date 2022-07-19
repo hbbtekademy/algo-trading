@@ -9,7 +9,7 @@ from python.chartbusters.strategies.supertrend.basic.cb_supertrend_strategy_v3 i
 # file = './python/backtest/config/STI_Nifty_BackTest_2017.csv'
 from python.chartbusters.util import helpers
 
-file = './backtest/config/STI_NiftyFut_Verify.csv'
+file = 'backtest/config/driver_files/STI_NiftyFut_Verify.csv'
 
 # file = './python/backtest/config/STI_BankNifty_BackTest_2021.csv'
 # file = './python/backtest/config/STI_BankNifty_BackTest_2020.csv'

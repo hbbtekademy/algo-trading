@@ -6,6 +6,7 @@ from python.chartbusters.model.cb_candle import CBCandle
 class CBSignalV1:
     def __init__(self, strategy: str, sym: str, lot_size: int, ts: date, entry_price: float, stop_loss: float,
                  candle: CBCandle) -> None:
+        # what are various types of status ?
         self.status = 'O'
         self.strategy = strategy
         self.sym = sym
@@ -48,6 +49,9 @@ class CBSignalV1:
             return False
 
         return False
+
+    def is_not_eod_signal(self) -> bool:
+        return not self.is_eod_signal
 
     @staticmethod
     def print_header() -> None:
