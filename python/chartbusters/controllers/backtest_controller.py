@@ -4,22 +4,13 @@ from python.chartbusters.model.cb_chart import CBChart
 from python.chartbusters.model.cb_signal_v1 import CBSignalV1
 from python.chartbusters.strategies.supertrend.basic.cb_supertrend_strategy import CBSuperTrendStrategy
 from python.chartbusters.strategies.supertrend.cb_supertrend_backtest import CBBackTest
-from python.chartbusters.util import constants
 
 
 class BacktestExecutor:
 
-    def __init__(self, driver_file, param_file, strategy_params_dict):
+    def __init__(self, driver_file, strategy_params_dict):
         self.driver_file = driver_file
-        self.param_file = param_file
         self.strategy_params_dict = strategy_params_dict
-        self.ema_interval = 31
-        self.sma_interval = 29
-        self.MA = constants.EMA
-        self.supertrend_ma_margin = 50
-        self.stoploss_gap = 20
-        self.sti_interval = 11
-        self.sti_multiplier = 2
 
     def connect(self):
         pass
@@ -34,11 +25,8 @@ class BacktestExecutor:
         print('b result')
 
     def execute(self, strategy_name) -> str:
-
-        print('exec', strategy_name)
         all_signals = list()
         driver_file = self.get_driver_file()
-
         total_monthly_pnl = 0
 
         for index, row in driver_file.iterrows():
@@ -47,11 +35,10 @@ class BacktestExecutor:
             backtest_start = row['Start'].tz_localize('Asia/Kolkata')
             backtest_end = row['End'].tz_localize('Asia/Kolkata')
 
-            file = self.get_hist_data_filename(index)
-            df = self.get_historical_data(file)
+            df = self.get_historical_data(self.get_hist_data_filename(index))
             cb_chart = self.get_cbchart(df, index, lot_size)
             strategy = self.get_strategy(row, cb_chart, strategy_name)
-            backtest = self.get_backtest(row, cb_chart, strategy, strategy_name)
+            backtest = self.get_backtest(cb_chart, strategy, strategy_name)
             signals15 = backtest.back_test(backtest_start,
                                            backtest_end)
             total_monthly_pnl = self.calc_total_monthly_pnl(all_signals, signals15)
@@ -95,7 +82,7 @@ class BacktestExecutor:
         return df
 
     @staticmethod
-    def get_backtest(row, cb_chart, strategy, strategy_name):
+    def get_backtest(cb_chart, strategy, strategy_name):
         if strategy_name == 'STI':
             return CBBackTest(cb_chart, strategy)
 

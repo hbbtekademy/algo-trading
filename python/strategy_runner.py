@@ -36,9 +36,8 @@ if execution_mode == 'RT':
 elif execution_mode == 'BT' or 1 == 1:
     print('Executing in Back Test mode')
     driver_file = get_driver_file(strategy)
-    param_file = get_param_file(strategy)
-    strategy_params_dict = get_strategy_params_dict(param_file)
-    bte = BacktestExecutor(driver_file, param_file, strategy_params_dict)
+    strategy_params_dict = get_strategy_params_dict(get_param_file(strategy))
+    bte = BacktestExecutor(driver_file,  strategy_params_dict)
     result = bte.execute(strategy)
     print('Result', result)
 else:
