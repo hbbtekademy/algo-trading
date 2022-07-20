@@ -25,9 +25,6 @@ class CBSuperTrendStrategy(CBStrategy):
 
     def execute(self, candle: CBCandle, signal: CBSignalV1) -> Tuple[str, CBSignalV1]:
         prev_candle = self.chart.previous(candle)
-        rsi = candle.rsi
-
-        stop_loss_updated_ema = False
         if str(candle.ts) == self.expiry_ts2:
             return '', None
 
@@ -145,7 +142,7 @@ class CBSuperTrendStrategy(CBStrategy):
                 # return 'SL', None
 
         # Update Stop Loss
-        if signal.strategy in ('ST_Buy') and signal.status != 'C' and candle.sti_dir == 1:
+        if signal.strategy in 'ST_Buy' and signal.status != 'C' and candle.sti_dir == 1:
             signal.stop_loss = round(candle.sti_trend - self.stoploss_gap, 2)
             signal.ma_stoploss = False
             if candle.ma_close < candle.sti_trend and abs(
@@ -153,12 +150,12 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.stop_loss = round(
                     candle.ma_close - self.stoploss_gap, 2)
                 signal.ma_stoploss = True
-        elif signal.strategy in ('ST_Buy') and signal.status != 'C' and candle.sti_dir == -1:
+        elif signal.strategy in 'ST_Buy' and signal.status != 'C' and candle.sti_dir == -1:
             # signal.stop_loss = round(candle.ma_close - self.stoploss_gap, 2)
             # signal.ma_stoploss = True
             pass
 
-        if signal.strategy in ('ST_Sell') and signal.status != 'C' and candle.sti_dir == -1:
+        if signal.strategy in 'ST_Sell' and signal.status != 'C' and candle.sti_dir == -1:
             signal.stop_loss = round(candle.sti_trend + self.stoploss_gap, 2)
             signal.ma_stoploss = False
             if candle.ma_close > candle.sti_trend and abs(
@@ -166,7 +163,7 @@ class CBSuperTrendStrategy(CBStrategy):
                 signal.stop_loss = round(
                     candle.ma_close + self.stoploss_gap, 2)
                 signal.ma_stoploss = True
-        elif signal.strategy in ('ST_Sell') and signal.status != 'C' and candle.sti_dir == 1:
+        elif signal.strategy in 'ST_Sell' and signal.status != 'C' and candle.sti_dir == 1:
             # signal.stop_loss = round(candle.ma_close + self.stoploss_gap, 2)
             # signal.ma_stoploss = True
             pass

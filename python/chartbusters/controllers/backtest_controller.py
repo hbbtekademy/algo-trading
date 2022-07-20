@@ -2,8 +2,9 @@ import pandas as pd
 
 from python.chartbusters.model.cb_chart import CBChart
 from python.chartbusters.model.cb_signal_v1 import CBSignalV1
+from python.chartbusters.strategies.cb_backtest import CBBackTest
+from python.chartbusters.strategies.rsi.cb_rsi_adx_buy_or_sell_strategy import RsiAdxBuyOrSellStrategy
 from python.chartbusters.strategies.supertrend.basic.cb_supertrend_strategy import CBSuperTrendStrategy
-from python.chartbusters.strategies.supertrend.cb_supertrend_backtest import CBBackTest
 
 
 class BacktestExecutor:
@@ -31,12 +32,11 @@ class BacktestExecutor:
 
         for index, row in driver_file.iterrows():
             lot_size = int(row['LotSize'])
-
             backtest_start = row['Start'].tz_localize('Asia/Kolkata')
             backtest_end = row['End'].tz_localize('Asia/Kolkata')
 
             df = self.get_historical_data(self.get_hist_data_filename(index))
-            cb_chart = self.get_cbchart(df, index, lot_size)
+            cb_chart = self.get_cbchart(df, index, lot_size, strategy_name)
             strategy = self.get_strategy(row, cb_chart, strategy_name)
             backtest = self.get_backtest(cb_chart, strategy, strategy_name)
             signals15 = backtest.back_test(backtest_start,
@@ -83,8 +83,7 @@ class BacktestExecutor:
 
     @staticmethod
     def get_backtest(cb_chart, strategy, strategy_name):
-        if strategy_name == 'STI':
-            return CBBackTest(cb_chart, strategy)
+        return CBBackTest(cb_chart, strategy)
 
     @staticmethod
     def get_hist_data_filename(index):
@@ -92,22 +91,33 @@ class BacktestExecutor:
         return file
 
     def get_strategy(self, row, cb_chart, strategy_name):
-        expiry = row['Expiry']
-        stoploss_margin = int(row['StopLoss15'])
+
         if strategy_name == 'STI':
+            expiry = row['Expiry']
+            stoploss_margin = int(row['StopLoss15'])
             return CBSuperTrendStrategy('SuperTrend15',
                                         cb_chart, expiry,
                                         stoploss_margin=stoploss_margin,
                                         supertrend_ma_margin=self.get_strategy_param_value('supertrend_ma_margin'),
                                         stoploss_gap=self.get_strategy_param_value('stoploss_gap'))
 
-    def get_cbchart(self, df, symbol, lot_size):
-        return CBChart(symbol, lot_size
-                       , df, ema_interval=self.get_strategy_param_value('ema_interval'),
-                       sma_interval=self.get_strategy_param_value('sma_interval'),
-                       MA=self.get_strategy_param_value('MA'),
-                       sti_interval=self.get_strategy_param_value('sti_interval'),
-                       sti_multiplier=self.get_strategy_param_value('sti_multiplier'))
+        if strategy_name == 'RSI-BUY':
+            return RsiAdxBuyOrSellStrategy(
+                cb_chart, float(row['StopLoss']), float(row['StopGain']), True, float(row['RSI']), float(row['ADXMin']),
+                float(row['ADXMax']))
+
+    def get_cbchart(self, df, symbol, lot_size, strategy_name):
+
+        if strategy_name == 'STI':
+            return CBChart(symbol, lot_size
+                           , df, ema_interval=self.get_strategy_param_value('ema_interval'),
+                           sma_interval=self.get_strategy_param_value('sma_interval'),
+                           MA=self.get_strategy_param_value('MA'),
+                           sti_interval=self.get_strategy_param_value('sti_interval'),
+                           sti_multiplier=self.get_strategy_param_value('sti_multiplier'))
+
+        if strategy_name == 'RSI-BUY':
+            return CBChart(symbol, lot_size, df, ema_interval=self.get_strategy_param_value('ema_interval'))
 
     def get_strategy_param_value(self, strategy_param_key):
         return self.strategy_params_dict.get(strategy_param_key).get(0)

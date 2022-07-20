@@ -22,6 +22,10 @@ def get_driver_file(strategy_name: str):
 def get_param_file(strategy_name: str):
     if strategy_name == 'STI':
         return 'backtest/config/strategy_parameters/sti_params.csv'
+    if strategy_name == 'RSI-BUY':
+        return 'backtest/config/strategy_parameters/rsi_buy_params.csv'
+    if strategy_name == 'RSI-SELL':
+        return 'backtest/config/strategy_parameters/rsi_sell_params.csv'
 
 
 def get_strategy_params_dict(parameter_file):
