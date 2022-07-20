@@ -17,18 +17,17 @@ class CBSuperTrendStrategy(CBStrategy):
         self.supertrend_ma_margin = supertrend_ma_margin
         self.stop_gain = 200000000
         self.expiry = expiry
+        # from back test perspective
         self.expiry_ts = self.expiry + ' 15:00:00+05:30'
+        # this is to skip the last candle of the day
         self.expiry_ts2 = self.expiry + ' 15:15:00+05:30'
-
-        if self.strategy == 'SuperTrend60':
-            self.expiry_ts = self.expiry + ' 14:15:00+05:30'
 
     def execute(self, candle: CBCandle, signal: CBSignalV1) -> Tuple[str, CBSignalV1]:
         prev_candle = self.chart.previous(candle)
         if str(candle.ts) == self.expiry_ts2:
             return '', None
 
-        # Series Expiry Signal Closure
+        # Series Expiry Signal Closure - backtest perspective
         if str(candle.ts) == self.expiry_ts:
             next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
             if signal.status == 'O':
@@ -46,6 +45,7 @@ class CBSuperTrendStrategy(CBStrategy):
         buy_ma_passed = candle.ma_close < candle.low or (
                 candle.close > candle.open and candle.close > candle.ma_close and (
                     candle.high - candle.low) / 2 + candle.low > candle.ma_close)
+
         sell_ma_passed = candle.ma_close > candle.high or (
                 candle.close < candle.open and candle.close < candle.ma_close and candle.high - (
                     candle.high - candle.low) / 2 < candle.ma_close)
@@ -171,12 +171,10 @@ class CBSuperTrendStrategy(CBStrategy):
         sti_buy_passed = candle.sti_dir == 1
         sti_sell_passed = candle.sti_dir == -1
 
-        stop_loss_passed = abs(
-            candle.close - candle.sti_trend) <= self.stoploss_margin
-
         buy_stoploss = candle.sti_trend - self.stoploss_gap
         sell_stoploss = candle.sti_trend + self.stoploss_gap
 
+        # X - no open signal, C - signal has closed, P - potential signal ( no open trades)
         if sti_buy_passed and signal.status in ('X', 'C', 'P'):
             if buy_ma_passed:
                 pbuy_sig = CBSignalV1(

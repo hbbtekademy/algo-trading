@@ -15,6 +15,7 @@ class CBBackTest:
 
         signal = CBSignalV1('', '', 0, '', 0, 0, None)
         # what are the various signal statuses?
+        # X = No Signal
         signal.status = 'X'
 
         candles = self.chart.sub_chart(start_ts, end_ts)
