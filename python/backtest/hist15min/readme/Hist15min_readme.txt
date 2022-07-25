@@ -1,0 +1,1 @@
+When to add file to Hist15min folder?

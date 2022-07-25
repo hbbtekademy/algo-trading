@@ -1,8 +1,7 @@
-from ta.momentum import RSIIndicator
-import numpy as np
 import pandas as pd
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from ta.momentum import RSIIndicator
 
 
 def get_previous_candles(df, index, n):
@@ -99,7 +98,7 @@ fig.update_yaxes(showgrid=False)
 fig.update_yaxes(visible=False, row=1, col=2)
 fig.update_xaxes(visible=False, row=1, col=2)
 fig.update_layout(
-    title='Signal generated for RSI 15mins Strategy',
+    title='Signal generated for RSI 15mins strategies',
     title_x=0.5,
     plot_bgcolor='rgb(15,15,15)',
     paper_bgcolor='rgb(0,0,0)',

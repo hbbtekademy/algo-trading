@@ -1,15 +1,15 @@
-import helpers
+import sys
+from os.path import exists
+
 import numpy as np
 import pandas as pd
-import argparse
-import sys
-from signal import Signal
 from ta.momentum import RSIIndicator
 from ta.trend import ADXIndicator
 from ta.trend import MACD
-from os.path import exists
 
+import helpers
 from backtest_result import BackTestResult
+from signal import Signal
 
 # print(sys.argv[0], sys.argv[1], sys.argv[2])
 
@@ -19,7 +19,7 @@ file_exists = exists(file_15min)
 if (file_exists != True):
     exit(0)
 
-# Strategy params
+# strategies params
 strategy = 'RSIBuy'
 sym = sys.argv[2]
 window_start = '2021-01-01 00:00:00'
@@ -38,7 +38,7 @@ check_volume = True
 rsi_60min_check = False
 macd_check = False
 
-print("Running RSI Buy Strategy for {}".format(sym))
+print("Running RSI rsi strategies for {}".format(sym))
 
 df_15min = pd.read_csv(file_15min, parse_dates=['Date'], index_col=['Date'])
 

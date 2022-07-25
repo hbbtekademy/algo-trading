@@ -29,7 +29,6 @@ if not SESSION_TOKEN:
     print("BREEZE_API_SESSION env not set. Exiting...")
     sys.exit(1)
 
-# what does isec mean ?
 isec = BreezeConnect(api_key=API_KEY)
 
 isec.generate_session(api_secret=API_SECRET, session_token=SESSION_TOKEN)
@@ -49,6 +48,7 @@ else:
     rc = breeze_helpers.write_ohlc_to_file(fn5m, hist_ohlc=hist_ohlc)
     if rc:
         df = pd.read_csv(fn5m, parse_dates=['Date'], index_col=['Date'])
+
         df_15min = helpers.get_revised_interval_df(df, '15Min', '0Min')
         df_15min.to_csv(fn15m, date_format='%Y-%m-%dT%H:%M:%S+05:30')
         print(df_15min)

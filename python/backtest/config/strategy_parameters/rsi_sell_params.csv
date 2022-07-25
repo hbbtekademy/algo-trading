@@ -1,0 +1,2 @@
+﻿combination_no,ema_interval,sma_interval,MA,supertrend_ma_margin,stoploss_gap,close_ema_margin,sti_interval,sti_multiplier,stoploss_margin
+1,31,29,EMA,50,20,35000000,11,2,
