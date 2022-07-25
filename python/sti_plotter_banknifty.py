@@ -1,10 +1,10 @@
 import pandas as pd
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.Plot.cb_supertrend_plot import CBSuperTrendPlot
-from ChartBusters import helpers
-from ChartBusters import constants
 
-file = './python/BackTest/Hist15min/BANKNIFTY-HIST-15M.csv'
+from chartbusters.plot.cb_supertrend_plot import CBSuperTrendPlot
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.util import constants, helpers
+
+file = 'backtest/hist15min/BANKNIFTY-HIST-15M.csv'
 sym = 'BANKNIFTY'
 lot_size = 50
 MA = constants.SMA
@@ -17,7 +17,7 @@ macd_sign = 11
 
 
 df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
-df_30min = helpers.get_30min_df(df)
+df_30min = helpers.get_revised_interval_df(df, '60Min', '15Min')
 
 chart = CBChart(sym, lot_size, df_30min, MA=MA, sma_interval=sma_interval,
                 sti_interval=sti_interval, sti_multiplier=sti_multiplier,

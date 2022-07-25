@@ -1,28 +1,26 @@
 import pandas as pd
-import pandas_ta as ta
-from ChartBusters import constants
-from ChartBusters.cb_candle import CBCandle
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.Strategy.Buy.cb_rsi_adx_buy_strategy import RSI_ADX_Buy_Strategy
-from ChartBusters.Strategy.Sell.cb_rsi_adx_sell_strategy import RSI_ADX_Sell_Strategy
-from ChartBusters.Strategy.cb_backtest_result import CBBackTestResult
-from ChartBusters.cb_signal import CBSignal
 
-file = './python/BackTest/config/RSI_ADX_Sell_BackTest.csv'
+from chartbusters.strategies.cb_backtest_result import CBBackTestResult
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.model.cb_signal_v1 import CBSignalV1
+from python.chartbusters.strategies.rsi.cb_rsi_adx_buy_or_sell_strategy import RsiAdxBuyOrSellStrategy
+
+file = 'backtest/config/driver_files/RSI_ADX_Sell_BackTest.csv'
 
 input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 
 CBBackTestResult.print_header()
 all_signals = list()
 for index, row in input_df.iterrows():
-    file = './python/BackTest/Hist15min/' + \
-        index + '-HIST-15M.csv'
+    file = './backtest/hist15min/' + \
+           index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
 
     chart = CBChart(index, int(row['LotSize']), df)
 
-    strategy = RSI_ADX_Sell_Strategy(
-        chart, float(row['StopLoss']), float(row['StopGain']), float(row['RSI']), float(row['ADXMin']), float(row['ADXMax']))
+    strategy = RsiAdxBuyOrSellStrategy(
+        chart, float(row['StopLoss']), float(row['StopGain']), False, float(row['RSI']), float(row['ADXMin']),
+        float(row['ADXMax']))
 
     btResult = strategy.back_test(
         row['Start'].tz_localize('Asia/Kolkata'), row['End'].tz_localize('Asia/Kolkata'))
@@ -31,7 +29,7 @@ for index, row in input_df.iterrows():
         all_signals.append(signal)
 
 print(" ")
-CBSignal.print_header()
+CBSignalV1.print_header()
 total_pnl = 0
 for signal in all_signals:
     signal.pretty_print()

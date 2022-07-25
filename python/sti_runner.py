@@ -1,26 +1,23 @@
 import pandas as pd
-from ChartBusters.cb_chart import CBChart
-from ChartBusters.Strategy.cb_supertrend_strategy import CBSuperTrendStrategy
-from ChartBusters.Strategy.cb_supertrend_strategy_v1 import CBSuperTrendStrategyV1
-from ChartBusters.Strategy.cb_supertrend_backtest import CBSuperTrendBackTest
-from ChartBusters.cb_signal import CBSignal
-from ChartBusters import helpers
-from typing import List
 
-from ChartBusters import constants
+from python.chartbusters.model.cb_chart import CBChart
+from python.chartbusters.model.cb_signal_v1 import CBSignalV1
+from python.chartbusters.strategies.cb_backtest import CBBackTest
+from python.chartbusters.strategies.supertrend.basic.cb_supertrend_strategy import CBSuperTrendStrategy
+from python.chartbusters.util import constants
 
-# file = './python/BackTest/config/STI_Nifty_BackTest_2021.csv'
-# file = './python/BackTest/config/STI_Nifty_BackTest_2020.csv'
-# file = './python/BackTest/config/STI_Nifty_BackTest_2019.csv'
-# file = './python/BackTest/config/STI_Nifty_BackTest_2018.csv'
-# file = './python/BackTest/config/STI_Nifty_BackTest_2017.csv'
-file = './python/BackTest/config/STI_NiftyFut_Verify.csv'
+# file = './python/backtest/config/STI_Nifty_BackTest_2021.csv'
+# file = './python/backtest/config/STI_Nifty_BackTest_2020.csv'
+# file = './python/backtest/config/STI_Nifty_BackTest_2019.csv'
+# file = './python/backtest/config/STI_Nifty_BackTest_2018.csv'
+# file = './python/backtest/config/STI_Nifty_BackTest_2017.csv'
+file = 'backtest/config/driver_files/STI_NiftyFut_Verify.csv'
 
-# file = './python/BackTest/config/STI_BankNifty_BackTest_2021.csv'
-# file = './python/BackTest/config/STI_BankNifty_BackTest_2020.csv'
-# file = './python/BackTest/config/STI_BankNifty_BackTest_2019.csv'
-# file = './python/BackTest/config/STI_BankNifty_BackTest_2018.csv'
-# file = './python/BackTest/config/STI_BankNiftyFut_Verify.csv'
+# file = './python/backtest/config/STI_BankNifty_BackTest_2021.csv'
+# file = './python/backtest/config/STI_BankNifty_BackTest_2020.csv'
+# file = './python/backtest/config/STI_BankNifty_BackTest_2019.csv'
+# file = './python/backtest/config/STI_BankNifty_BackTest_2018.csv'
+# file = './python/backtest/config/STI_BankNiftyFut_Verify.csv'
 
 ema_interval = 31
 sma_interval = 29
@@ -36,7 +33,8 @@ input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 all_signals = list()
 all_signals60 = list()
 for index, row in input_df.iterrows():
-    file = './python/BackTest/Hist15min/' + index + '-HIST-15M.csv'
+    file = './backtest/hist15min/' + index + '-HIST-15M.csv'
+    print('Historical data file:',file)
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
 
     chart = CBChart(index, int(
@@ -48,7 +46,7 @@ for index, row in input_df.iterrows():
                                     stoploss_margin=int(row['StopLoss15']),
                                     supertrend_ma_margin=supertrend_ma_margin, stoploss_gap=stoploss_gap)
 
-    backtest = CBSuperTrendBackTest(chart, strategy)
+    backtest = CBBackTest(chart, strategy)
 
     # print(df.tail(50))
 
@@ -64,7 +62,7 @@ for index, row in input_df.iterrows():
 
 total_pnl = 0
 total_count = 0
-CBSignal.print_header()
+CBSignalV1.print_header()
 for signal in all_signals:
     total_pnl = total_pnl + signal.pnl
     total_count = total_count + 1
