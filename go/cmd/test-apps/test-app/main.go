@@ -31,6 +31,7 @@ func main() {
 	}
 	os.Exit(0)
 
+	//test code ?
 	now := time.Now()
 	ts, _ := time.Parse(time.RFC3339, "2022-01-02T20:27:17+05:30")
 	key := redistypes.NewKey(ts, 1234)

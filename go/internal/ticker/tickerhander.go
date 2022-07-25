@@ -24,7 +24,7 @@ func onTick(kiteTick kitemodels.Tick) {
 	tick := &models.Tick{
 		InstrumentToken:    kiteTick.InstrumentToken,
 		Sym:                instruments[kiteTick.InstrumentToken].Sym,
-		ExchTS:             kiteTick.Timestamp.Time,
+		ExchangeTS:         kiteTick.Timestamp.Time,
 		LastTradeTS:        kiteTick.LastTradeTime.Time,
 		LTP:                float32(kiteTick.LastPrice),
 		LastTradedQuantity: kiteTick.LastTradedQuantity,
@@ -42,9 +42,9 @@ func onTick(kiteTick kitemodels.Tick) {
 		return
 	}
 
-	if !mktutil.IsMarketOpen(tick.ExchTS) {
-		log.Printf("ExchTS: %s outside mkt hrs. Skip tick for Sym %s",
-			tick.ExchTS.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
+	if !mktutil.IsMarketOpen(tick.ExchangeTS) {
+		log.Printf("ExchangeTS: %s outside mkt hrs. Skip tick for Sym %s",
+			tick.ExchangeTS.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
 		return
 	}
 
@@ -76,8 +76,7 @@ func onConnect() {
 	go handleFileTicks()
 	go handleRedisTicks()
 }
-
-func onReconnect() {
+func onReconnect(attempt int, delay time.Duration) {
 	//TODO: future implementation - attempt int, delay time.Duration - provide a reconnect strategy
 	log.Println("Reconnecting...")
 }

@@ -9,7 +9,7 @@ import (
 
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
 	"org.hbb/algo-trading/go/models"
-	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	instrumentmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
 	secretmanager "org.hbb/algo-trading/go/pkg/secret-manager"
 )
 
@@ -25,7 +25,7 @@ func Start() {
 	kc = kiteconnect.New(apiKey)
 	kc.SetAccessToken(accessToken)
 
-	instruments := instmanager.GetNiftyFutInstruments()
+	instruments := instrumentmanager.GetNiftyFutInstruments()
 	for _, inst := range instruments {
 		log.Printf("Getting historical data for %s", inst.Sym)
 		processHistData(inst)

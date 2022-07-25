@@ -15,36 +15,36 @@ import (
 )
 
 const (
-	REDIS_HIST_DB = iota
-	REDIS_RT_DB
-	REDIS_SIG_DB
+	RedisHistDb      = iota
+	RedisRtDb        //???
+	RedisDialTimeout = 250
 )
 
 func GetHistRedisClient() *redis.Client {
 	host := envutils.MustGetEnv("REDIS_HIST_HOST")
 	port := envutils.MustGetEnv("REDIS_HIST_PORT")
-	return getRedisClient(host, port, REDIS_HIST_DB)
+	return getRedisClient(host, port, RedisHistDb)
 }
 
 func GetRTRedisClient() *redis.Client {
 	host := envutils.MustGetEnv("REDIS_RT_HOST")
 	port := envutils.MustGetEnv("REDIS_RT_PORT")
-	return getRedisClient(host, port, REDIS_RT_DB)
+	return getRedisClient(host, port, RedisRtDb)
 }
 
 func getRedisClient(host string, port string, redisdb int) *redis.Client {
-	rdb := redis.NewClient(&redis.Options{
+	redisClient := redis.NewClient(&redis.Options{
 		Addr:        fmt.Sprintf("%s:%s", host, port),
 		Password:    "",
 		DB:          redisdb,
-		DialTimeout: 250 * time.Millisecond,
+		DialTimeout: RedisDialTimeout * time.Millisecond,
 	})
 
 	connected := false
 	for i := 0; i <= 10; i++ {
-		_, err := rdb.Ping(context.Background()).Result()
+		_, err := redisClient.Ping(context.Background()).Result()
 		if err == nil {
-			log.Println("Connection to redis server established...")
+			log.Println("Connection to Redis Server established...")
 			connected = true
 			break
 		} else {
@@ -57,11 +57,11 @@ func getRedisClient(host string, port string, redisdb int) *redis.Client {
 		log.Fatalf("Unable to connect to Redis server at %s:%s. Exiting...", host, port)
 	}
 
-	return rdb
+	return redisClient
 }
 
 func WriteTickToRedis(ctx context.Context, rdb *redis.Client, tick *models.Tick) {
-	key := redistypes.NewKey(tick.ExchTS, tick.InstrumentToken)
+	key := redistypes.NewKey(tick.ExchangeTS, tick.InstrumentToken)
 	idxKey := redistypes.NewIdxKey(tick.InstrumentToken)
 	ltpValue := fmt.Sprintf("%f", tick.LTP)
 	volValue := fmt.Sprintf("%d", tick.VolumeTraded)

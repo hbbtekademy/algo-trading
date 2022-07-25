@@ -38,7 +38,7 @@ func writeTickToCsv(f *os.File, tick *models.Tick) {
 func getTickData(tick *models.Tick) []string {
 	return []string{
 		instruments[tick.InstrumentToken].Sym,
-		tick.ExchTS.Format(time.RFC3339),
+		tick.ExchangeTS.Format(time.RFC3339),
 		tick.LastTradeTS.Format(time.RFC3339),
 		fmt.Sprintf("%f", tick.LTP),
 		fmt.Sprintf("%d", tick.LastTradedQuantity),

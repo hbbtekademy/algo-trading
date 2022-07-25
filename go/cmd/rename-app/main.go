@@ -14,8 +14,8 @@ var (
 
 func main() {
 	initInstruments()
-	base_dir := "/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/20211217"
-	files, err := ioutil.ReadDir(base_dir)
+	baseDir := "/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/20211217"
+	files, err := ioutil.ReadDir(baseDir)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -26,7 +26,10 @@ func main() {
 		id, _ := strconv.Atoi(i)
 		sym := instruments[id]
 		log.Println("Instrument: " + sym)
-		os.Rename(base_dir+"/"+f.Name(), base_dir+"/"+sym+"-20211217.csv")
+		err := os.Rename(baseDir+"/"+f.Name(), baseDir+"/"+sym+"-20211217.csv")
+		if err != nil {
+			return
+		}
 	}
 }
 

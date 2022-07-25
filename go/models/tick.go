@@ -5,7 +5,7 @@ import "time"
 type Tick struct {
 	InstrumentToken    uint32
 	Sym                string
-	ExchTS             time.Time
+	ExchangeTS         time.Time
 	LastTradeTS        time.Time
 	LTP                float32
 	LastTradedQuantity uint32

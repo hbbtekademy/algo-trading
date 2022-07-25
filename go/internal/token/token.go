@@ -9,8 +9,6 @@ import (
 
 var (
 	requestToken string
-	accessToken  string
-	apiSession   string
 )
 
 func Start() {

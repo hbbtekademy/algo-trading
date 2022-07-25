@@ -47,7 +47,7 @@ func initRedisClient() {
 
 func initVars() {
 	mst, met = utils.GetMarketTime()
-	mktutil = utils.NewMktUtil(mst, met)
+	mktutil = utils.GetMarketSpecs(mst, met)
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", mst, met)
 
 	instruments = instmanager.GetNiftyFutInstruments()

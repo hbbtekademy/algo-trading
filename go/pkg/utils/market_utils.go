@@ -28,8 +28,8 @@ type MarketSpecifications struct {
 	marketEndTime   time.Time
 }
 
-// NewMktUtil /* TODO: Refactor - MarketUtils must know the start and end time of the market.
-func NewMktUtil(mst time.Time, met time.Time) *MarketSpecifications {
+// GetMarketSpecs /* TODO: Refactor - MarketUtils must know the start and end time of the market.
+func GetMarketSpecs(mst time.Time, met time.Time) *MarketSpecifications {
 	return &MarketSpecifications{
 		marketStartTime: mst,
 		marketEndTime:   met,
@@ -50,8 +50,10 @@ func (m *MarketSpecifications) IsBeforeMarketHrs(t time.Time) bool {
 
 func GetMarketTime() (time.Time, time.Time) {
 	y, m, d := time.Now().Date()
-	marketStartTime := getMarketTime(y, m, d, timeFormatPatternPrefix+indiaMarketStartTime, marketStartTimeCalcFailureErrorMessage)
-	marketEndTime := getMarketTime(y, m, d, timeFormatPatternPrefix+indiaMarketEndTime, marketEndTimeCalcFailureErrorMessage)
+	marketStartTime := getMarketTime(y, m, d,
+		timeFormatPatternPrefix+indiaMarketStartTime, marketStartTimeCalcFailureErrorMessage)
+	marketEndTime := getMarketTime(y, m, d,
+		timeFormatPatternPrefix+indiaMarketEndTime, marketEndTimeCalcFailureErrorMessage)
 
 	return marketStartTime, marketEndTime
 }
