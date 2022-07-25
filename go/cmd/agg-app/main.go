@@ -45,7 +45,7 @@ func candleTicker(ticker *time.Ticker) {
 		t := <-ticker.C
 		tCounter++
 
-		if mktutil.IsValidMarketHrs(t.Add(-1 * time.Minute)) {
+		if mktutil.IsMarketOpen(t.Add(-1 * time.Minute)) {
 			counter := 0
 			ct := t.Add(-15 * time.Second)
 			pt := t.Add(-75 * time.Second)

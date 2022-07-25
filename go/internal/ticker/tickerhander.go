@@ -1,7 +1,9 @@
 package ticker
 
 import (
+	"github.com/go-redis/redis/v8"
 	"log"
+	"os"
 	"time"
 
 	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
@@ -40,7 +42,7 @@ func onTick(kiteTick kitemodels.Tick) {
 		return
 	}
 
-	if !mktutil.IsValidMarketHrs(tick.ExchTS) {
+	if !mktutil.IsMarketOpen(tick.ExchTS) {
 		log.Printf("ExchTS: %s outside mkt hrs. Skip tick for Sym %s",
 			tick.ExchTS.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
 		return
@@ -75,7 +77,8 @@ func onConnect() {
 	go handleRedisTicks()
 }
 
-func onReconnect(attempt int, delay time.Duration) {
+func onReconnect() {
+	//TODO: future implementation - attempt int, delay time.Duration - provide a reconnect strategy
 	log.Println("Reconnecting...")
 }
 
@@ -83,19 +86,17 @@ func onError(err error) {
 	log.Println("Error streaming ticks:", err)
 }
 
-func logTimeDiff(tick *kitemodels.Tick) {
-	exchTS := tick.Timestamp.Time
-	now := time.Now()
-	diff := now.Sub(exchTS).Milliseconds()
-	log.Printf("Sym: %s, ExchTS: %v, Now: %v, Diff: %d ms", instruments[tick.InstrumentToken].Sym, exchTS, now, diff)
-}
-
 func handleFileTicks() {
 	f, err := createTickFile()
 	if err != nil {
 		log.Fatalln("Error creating ticker file: ", err)
 	}
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			//TODO: log error indicating file cannot be closed.
+		}
+	}(f)
 
 	for {
 		tick, ok := <-fileTickCh
@@ -108,7 +109,12 @@ func handleFileTicks() {
 }
 
 func handleRedisTicks() {
-	defer rdb.Close()
+	defer func(rdb *redis.Client) {
+		err := rdb.Close()
+		if err != nil {
+			//TODO: log error redis client connection cannot be closed
+		}
+	}(rdb)
 	for {
 		tick, ok := <-redisTickCh
 		if !ok {
