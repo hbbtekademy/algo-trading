@@ -6,32 +6,41 @@ import (
 	"time"
 )
 
-type Mktutil struct {
-	mst time.Time
-	met time.Time
+/*
+This struct will capture all attributes specific to the market
+marketStartTime - Local time when the market opens
+marketEndTime - Local time when the market closes
+marketStartTimeUTC - UTC time when the market opens
+marketEndTimeUTC - UTC time when the market closes
+marketName - NSE,BSE,NYSE,NASDAQ,CME,Binance,FX
+isMarket247 -set to true when the market is always open
+*/
+type MarketSpecifications struct {
+	marketStartTime time.Time
+	marketEndTime   time.Time
 }
 
-func NewMktUtil(mst time.Time, met time.Time) *Mktutil {
-	return &Mktutil{
-		mst: mst,
-		met: met,
+/* TODO: Refactor - MarketUtils must know the start and end time of the market.
+Caller must provide an unique value corresponding to a market and MarketUtils must return
+a MarketSpecifications struct with all required specifications
+*/
+func NewMktUtil(mst time.Time, met time.Time) *MarketSpecifications {
+	return &MarketSpecifications{
+		marketStartTime: mst,
+		marketEndTime:   met,
 	}
 }
 
-func (m *Mktutil) GetMarketTime() (time.Time, time.Time) {
-	return m.mst, m.met
+func (m *MarketSpecifications) IsValidMarketHrs(t time.Time) bool {
+	return t.After(m.marketStartTime) && t.Before(m.marketEndTime)
 }
 
-func (m *Mktutil) IsValidMarketHrs(t time.Time) bool {
-	return t.After(m.mst) && t.Before(m.met)
+func (m *MarketSpecifications) IsAfterMarketHrs(t time.Time) bool {
+	return t.After(m.marketEndTime)
 }
 
-func (m *Mktutil) IsAfterMarketHrs(t time.Time) bool {
-	return t.After(m.met)
-}
-
-func (m *Mktutil) IsBeforeMarketHrs(t time.Time) bool {
-	return t.Before(m.mst)
+func (m *MarketSpecifications) IsBeforeMarketHrs(t time.Time) bool {
+	return t.Before(m.marketStartTime)
 }
 
 func GetMarketTime() (time.Time, time.Time) {

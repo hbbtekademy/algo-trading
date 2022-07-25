@@ -22,7 +22,7 @@ var (
 	ctx         context.Context
 	mst, met    time.Time
 	instruments models.Instruments
-	mktutil     *utils.Mktutil
+	mktutil     *utils.MarketSpecifications
 )
 
 func Start() {

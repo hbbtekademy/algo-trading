@@ -17,7 +17,7 @@ import (
 
 var (
 	rdb     *redis.Client
-	mktutil *utils.Mktutil
+	mktutil *utils.MarketSpecifications
 	done    chan bool
 )
 
