@@ -37,12 +37,14 @@ func onTick(kiteTick kitemodels.Tick) {
 		if !chClosed {
 			close(fileTickCh)
 			close(redisTickCh)
+			//Done for the day.
 			chClosed = true
 		}
 		return
 	}
 
 	if !mktutil.IsMarketOpen(tick.ExchangeTS) {
+		//Safety - Are we recieving ticks after close of market/
 		log.Printf("ExchangeTS: %s outside mkt hrs. Skip tick for Sym %s",
 			tick.ExchangeTS.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
 		return
@@ -69,6 +71,7 @@ func onConnect() {
 	log.Println("Tokens subscribed..")
 
 	chClosed = false
+	// tick data is streamed to 2 destinations - one file and one redis. (TODO: Shirish - need to read this code deeper/ )
 	fileTickCh = make(chan *models.Tick, 5000)
 	redisTickCh = make(chan *models.Tick, 5000)
 	log.Println("File and Redis Channels created...")

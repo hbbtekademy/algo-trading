@@ -38,7 +38,7 @@ func GetNiftyFutInstruments() models.Instruments {
 	return instruments
 }
 
-//TODO: This should be read from a config file ?
+// GetJanFutInstruments TODO: This should be read from a config file ?
 func GetJanFutInstruments() models.Instruments {
 	instruments := make(models.Instruments)
 	instruments[13379586] = &models.Instrument{Id: 13379586, Sym: "NIFTY22JANFUT", LotSize: 50}

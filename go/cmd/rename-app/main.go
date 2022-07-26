@@ -12,6 +12,7 @@ var (
 	instruments map[int]string
 )
 
+// TODO: need to read through this
 func main() {
 	initInstruments()
 	baseDir := "/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/20211217"

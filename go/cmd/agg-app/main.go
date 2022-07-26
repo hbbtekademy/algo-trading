@@ -129,7 +129,7 @@ func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redisty
 
 	ohlcv.Volume = volEnd - volStart
 
-	candleKey := cKey.GetCS1MKey()
+	candleKey := cKey.GetCS1MKey() // gen 1 min key
 	idxKey := redistypes.NewIdxKey(cKey.TokenId)
 
 	_, err = rdb.HSet(ctx, candleKey,

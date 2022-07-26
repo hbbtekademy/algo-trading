@@ -26,6 +26,7 @@ var (
 	rdb *redis.Client
 )
 
+// Backfill is to get HIstorical Data / Onboarding new instruments
 func main() {
 	start := time.Now()
 	var wg sync.WaitGroup

@@ -26,18 +26,18 @@ var (
 )
 
 func Start() {
-	initVars()
+	initVars() // market data - all - tick-consumer / tick-adapter // this is a tick data consumer
 	initRedisClient()
 
 	apiKey := secretmanager.GetSecret(secretmanager.KiteApiKeySK)
 	accessToken := secretmanager.GetSecret(secretmanager.KiteAccessTokenSK)
 
 	ticker = kiteticker.New(apiKey, accessToken)
-	ticker.OnTick(onTick)
 	ticker.OnConnect(onConnect)
-	ticker.OnReconnect(onReconnect)
+	ticker.OnTick(onTick)
 	ticker.OnError(onError)
-	ticker.Serve()
+	ticker.OnReconnect(onReconnect)
+	ticker.Serve() //blocking call. At this point, the ticks start coming in.
 }
 
 func initRedisClient() {
@@ -49,6 +49,5 @@ func initVars() {
 	mst, met = utils.GetMarketTime()
 	mktutil = utils.GetMarketSpecs(mst, met)
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", mst, met)
-
 	instruments = instmanager.GetNiftyFutInstruments()
 }

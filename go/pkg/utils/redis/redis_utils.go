@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	RedisHistDb      = iota
-	RedisRtDb        //???
+	RedisHistDb      = iota // prev day
+	RedisRtDb               //???
 	RedisDialTimeout = 250
 )
 
