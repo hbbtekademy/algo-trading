@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"org.hbb/algo-trading/go/models"
-	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	instmanager "org.hbb/algo-trading/go/pkg/instruments-repository"
 	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 

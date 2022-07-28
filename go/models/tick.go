@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// Tick TODO: Rename to CBTick ? Where CB = Chartbusters
 type Tick struct {
 	InstrumentToken    uint32
 	Sym                string

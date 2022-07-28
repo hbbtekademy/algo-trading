@@ -9,7 +9,7 @@ import (
 
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
 	"org.hbb/algo-trading/go/models"
-	instrumentmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	instrumentmanager "org.hbb/algo-trading/go/pkg/instruments-repository"
 	secretmanager "org.hbb/algo-trading/go/pkg/secret-manager"
 )
 

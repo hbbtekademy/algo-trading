@@ -8,9 +8,7 @@ import (
 func GetKiteClient() *kiteconnect.Client {
 	apiKey := secretmanager.GetSecret(secretmanager.KiteApiKeySK)
 	accessToken := secretmanager.GetSecret(secretmanager.KiteAccessTokenSK)
-
 	kc := kiteconnect.New(apiKey)
 	kc.SetAccessToken(accessToken)
-
 	return kc
 }

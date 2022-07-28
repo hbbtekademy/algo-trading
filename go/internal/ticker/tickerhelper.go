@@ -25,7 +25,7 @@ func createTickFile() (*os.File, error) {
 	return tickFile, err
 }
 
-func writeTickToCsv(f *os.File, tick *models.Tick) {
+func writeTickToCsvFile(f *os.File, tick *models.Tick) {
 	w := csv.NewWriter(f)
 	defer w.Flush()
 
@@ -46,7 +46,7 @@ func getTickData(tick *models.Tick) []string {
 	}
 }
 
-func getInstTokens() []uint32 {
+func getInstrumentTokens() []uint32 {
 	tokens := make([]uint32, 0, len(instruments))
 	for k := range instruments {
 		tokens = append(tokens, k)

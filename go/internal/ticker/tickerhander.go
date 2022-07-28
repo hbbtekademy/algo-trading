@@ -13,15 +13,46 @@ import (
 )
 
 var (
-	fileTickCh  chan *models.Tick
-	redisTickCh chan *models.Tick
-	chClosed    bool
+	fileTickChannel  chan *models.Tick
+	redisTickChannel chan *models.Tick
+	channelClosed    bool
 )
+
+const channelSize = 5000
+const bufferTimeToCollectAfterMarketHoursTickData = -5 //Observed market tick data is received after market close. Buffer time need to collate these ticks.
 
 func onTick(kiteTick kitemodels.Tick) {
 	//log.Println(getTickData(tick))
 	// Close the channels 5 mins after market close
-	tick := &models.Tick{
+	tick := mapKiteTickToCBTick(kiteTick)
+
+	if marketSpecifications.IsAfterMarketHrs(getCurrentTimeWithBuffer()) && !channelClosed {
+		log.Printf("Current Time: %s after mkt hrs. Closing File and Redis channels...",
+			time.Now().Format(time.RFC3339))
+		if !channelClosed {
+			//Market Closed. Close all channels.
+			close(fileTickChannel)
+			close(redisTickChannel)
+			channelClosed = true
+		}
+		return
+	}
+
+	if !marketSpecifications.IsMarketOpen(tick.ExchangeTS) {
+		//Safety - Are we receiving ticks after close of market/
+		log.Printf("ExchangeTS: %s outside mkt hrs. Skip tick for Sym %s",
+			tick.ExchangeTS.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
+		return
+	}
+
+	if !channelClosed {
+		fileTickChannel <- tick
+		redisTickChannel <- tick
+	}
+}
+
+func mapKiteTickToCBTick(kiteTick kitemodels.Tick) *models.Tick {
+	cbTick := &models.Tick{
 		InstrumentToken:    kiteTick.InstrumentToken,
 		Sym:                instruments[kiteTick.InstrumentToken].Sym,
 		ExchangeTS:         kiteTick.Timestamp.Time,
@@ -30,54 +61,36 @@ func onTick(kiteTick kitemodels.Tick) {
 		LastTradedQuantity: kiteTick.LastTradedQuantity,
 		VolumeTraded:       kiteTick.VolumeTraded,
 	}
+	return cbTick
+}
 
-	if mktutil.IsAfterMarketHrs(time.Now().Add(-5*time.Minute)) && !chClosed {
-		log.Printf("Current Time: %s after mkt hrs. Closing File and Redis channels...",
-			time.Now().Format(time.RFC3339))
-		if !chClosed {
-			close(fileTickCh)
-			close(redisTickCh)
-			//Done for the day.
-			chClosed = true
-		}
-		return
-	}
-
-	if !mktutil.IsMarketOpen(tick.ExchangeTS) {
-		//Safety - Are we recieving ticks after close of market/
-		log.Printf("ExchangeTS: %s outside mkt hrs. Skip tick for Sym %s",
-			tick.ExchangeTS.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
-		return
-	}
-
-	if !chClosed {
-		fileTickCh <- tick
-		redisTickCh <- tick
-	}
+func getCurrentTimeWithBuffer() time.Time {
+	return time.Now().Add(bufferTimeToCollectAfterMarketHoursTickData * time.Minute)
 }
 
 func onConnect() {
 	log.Println("Connected")
 
-	err := ticker.Subscribe(getInstTokens())
+	err := ticker.Subscribe(getInstrumentTokens())
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = ticker.SetMode(kiteticker.ModeFull, getInstTokens())
+	err = ticker.SetMode(kiteticker.ModeFull, getInstrumentTokens())
 	if err != nil {
 		log.Fatalln("Error setting Ticker Mode:", err)
 	}
 	log.Println("Tokens subscribed..")
 
-	chClosed = false
+	channelClosed = false
 	// tick data is streamed to 2 destinations - one file and one redis. (TODO: Shirish - need to read this code deeper/ )
-	fileTickCh = make(chan *models.Tick, 5000)
-	redisTickCh = make(chan *models.Tick, 5000)
+
+	fileTickChannel = make(chan *models.Tick, channelSize)
+	redisTickChannel = make(chan *models.Tick, channelSize)
 	log.Println("File and Redis Channels created...")
 
-	go handleFileTicks()
-	go handleRedisTicks()
+	go streamTicksToFile()
+	go streamTicksToRedisDatabase()
 }
 func onReconnect(attempt int, delay time.Duration) {
 	//TODO: future implementation - attempt int, delay time.Duration - provide a reconnect strategy
@@ -88,7 +101,7 @@ func onError(err error) {
 	log.Println("Error streaming ticks:", err)
 }
 
-func handleFileTicks() {
+func streamTicksToFile() {
 	f, err := createTickFile()
 	if err != nil {
 		log.Fatalln("Error creating ticker file: ", err)
@@ -96,37 +109,34 @@ func handleFileTicks() {
 	defer func(f *os.File) {
 		err := f.Close()
 		if err != nil {
-			//TODO: log error indicating file cannot be closed.
+			log.Fatalln("Error closing ticker file: ", err)
 		}
 	}(f)
 
 	for {
-		tick, ok := <-fileTickCh
+		tick, ok := <-fileTickChannel
 		if !ok {
-			log.Printf("File Tick Channel closed. Exiting handleFileTicks goroutine...")
+			log.Printf("File Tick Channel closed. Exiting streamTicksToFile goroutine...")
 			return
 		}
-		writeTickToCsv(tickFile, tick)
+		writeTickToCsvFile(tickFile, tick)
 	}
 }
 
-func handleRedisTicks() {
-	defer func(rdb *redis.Client) {
-		err := rdb.Close()
+func streamTicksToRedisDatabase() {
+	defer func(redisClient *redis.Client) {
+		err := redisClient.Close()
 		if err != nil {
-			//TODO: log error redis client connection cannot be closed
+			log.Fatalln("Error closing redis client: ", err)
 		}
-	}(rdb)
+	}(redisClient)
 	for {
-		tick, ok := <-redisTickCh
+		tick, ok := <-redisTickChannel
 		if !ok {
-			log.Printf("Redis Tick Channel closed. Exiting handleRedisTicks goroutine...")
+			log.Printf("Redis Tick Channel closed. Exiting streamTicksToRedisDatabase goroutine...")
 			return
 		}
-
-		//start := time.Now()
-		redisutils.WriteTickToRedis(ctx, rdb, tick)
-		//end := time.Now()
+		redisutils.WriteTickToRedis(ctx, redisClient, tick)
 	}
 
 }

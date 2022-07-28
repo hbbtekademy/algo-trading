@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	instmanager "org.hbb/algo-trading/go/pkg/instruments-repository"
 	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
 )
 
