@@ -1,9 +1,10 @@
-package ticker
+package zerodha
 
 import (
 	"context"
 	"log"
 	instrumentsRepository "org.hbb/algo-trading/go/pkg/instruments-repository"
+	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 	"os"
 	"time"
 
@@ -11,13 +12,12 @@ import (
 	kiteTicker "github.com/zerodha/gokiteconnect/v4/ticker"
 	"org.hbb/algo-trading/go/models"
 	secretManager "org.hbb/algo-trading/go/pkg/secret-manager"
-	utils "org.hbb/algo-trading/go/pkg/utils"
-	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
+	"org.hbb/algo-trading/go/pkg/utils"
 )
 
 var (
-	ticker                         *kiteTicker.Ticker
-	tickFile                       *os.File
+	kiteTickerClient               *kiteTicker.Ticker
+	tickDataFile                   *os.File
 	redisClient                    *redis.Client
 	ctx                            context.Context
 	marketStartTime, marketEndTime time.Time
@@ -33,12 +33,19 @@ func Start() {
 	apiKey := secretManager.GetSecret(secretManager.KiteApiKeySK)
 	accessToken := secretManager.GetSecret(secretManager.KiteAccessTokenSK)
 
-	ticker = kiteTicker.New(apiKey, accessToken)
-	ticker.OnConnect(onConnect)
-	ticker.OnTick(onTick)
-	ticker.OnError(onError)
-	ticker.OnReconnect(onReconnect)
-	ticker.Serve() //blocking call. At this point, the ticks start coming in.
+	kiteTickerClient = kiteTicker.New(apiKey, accessToken)
+
+	// Assign callbacks
+	kiteTickerClient.OnError(onError)
+	kiteTickerClient.OnClose(onClose)
+	kiteTickerClient.OnConnect(onConnect) //instrument supplied via onConnect
+	kiteTickerClient.OnReconnect(onReconnect)
+	kiteTickerClient.OnNoReconnect(onNoReconnect)
+	kiteTickerClient.OnTick(onTick)
+	kiteTickerClient.OnOrderUpdate(onOrderUpdate)
+
+	//Start the connection
+	kiteTickerClient.Serve() //blocking call. At this point, the ticks start coming in.
 }
 
 func initInstruments() {

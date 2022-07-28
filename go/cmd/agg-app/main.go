@@ -37,7 +37,7 @@ func main() {
 }
 
 func candleTicker(ticker *time.Ticker) {
-	log.Println("Starting candle ticker...")
+	log.Println("Starting candle zerodha...")
 	var wg sync.WaitGroup
 	ctx := context.Background()
 	tCounter := 0

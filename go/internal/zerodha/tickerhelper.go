@@ -1,4 +1,4 @@
-package ticker
+package zerodha
 
 import (
 	"encoding/csv"
@@ -15,14 +15,14 @@ func createTickFile() (*os.File, error) {
 	y, m, d := time.Now().Date()
 	fn := fmt.Sprintf("Ticker-%d%d%d.csv", y, int(m), d)
 
-	tickFile, err = os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	tickDataFile, err = os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Println("Error opening ticker file:", err)
+		log.Println("Error opening zerodha file:", err)
 	}
 
 	log.Printf("Tick file %s created...", fn)
 
-	return tickFile, err
+	return tickDataFile, err
 }
 
 func writeTickToCsvFile(f *os.File, tick *models.Tick) {
@@ -31,7 +31,7 @@ func writeTickToCsvFile(f *os.File, tick *models.Tick) {
 
 	err := w.Write(getTickData(tick))
 	if err != nil {
-		log.Fatalln("Error writing to ticker file:", err)
+		log.Fatalln("Error writing to zerodha file:", err)
 	}
 }
 

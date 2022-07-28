@@ -1,4 +1,4 @@
-package instmanager
+package instruments_repository
 
 import (
 	models "org.hbb/algo-trading/go/models"

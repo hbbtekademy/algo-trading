@@ -1,7 +1,9 @@
-package ticker
+package zerodha
 
 import (
+	"fmt"
 	"github.com/go-redis/redis/v8"
+	kiteconnect "github.com/zerodha/gokiteconnect/v4"
 	"log"
 	"os"
 	"time"
@@ -71,12 +73,12 @@ func getCurrentTimeWithBuffer() time.Time {
 func onConnect() {
 	log.Println("Connected")
 
-	err := ticker.Subscribe(getInstrumentTokens())
+	err := kiteTickerClient.Subscribe(getInstrumentTokens())
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = ticker.SetMode(kiteticker.ModeFull, getInstrumentTokens())
+	err = kiteTickerClient.SetMode(kiteticker.ModeFull, getInstrumentTokens())
 	if err != nil {
 		log.Fatalln("Error setting Ticker Mode:", err)
 	}
@@ -101,15 +103,30 @@ func onError(err error) {
 	log.Println("Error streaming ticks:", err)
 }
 
+// Triggered when websocket connection is closed
+func onClose(code int, reason string) {
+	fmt.Println("Close: ", code, reason)
+}
+
+// Triggered when maximum number of reconnect attempt is made and the program is terminated
+func onNoReconnect(attempt int) {
+	fmt.Printf("Maximum no of reconnect attempt reached: %d", attempt)
+}
+
+// Triggered when order update is received
+func onOrderUpdate(order kiteconnect.Order) {
+	fmt.Printf("Order: %s", order.OrderID)
+}
+
 func streamTicksToFile() {
 	f, err := createTickFile()
 	if err != nil {
-		log.Fatalln("Error creating ticker file: ", err)
+		log.Fatalln("Error creating zerodha file: ", err)
 	}
 	defer func(f *os.File) {
 		err := f.Close()
 		if err != nil {
-			log.Fatalln("Error closing ticker file: ", err)
+			log.Fatalln("Error closing zerodha file: ", err)
 		}
 	}(f)
 
@@ -119,7 +136,7 @@ func streamTicksToFile() {
 			log.Printf("File Tick Channel closed. Exiting streamTicksToFile goroutine...")
 			return
 		}
-		writeTickToCsvFile(tickFile, tick)
+		writeTickToCsvFile(tickDataFile, tick)
 	}
 }
 
