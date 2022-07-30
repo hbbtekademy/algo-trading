@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	envutils "org.hbb/algo-trading/go/pkg/utils/env"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
@@ -15,13 +16,20 @@ var (
 )
 
 const (
-	RedisTelegramChannel         string = "Smash-Telegram-Channel"
-	TelegramApiUrl               string = "https://api.telegram.org/"
-	TelegramBotKey               string = "bot5456571295:AAHi7TzIgns2pcipBC_xOjwgtSiVr-cI3lc"
+	RedisTelegramChannel string = "Smash-Telegram-Channel"
+	TelegramApiUrl       string = "https://api.telegram.org/"
+
 	TelegramApiSendMessage       string = "/sendMessage"
 	TelegramChannelChatIdKeyName string = "chat_id"
-	TelegramChannelChatId        string = "-1001743840522"
 	TelegramChannelTextKeyName   string = "text"
+
+	EnvTelegramBotKey        string = "TELEGRAM_BOT_KEY"
+	EnvTelegramChannelChatId string = "TELEGRAM_CHAT_ID"
+)
+
+var (
+	TelegramChannelChatId = envutils.MustGetEnv(EnvTelegramChannelChatId)
+	TelegramBotKey        = envutils.MustGetEnv(EnvTelegramBotKey)
 )
 
 func main() {
