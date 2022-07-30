@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
-	"net/http"
-	"net/url"
 	envutils "org.hbb/algo-trading/go/pkg/utils/env"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
+	"strconv"
 )
 
 var (
@@ -16,13 +16,7 @@ var (
 )
 
 const (
-	RedisTelegramChannel string = "Smash-Telegram-Channel"
-	TelegramApiUrl       string = "https://api.telegram.org/"
-
-	TelegramApiSendMessage       string = "/sendMessage"
-	TelegramChannelChatIdKeyName string = "chat_id"
-	TelegramChannelTextKeyName   string = "text"
-
+	RedisTelegramChannel     string = "Smash-Telegram-Channel"
 	EnvTelegramBotKey        string = "TELEGRAM_BOT_KEY"
 	EnvTelegramChannelChatId string = "TELEGRAM_CHAT_ID"
 )
@@ -33,9 +27,8 @@ var (
 )
 
 func main() {
-	//0. connect to redis
+
 	initRedisClient()
-	//1. listen to redis message topic
 	sub := redisClient.Subscribe(ctx, RedisTelegramChannel)
 	iface, err := sub.Receive(ctx)
 
@@ -54,27 +47,52 @@ func main() {
 		log.Fatal("Error in iface.type")
 	}
 
+	telegramBotApiInterface := getTelegramBotApiInterface(err)
+	telegramChatIdAsInt := getTelegramChatId(err)
+
 	for {
-		msg, err := sub.ReceiveMessage(ctx)
+		messageFromRedisChannel, err := sub.ReceiveMessage(ctx)
 		if err != nil {
 			log.Fatal("Error receiving message")
 		}
-		log.Println("Message received", msg)
-		sendMessageToTelegramChannel(msg)
+		log.Println("MessageFromRedisChannel received", messageFromRedisChannel)
+
+		telegramMsg := NewMessage(telegramChatIdAsInt, messageFromRedisChannel.Payload)
+		respMsg, err := telegramBotApiInterface.Send(telegramMsg)
+
+		if err != nil {
+			log.Fatal("Error occurred while posting message to Telegram Channel: ", err)
+		}
+
+		log.Println("Message Published. Response from Telegram API: ", respMsg)
 	}
 }
 
-func sendMessageToTelegramChannel(message *redis.Message) {
-	data := url.Values{
-		TelegramChannelChatIdKeyName: {TelegramChannelChatId},
-		TelegramChannelTextKeyName:   {message.Payload},
-	}
-
-	resp, err := http.PostForm(TelegramApiUrl+TelegramBotKey+TelegramApiSendMessage, data)
+func getTelegramChatId(err error) int64 {
+	telegramChatIdAsInt, err := strconv.ParseInt(TelegramChannelChatId, 0, 64)
 	if err != nil {
-		log.Fatal("Error occurred while posting message to Telegram Channel: ", err)
+		log.Fatal("Could not parse ChatId as Int", err)
 	}
-	log.Println("Message published", resp)
+	return telegramChatIdAsInt
+}
+
+func getTelegramBotApiInterface(err error) *tgbotapi.BotAPI {
+	telegramBotApiInterface, err := tgbotapi.NewBotAPI(TelegramBotKey)
+	if err != nil {
+		log.Fatal("Could not create Telegram Bot API interface", err)
+	}
+	return telegramBotApiInterface
+}
+
+func NewMessage(chatID int64, text string) tgbotapi.MessageConfig {
+	return tgbotapi.MessageConfig{
+		BaseChat: tgbotapi.BaseChat{
+			ChatID:           chatID,
+			ReplyToMessageID: 0,
+		},
+		Text:                  text,
+		DisableWebPagePreview: false,
+	}
 }
 
 func initRedisClient() {
