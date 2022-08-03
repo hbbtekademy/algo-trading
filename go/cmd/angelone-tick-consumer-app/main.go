@@ -2,10 +2,11 @@ package angelone_tick_consumer_app
 
 import (
 	"log"
+	angelOneDataConsumer "org.hbb/algo-trading/go/internal/angel_one"
 )
 
 // This is the entry point. Consumption of tick data kicked off from this "main"
 func main() {
-	log.Println("Starting Zerodha Tick Consumer app...")
-	/*ticker.Start()*/
+	log.Println("Starting Angel One Tick Consumer app...")
+	angelOneDataConsumer.Start()
 }

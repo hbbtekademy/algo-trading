@@ -21,13 +21,16 @@ var (
 )
 
 const channelSize = 5000
-const bufferTimeToCollectAfterMarketHoursTickData = -5 //Observed market tick data is received after market close. Buffer time need to collate these ticks.
+
+//Observed market tick data is received after market close. Buffer time need to collate these ticks.
+const bufferTimeToCollectAfterMarketHoursTickData = -5
 
 func onTick(kiteTick kitemodels.Tick) {
 	//log.Println(getTickData(tick))
-	// Close the channels 5 mins after market close
+
 	tick := mapKiteTickToCBTick(kiteTick)
 
+	// Close the channels 5 minutes after market close
 	if marketSpecifications.IsAfterMarketHrs(getCurrentTimeWithBuffer()) && !channelClosed {
 		log.Printf("Current Time: %s after mkt hrs. Closing File and Redis channels...",
 			time.Now().Format(time.RFC3339))
