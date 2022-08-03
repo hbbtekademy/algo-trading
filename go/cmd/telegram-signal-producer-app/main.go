@@ -47,8 +47,8 @@ func main() {
 		log.Fatal("Error in iface.type")
 	}
 
-	telegramBotApiInterface := getTelegramBotApiInterface(err)
-	telegramChatIdAsInt := getTelegramChatId(err)
+	telegramBotApiInterface := getTelegramBotApiInterface()
+	telegramChatIdAsInt := getTelegramChatId()
 
 	for {
 		messageFromRedisChannel, err := sub.ReceiveMessage(ctx)
@@ -68,7 +68,7 @@ func main() {
 	}
 }
 
-func getTelegramChatId(err error) int64 {
+func getTelegramChatId() int64 {
 	telegramChatIdAsInt, err := strconv.ParseInt(TelegramChannelChatId, 0, 64)
 	if err != nil {
 		log.Fatal("Could not parse ChatId as Int", err)
@@ -76,7 +76,7 @@ func getTelegramChatId(err error) int64 {
 	return telegramChatIdAsInt
 }
 
-func getTelegramBotApiInterface(err error) *tgbotapi.BotAPI {
+func getTelegramBotApiInterface() *tgbotapi.BotAPI {
 	telegramBotApiInterface, err := tgbotapi.NewBotAPI(TelegramBotKey)
 	if err != nil {
 		log.Fatal("Could not create Telegram Bot API interface", err)
