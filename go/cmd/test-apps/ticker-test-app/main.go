@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"org.hbb/algo-trading/go/models"
-	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	instmanager "org.hbb/algo-trading/go/pkg/instruments-repository"
 	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
@@ -74,24 +74,24 @@ func getInstruments() Instruments {
 func getTick(s string) *models.Tick {
 	arr := strings.Split(s, ",")
 	sym := arr[0]
-	exchTS, _ := time.Parse(time.RFC3339, arr[1])
+	exchangeTS, _ := time.Parse(time.RFC3339, arr[1])
 	lastTradeTS, _ := time.Parse(time.RFC3339, arr[2])
 	ltp, _ := strconv.ParseFloat(arr[3], 32)
 	lastTradedQuantity, _ := strconv.ParseInt(arr[4], 10, 32)
 	vol, _ := strconv.ParseInt(arr[5], 10, 32)
 
-	// Calculate the modified ExchTS offset from current time
+	// Calculate the modified ExchangeTS offset from current time
 	if first {
-		diff = now.Sub(exchTS) + 3*time.Minute
+		diff = now.Sub(exchangeTS) + 3*time.Minute
 		first = false
 	}
 
-	modExchTS := exchTS.Add(diff)
+	modExchTS := exchangeTS.Add(diff)
 
 	return &models.Tick{
 		Sym:                sym,
 		InstrumentToken:    instruments[sym],
-		ExchTS:             modExchTS,
+		ExchangeTS:         modExchTS,
 		LastTradeTS:        lastTradeTS,
 		LTP:                float32(ltp),
 		LastTradedQuantity: uint32(lastTradedQuantity),

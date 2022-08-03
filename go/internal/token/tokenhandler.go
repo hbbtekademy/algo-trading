@@ -71,7 +71,6 @@ func localBreezeTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	log.Println("URL Query Params: ", string(reqBody))
-	apiSession = ""
 	fmt.Fprint(w, "Successfully retrieved API Session...")
 }
 

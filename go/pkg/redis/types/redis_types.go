@@ -8,34 +8,34 @@ import (
 )
 
 const (
-	REDIS_LTP_KEY_PREFIX = "LTP:ts:sym:"
-	REDIS_LTP_KEY_FMT    = REDIS_LTP_KEY_PREFIX + "%s:%s"
+	LtpKeyPrefix = "LTP:ts:sym:"
+	LtpKeyFmt    = LtpKeyPrefix + "%s:%s"
 
-	REDIS_LTP_IDX_KEY_PREFIX = "IDX:LTP:sym:"
-	REDIS_LTP_IDX_KEY_FMT    = REDIS_LTP_IDX_KEY_PREFIX + "%s"
+	LtpIdxKeyPrefix = "IDX:LTP:sym:"
+	LtpIdxKeyFmt    = LtpIdxKeyPrefix + "%s"
 
-	REDIS_VOL_KEY_PREFIX = "VOL:ts:sym:"
-	REDIS_VOL_KEY_FMT    = REDIS_VOL_KEY_PREFIX + "%s:%s"
+	VolKeyPrefix = "VOL:ts:sym:"
+	VolKeyFmt    = VolKeyPrefix + "%s:%s"
 
-	REDIS_VOL_IDX_KEY_PREFIX = "IDX:VOL:sym:"
-	REDIS_VOL_IDX_KEY_FMT    = REDIS_VOL_IDX_KEY_PREFIX + "%s"
+	VolIdxKeyPrefix = "IDX:VOL:sym:"
+	VolIdxKeyFmt    = VolIdxKeyPrefix + "%s"
 
-	REDIS_CS1M_KEY_PREFIX = "CS1M:ts:sym:"
-	REDIS_CS1M_KEY_FMT    = REDIS_CS1M_KEY_PREFIX + "%s:%s"
+	Cs1mKeyPrefix = "CS1M:ts:sym:"
+	Cs1mKeyFmt    = Cs1mKeyPrefix + "%s:%s"
 
-	REDIS_CS1M_IDX_KEY_PREFIX = "IDX:CS1M:sym:"
-	REDIS_CS1M_IDX_KEY_FMT    = REDIS_CS1M_IDX_KEY_PREFIX + "%s"
+	Cs1mIdxKeyPrefix = "IDX:CS1M:sym:"
+	Cs1mIdxKeyFmt    = Cs1mIdxKeyPrefix + "%s"
 
-	REDIS_CS15M_KEY_PREFIX = "CS15M:ts:sym:"
-	REDIS_CS15M_KEY_FMT    = REDIS_CS15M_KEY_PREFIX + "%s:%s"
+	Cs15mKeyPrefix = "CS15M:ts:sym:"
+	Cs15mKeyFmt    = Cs15mKeyPrefix + "%s:%s"
 
-	REDIS_CS15M_IDX_KEY_PREFIX = "IDX:CS15M:sym:"
-	REDIS_CS15M_IDX_KEY_FMT    = REDIS_CS15M_IDX_KEY_PREFIX + "%s"
+	Cs15mIdxKeyPrefix = "IDX:CS15M:sym:"
+	Cs15mIdxKeyFmt    = Cs15mIdxKeyPrefix + "%s"
 
-	REDIS_KEY_TS_FMT = "200601021504"
+	KeyTsFmt = "200601021504" //TODO: what does this number mean ?
 
-	REDIS_CS1M_NOTIFY_TOPIC  = "CS1M_NOTIFY"
-	REDIS_CS15M_NOTIFY_TOPIC = "CS15M_NOTIFY"
+	Cs1mNotifyTopic  = "CS1M_NOTIFY"
+	Cs15mNotifyTopic = "CS15M_NOTIFY"
 )
 
 type RedisKey struct {
@@ -61,7 +61,7 @@ func NewKeyPattern(ts string, tokenId string) RedisKey {
 
 func NewKey(ts time.Time, tokenId uint32) RedisKey {
 	return RedisKey{
-		ts:      ts.Format(REDIS_KEY_TS_FMT),
+		ts:      ts.Format(KeyTsFmt),
 		tokenId: fmt.Sprintf("%d", tokenId),
 		TS:      ts,
 		TokenId: tokenId,
@@ -76,61 +76,51 @@ func NewIdxKey(tokenId uint32) RedisIdxKey {
 }
 
 func (k *RedisKey) GetLTPKey() string {
-	return fmt.Sprintf(REDIS_LTP_KEY_FMT, k.ts, k.tokenId)
+	return fmt.Sprintf(LtpKeyFmt, k.ts, k.tokenId)
 }
 
 func (k *RedisIdxKey) GetLTPIdxKey() string {
-	return fmt.Sprintf(REDIS_LTP_IDX_KEY_FMT, k.tokenId)
+	return fmt.Sprintf(LtpIdxKeyFmt, k.tokenId)
 }
 
 func (k *RedisKey) GetVOLKey() string {
-	return fmt.Sprintf(REDIS_VOL_KEY_FMT, k.ts, k.tokenId)
+	return fmt.Sprintf(VolKeyFmt, k.ts, k.tokenId)
 }
 
 func (k *RedisIdxKey) GetVOLIdxKey() string {
-	return fmt.Sprintf(REDIS_VOL_IDX_KEY_FMT, k.tokenId)
+	return fmt.Sprintf(VolIdxKeyFmt, k.tokenId)
 }
 
 func (k *RedisKey) GetCS1MKey() string {
-	return fmt.Sprintf(REDIS_CS1M_KEY_FMT, k.ts, k.tokenId)
+	return fmt.Sprintf(Cs1mKeyFmt, k.ts, k.tokenId)
 }
 
 func (k *RedisIdxKey) GetCS1MIdxKey() string {
-	return fmt.Sprintf(REDIS_CS1M_IDX_KEY_FMT, k.tokenId)
+	return fmt.Sprintf(Cs1mIdxKeyFmt, k.tokenId)
 }
 
 func (k *RedisKey) GetCS15MKey() string {
-	return fmt.Sprintf(REDIS_CS15M_KEY_FMT, k.ts, k.tokenId)
+	return fmt.Sprintf(Cs15mKeyFmt, k.ts, k.tokenId)
 }
 
 func (k *RedisIdxKey) GetCS15MIdxKey() string {
-	return fmt.Sprintf(REDIS_CS15M_IDX_KEY_FMT, k.tokenId)
+	return fmt.Sprintf(Cs15mIdxKeyFmt, k.tokenId)
 }
 
 func (k *RedisKey) GetScore() float64 {
-	ts, _ := time.Parse(REDIS_KEY_TS_FMT, k.ts)
+	ts, _ := time.Parse(KeyTsFmt, k.ts)
 	return float64(ts.Unix())
 }
 
 func ParseKey(key string) RedisKey {
 	arr := strings.Split(key, ":")
-	ts, _ := time.Parse(REDIS_KEY_TS_FMT, arr[3])
+	ts, _ := time.Parse(KeyTsFmt, arr[3])
 	tid, _ := strconv.ParseInt(arr[4], 10, 64)
 
 	return RedisKey{
 		ts:      arr[3],
 		tokenId: arr[4],
 		TS:      ts,
-		TokenId: uint32(tid),
-	}
-}
-
-func ParseIdxKey(key string) RedisIdxKey {
-	arr := strings.Split(key, ":")
-	tid, _ := strconv.ParseInt(arr[3], 10, 64)
-
-	return RedisIdxKey{
-		tokenId: arr[3],
 		TokenId: uint32(tid),
 	}
 }

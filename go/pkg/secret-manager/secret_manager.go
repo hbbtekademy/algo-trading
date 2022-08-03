@@ -26,7 +26,12 @@ func GetSecret(keyName string) string {
 
 	ctx := context.Background()
 	client := getClient()
-	defer client.Close()
+	defer func(client *secretmanager.Client) {
+		err := client.Close()
+		if err != nil {
+			//TODO: could not close secretManager client ? Need a try with resources concept handler
+		}
+	}(client)
 
 	accessRequest := &secretmanagerpb.AccessSecretVersionRequest{
 		Name: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", getProjectId(), keyName),
@@ -43,7 +48,12 @@ func GetSecret(keyName string) string {
 func CreateSecret(key string, value string) error {
 	ctx := context.Background()
 	client := getClient()
-	defer client.Close()
+	defer func(client *secretmanager.Client) {
+		err := client.Close()
+		if err != nil {
+
+		}
+	}(client)
 
 	if !secretExists(key) {
 		log.Println("Secret doesnt exist. Creating it now...")
@@ -107,7 +117,12 @@ func getProjectId() string {
 func secretExists(key string) bool {
 	ctx := context.Background()
 	client := getClient()
-	defer client.Close()
+	defer func(client *secretmanager.Client) {
+		err := client.Close()
+		if err != nil {
+
+		}
+	}(client)
 
 	req := &secretmanagerpb.GetSecretRequest{
 		Name: fmt.Sprintf("projects/%s/secrets/%s", getProjectId(), key),

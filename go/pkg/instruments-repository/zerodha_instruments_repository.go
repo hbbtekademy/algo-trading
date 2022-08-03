@@ -1,4 +1,4 @@
-package instmanager
+package instruments_repository
 
 import (
 	models "org.hbb/algo-trading/go/models"
@@ -38,6 +38,7 @@ func GetNiftyFutInstruments() models.Instruments {
 	return instruments
 }
 
+// GetJanFutInstruments TODO: This should be read from a config file ?
 func GetJanFutInstruments() models.Instruments {
 	instruments := make(models.Instruments)
 	instruments[13379586] = &models.Instrument{Id: 13379586, Sym: "NIFTY22JANFUT", LotSize: 50}

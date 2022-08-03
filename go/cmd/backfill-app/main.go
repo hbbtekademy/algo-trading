@@ -10,7 +10,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
 	"org.hbb/algo-trading/go/models"
-	instmanager "org.hbb/algo-trading/go/pkg/instrument-manager"
+	instmanager "org.hbb/algo-trading/go/pkg/instruments-repository"
 	"org.hbb/algo-trading/go/pkg/utils"
 	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
@@ -26,6 +26,7 @@ var (
 	rdb *redis.Client
 )
 
+// Back-fill is to get Historical Data / On-boarding new instruments
 func main() {
 	start := time.Now()
 	var wg sync.WaitGroup

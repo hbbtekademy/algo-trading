@@ -16,14 +16,14 @@ import (
 )
 
 var (
-	rdb     *redis.Client
-	mktutil *utils.Mktutil
-	done    chan bool
+	rdb         *redis.Client
+	marketSpecs *utils.MarketSpecifications
+	done        chan bool
 )
 
 func main() {
 	rdb = redisutils.GetRTRedisClient()
-	mktutil = utils.NewMktUtil(utils.GetMarketTime())
+	marketSpecs = utils.GetMarketSpecs(utils.GetMarketTime())
 	done = make(chan bool)
 
 	now := time.Now()
@@ -37,7 +37,7 @@ func main() {
 }
 
 func candleTicker(ticker *time.Ticker) {
-	log.Println("Starting candle ticker...")
+	log.Println("Starting candle zerodha...")
 	var wg sync.WaitGroup
 	ctx := context.Background()
 	tCounter := 0
@@ -45,11 +45,11 @@ func candleTicker(ticker *time.Ticker) {
 		t := <-ticker.C
 		tCounter++
 
-		if mktutil.IsValidMarketHrs(t.Add(-1 * time.Minute)) {
+		if marketSpecs.IsMarketOpen(t.Add(-1 * time.Minute)) {
 			counter := 0
 			ct := t.Add(-15 * time.Second)
 			pt := t.Add(-75 * time.Second)
-			keyTS := ct.Format(redistypes.REDIS_KEY_TS_FMT)
+			keyTS := ct.Format(redistypes.KeyTsFmt)
 
 			keyPat := redistypes.NewKeyPattern(keyTS, "*")
 			iter := rdb.Scan(ctx, 0, keyPat.GetLTPKey(), 500).Iterator()
@@ -69,17 +69,17 @@ func candleTicker(ticker *time.Ticker) {
 			log.Println("All 1M candles generated. Sending notification...")
 
 			msg := fmt.Sprintf("CS1M:ts:%s", keyTS)
-			redisutils.PublishMsg(ctx, rdb, redistypes.REDIS_CS1M_NOTIFY_TOPIC, msg)
+			redisutils.PublishMsg(ctx, rdb, redistypes.Cs1mNotifyTopic, msg)
 			if tCounter%15 == 0 {
 				msg := fmt.Sprintf("CS15M:ts:%s", keyTS)
 				log.Println("Sending notification for 15M Candles...")
-				redisutils.PublishMsg(ctx, rdb, redistypes.REDIS_CS15M_NOTIFY_TOPIC, msg)
+				redisutils.PublishMsg(ctx, rdb, redistypes.Cs15mNotifyTopic, msg)
 			}
 
-		} else if mktutil.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
+		} else if marketSpecs.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
 			log.Println("Outside mkt hrs. Exiting...")
 			done <- true
-		} else if mktutil.IsBeforeMarketHrs(t) {
+		} else if marketSpecs.IsBeforeMarketHrs(t) {
 			log.Println("Waiting for mkt hrs to start....")
 		}
 	}
@@ -129,7 +129,7 @@ func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redisty
 
 	ohlcv.Volume = volEnd - volStart
 
-	candleKey := cKey.GetCS1MKey()
+	candleKey := cKey.GetCS1MKey() // gen 1 min key
 	idxKey := redistypes.NewIdxKey(cKey.TokenId)
 
 	_, err = rdb.HSet(ctx, candleKey,
