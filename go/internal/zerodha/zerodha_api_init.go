@@ -2,33 +2,31 @@ package zerodha
 
 import (
 	"context"
-	"log"
-	instrumentsRepository "org.hbb/algo-trading/go/pkg/instruments-repository"
-	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
-	"os"
-	"time"
-
 	"github.com/go-redis/redis/v8"
 	kiteTicker "github.com/zerodha/gokiteconnect/v4/ticker"
 	"org.hbb/algo-trading/go/models"
+	instrumentsRepository "org.hbb/algo-trading/go/pkg/instruments-repository"
 	secretManager "org.hbb/algo-trading/go/pkg/secret-manager"
-	"org.hbb/algo-trading/go/pkg/utils"
+	"org.hbb/algo-trading/go/pkg/utils/market"
+	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
+	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
+	"os"
 )
 
 var (
-	kiteTickerClient               *kiteTicker.Ticker
-	tickDataFile                   *os.File
-	redisClient                    *redis.Client
-	ctx                            context.Context
-	marketStartTime, marketEndTime time.Time
-	instruments                    models.Instruments
-	marketSpecifications           *utils.MarketSpecifications
+	kiteTickerClient     *kiteTicker.Ticker
+	tickDataFile         *os.File
+	redisClient          *redis.Client
+	ctx                  context.Context
+	instruments          models.Instruments
+	marketSpecifications *market.Specifications
 )
 
 func Start() {
-	initMarketSpecification() // market data - all - tick-consumer / tick-adapter // this is a tick data consumer
+
+	ctx, redisClient = redisUtils.InitRedisClient()
+	marketSpecifications = marketUtils.InitMarketSpecification()
 	initInstruments()
-	initRedisClient()
 
 	apiKey := secretManager.GetSecret(secretManager.KiteApiKeySK)
 	accessToken := secretManager.GetSecret(secretManager.KiteAccessTokenSK)
@@ -50,15 +48,4 @@ func Start() {
 
 func initInstruments() {
 	instruments = instrumentsRepository.GetNiftyFutInstruments()
-}
-
-func initRedisClient() {
-	ctx = context.Background()
-	redisClient = redisUtils.GetRTRedisClient()
-}
-
-func initMarketSpecification() {
-	marketStartTime, marketEndTime = utils.GetMarketTime()
-	marketSpecifications = utils.GetMarketSpecs(marketStartTime, marketEndTime)
-	log.Printf("Mkt Start Time: %v, Mkt End time: %v", marketStartTime, marketEndTime)
 }

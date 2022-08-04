@@ -1,4 +1,4 @@
-package angelone_tick_consumer_app
+package main
 
 import (
 	"log"

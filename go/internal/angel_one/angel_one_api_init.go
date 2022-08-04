@@ -6,21 +6,18 @@ import (
 	SmartApi "github.com/angelbroking-github/smartapigo"
 	"github.com/angelbroking-github/smartapigo/websocket"
 	"github.com/go-redis/redis/v8"
-	"log"
 	"org.hbb/algo-trading/go/models"
-	"org.hbb/algo-trading/go/pkg/utils"
+	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 	"os"
-	"time"
 )
 
 var (
-	tickDataFile                   *os.File
-	redisClient                    *redis.Client
-	ctx                            context.Context
-	marketStartTime, marketEndTime time.Time
-	instruments                    models.Instruments
-	marketSpecifications           *utils.MarketSpecifications
+	tickDataFile         *os.File
+	redisClient          *redis.Client
+	ctx                  context.Context
+	instruments          models.Instruments
+	marketSpecifications *marketUtils.Specifications
 )
 
 const (
@@ -31,9 +28,9 @@ const (
 
 func Start() {
 
-	initMarketSpecification() // market data - all - tick-consumer / tick-adapter // this is a tick data consumer
+	ctx, redisClient = redisUtils.InitRedisClient()
+	marketSpecifications = marketUtils.InitMarketSpecification() // market data - all - tick-consumer / tick-adapter // this is a tick data consumer
 	initInstruments()
-	initRedisClient()
 
 	// Create New Angel Broking Client
 	SmartApiClient := SmartApi.New(AngelOneClientCode, AngelOnePassword, AngelOneApiKey)
@@ -69,17 +66,6 @@ func Start() {
 	socketClient.Serve()
 }
 
-func initRedisClient() {
-	ctx = context.Background()
-	redisClient = redisUtils.GetRTRedisClient()
-}
-
 func initInstruments() {
 	//instruments := GetAllAngleOneInstruments()
-}
-
-func initMarketSpecification() {
-	marketStartTime, marketEndTime = utils.GetMarketTime()
-	marketSpecifications = utils.GetMarketSpecs(marketStartTime, marketEndTime)
-	log.Printf("Mkt Start Time: %v, Mkt End time: %v", marketStartTime, marketEndTime)
 }

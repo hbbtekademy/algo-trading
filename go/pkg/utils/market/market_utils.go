@@ -1,4 +1,4 @@
-package utils
+package market
 
 import (
 	"fmt"
@@ -23,28 +23,36 @@ marketEndTimeUTC - UTC time when the market closes
 marketName - NSE,BSE,NYSE,NASDAQ,CME,Binance,FX
 isMarket247 -set to true when the market is always open
 */
-type MarketSpecifications struct {
+type Specifications struct {
 	marketStartTime time.Time
 	marketEndTime   time.Time
 }
 
 // GetMarketSpecs /* TODO: Refactor - MarketUtils must know the start and end time of the market.
-func GetMarketSpecs(mst time.Time, met time.Time) *MarketSpecifications {
-	return &MarketSpecifications{
+func GetMarketSpecs(mst time.Time, met time.Time) *Specifications {
+	return &Specifications{
 		marketStartTime: mst,
 		marketEndTime:   met,
 	}
 }
 
-func (m *MarketSpecifications) IsMarketOpen(t time.Time) bool {
+func InitMarketSpecification() *Specifications {
+	marketStartTime, marketEndTime := GetMarketTime()
+	marketSpecifications := GetMarketSpecs(marketStartTime, marketEndTime)
+	log.Printf("Mkt Start Time: %v, Mkt End time: %v", marketStartTime, marketEndTime)
+	return marketSpecifications
+
+}
+
+func (m *Specifications) IsMarketOpen(t time.Time) bool {
 	return t.After(m.marketStartTime) && t.Before(m.marketEndTime)
 }
 
-func (m *MarketSpecifications) IsAfterMarketHrs(t time.Time) bool {
+func (m *Specifications) IsAfterMarketHrs(t time.Time) bool {
 	return t.After(m.marketEndTime)
 }
 
-func (m *MarketSpecifications) IsBeforeMarketHrs(t time.Time) bool {
+func (m *Specifications) IsBeforeMarketHrs(t time.Time) bool {
 	return t.Before(m.marketStartTime)
 }
 

@@ -20,6 +20,10 @@ const (
 	RedisDialTimeout = 250
 )
 
+func InitRedisClient() (context.Context, *redis.Client) {
+	return context.Background(), GetRTRedisClient()
+}
+
 func GetHistRedisClient() *redis.Client {
 	host := envutils.MustGetEnv("REDIS_HIST_HOST")
 	port := envutils.MustGetEnv("REDIS_HIST_PORT")

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"org.hbb/algo-trading/go/pkg/utils/market"
 	"strconv"
 	"sync"
 	"time"
@@ -11,19 +12,18 @@ import (
 	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/go/models"
 	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
-	"org.hbb/algo-trading/go/pkg/utils"
 	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 var (
 	rdb         *redis.Client
-	marketSpecs *utils.MarketSpecifications
+	marketSpecs *market.Specifications
 	done        chan bool
 )
 
 func main() {
 	rdb = redisutils.GetRTRedisClient()
-	marketSpecs = utils.GetMarketSpecs(utils.GetMarketTime())
+	marketSpecs = market.GetMarketSpecs(market.GetMarketTime())
 	done = make(chan bool)
 
 	now := time.Now()
