@@ -17,7 +17,7 @@ var (
 	redisClient          *redis.Client
 	ctx                  context.Context
 	instruments          models.Instruments
-	marketSpecifications *marketUtils.Specifications
+	marketSpecifications *models.Specifications
 )
 
 const (

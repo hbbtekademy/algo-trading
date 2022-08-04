@@ -2,15 +2,14 @@ package zerodha
 
 import (
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	kiteConnect "github.com/zerodha/gokiteconnect/v4"
 	kiteModels "github.com/zerodha/gokiteconnect/v4/models"
 	kiteTicker "github.com/zerodha/gokiteconnect/v4/ticker"
 	"log"
 	"org.hbb/algo-trading/go/models"
+	csvUtils "org.hbb/algo-trading/go/pkg/utils/csv"
 	eventHandlerUtils "org.hbb/algo-trading/go/pkg/utils/event_handler"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
-	"os"
 	"time"
 )
 
@@ -46,7 +45,7 @@ func onConnect() {
 
 	err := kiteTickerClient.Subscribe(getInstrumentTokens())
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Error subscribing instrument tokens", err)
 	}
 
 	err = kiteTickerClient.SetMode(kiteTicker.ModeFull, getInstrumentTokens())
@@ -56,14 +55,12 @@ func onConnect() {
 	log.Println("Tokens subscribed..")
 
 	channelClosed = false
-	// tick data is streamed to 2 destinations - one file and one redis. (TODO: Shirish - need to read this code deeper/ )
-
 	fileTickChannel = make(chan *models.Tick, channelSize)
 	redisTickChannel = make(chan *models.Tick, channelSize)
 	log.Println("File and Redis Channels created...")
 
-	go streamTicksToFile()
-	go streamTicksToRedisDatabase()
+	go csvUtils.StreamTicksToFile(fileTickChannel, tickDataFile, instruments)
+	go redisUtils.StreamTicksToRedisDatabase(redisClient, redisTickChannel, ctx)
 }
 func onReconnect(attempt int, delay time.Duration) {
 	//TODO: future implementation - attempt int, delay time.Duration - provide a reconnect strategy
@@ -87,44 +84,4 @@ func onNoReconnect(attempt int) {
 // Triggered when order update is received
 func onOrderUpdate(order kiteConnect.Order) {
 	fmt.Printf("Order: %s", order.OrderID)
-}
-
-func streamTicksToFile() {
-	f, err := createTickFile()
-	if err != nil {
-		log.Fatalln("Error creating zerodha file: ", err)
-	}
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			log.Fatalln("Error closing zerodha file: ", err)
-		}
-	}(f)
-
-	for {
-		tick, ok := <-fileTickChannel
-		if !ok {
-			log.Printf("File Tick Channel closed. Exiting streamTicksToFile goroutine...")
-			return
-		}
-		writeTickToCsvFile(tickDataFile, tick)
-	}
-}
-
-func streamTicksToRedisDatabase() {
-	defer func(redisClient *redis.Client) {
-		err := redisClient.Close()
-		if err != nil {
-			log.Fatalln("Error closing redis client: ", err)
-		}
-	}(redisClient)
-	for {
-		tick, ok := <-redisTickChannel
-		if !ok {
-			log.Printf("Redis Tick Channel closed. Exiting streamTicksToRedisDatabase goroutine...")
-			return
-		}
-		redisUtils.WriteTickToRedis(ctx, redisClient, tick)
-	}
-
 }
