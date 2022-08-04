@@ -63,7 +63,6 @@ func onConnect() {
 	go redisUtils.StreamTicksToRedisDatabase(redisClient, redisTickChannel, ctx)
 }
 func onReconnect(attempt int, delay time.Duration) {
-	//TODO: future implementation - attempt int, delay time.Duration - provide a reconnect strategy
 	log.Println("Reconnecting...")
 }
 
@@ -71,17 +70,22 @@ func onError(err error) {
 	log.Println("Error streaming ticks:", err)
 }
 
-// Triggered when websocket connection is closed
 func onClose(code int, reason string) {
 	fmt.Println("Close: ", code, reason)
 }
 
-// Triggered when maximum number of reconnect attempt is made and the program is terminated
 func onNoReconnect(attempt int) {
 	fmt.Printf("Maximum no of reconnect attempt reached: %d", attempt)
 }
 
-// Triggered when order update is received
 func onOrderUpdate(order kiteConnect.Order) {
 	fmt.Printf("Order: %s", order.OrderID)
+}
+
+func getInstrumentTokens() []uint32 {
+	tokens := make([]uint32, 0, len(instruments))
+	for k := range instruments {
+		tokens = append(tokens, k)
+	}
+	return tokens
 }
