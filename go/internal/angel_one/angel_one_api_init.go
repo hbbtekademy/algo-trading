@@ -52,6 +52,7 @@ func Start() {
 	}
 
 	// New Websocket Client
+	//TODO: scrips should be provided as input.
 	socketClient := websocket.New(session.ClientCode, session.FeedToken, "nse_cm|17963&nse_cm|3499&nse_cm|11536&nse_cm|21808&nse_cm|317")
 
 	// Assign callbacks

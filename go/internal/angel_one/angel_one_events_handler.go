@@ -30,6 +30,7 @@ func onMessage(message []map[string]interface{}) {
 }
 
 func mapAngelOneTickToCBTick(message []map[string]interface{}) *models.Tick {
+	//TODO: Convert message into cbTick. Per preliminary analysis, Angel One feed does not seem to provided
 	cbTick := &models.Tick{
 		InstrumentToken:    0,
 		Sym:                "string",

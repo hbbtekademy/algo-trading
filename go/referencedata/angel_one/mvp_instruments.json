@@ -1,0 +1,101 @@
+[
+  {
+    "token": "26009",
+    "symbol": "BANKNIFTY",
+    "name": "BANKNIFTY",
+    "expiry": "",
+    "strike": "-1.000000",
+    "lotsize": "-1",
+    "instrumenttype": "",
+    "exch_seg": "NSE",
+    "tick_size": "-1.000000"
+  },
+  {
+    "token": "56041",
+    "symbol": "BANKNIFTY25AUG2240000PE",
+    "name": "BANKNIFTY",
+    "expiry": "25AUG2022",
+    "strike": "4000000.000000",
+    "lotsize": "25",
+    "instrumenttype": "OPTIDX",
+    "exch_seg": "NFO",
+    "tick_size": "5.000000"
+  },
+  {
+    "token": "51471",
+    "symbol": "BANKNIFTY01SEP2233200CE",
+    "name": "BANKNIFTY",
+    "expiry": "01SEP2022",
+    "strike": "3320000.000000",
+    "lotsize": "25",
+    "instrumenttype": "OPTIDX",
+    "exch_seg": "NFO",
+    "tick_size": "5.000000"
+  },
+  {
+    "token": "47420",
+    "symbol": "BANKNIFTY18AUG2235400CE",
+    "name": "BANKNIFTY",
+    "expiry": "18AUG2022",
+    "strike": "3540000.000000",
+    "lotsize": "25",
+    "instrumenttype": "OPTIDX",
+    "exch_seg": "NFO",
+    "tick_size": "5.000000"
+  },
+  {
+    "token": "57085",
+    "symbol": "BANKNIFTY27OCT2236000CE",
+    "name": "BANKNIFTY",
+    "expiry": "27OCT2022",
+    "strike": "3600000.000000",
+    "lotsize": "25",
+    "instrumenttype": "OPTIDX",
+    "exch_seg": "NFO",
+    "tick_size": "5.000000"
+  },
+  {
+    "token": "57131",
+    "symbol": "BANKNIFTY30MAR2340500CE",
+    "name": "BANKNIFTY",
+    "expiry": "30MAR2023",
+    "strike": "4050000.000000",
+    "lotsize": "25",
+    "instrumenttype": "OPTIDX",
+    "exch_seg": "NFO",
+    "tick_size": "5.000000"
+  },
+  {
+    "token": "26000",
+    "symbol": "NIFTY",
+    "name": "NIFTY",
+    "expiry": "",
+    "strike": "-1.000000",
+    "lotsize": "-1",
+    "instrumenttype": "",
+    "exch_seg": "NSE",
+    "tick_size": "-1.000000"
+  },
+  {
+    "token": "47782",
+    "symbol": "NIFTY15SEP2215950PE",
+    "name": "NIFTY",
+    "expiry": "15SEP2022",
+    "strike": "1595000.000000",
+    "lotsize": "50",
+    "instrumenttype": "OPTIDX",
+    "exch_seg": "NFO",
+    "tick_size": "5.000000"
+  },
+  {
+    "token": "52697",
+    "symbol": "NIFTY22SEP2217750PE",
+    "name": "NIFTY",
+    "expiry": "22SEP2022",
+    "strike": "1775000.000000",
+    "lotsize": "50",
+    "instrumenttype": "OPTIDX",
+    "exch_seg": "NFO",
+    "tick_size": "5.000000"
+  }
+]
