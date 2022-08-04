@@ -3,6 +3,7 @@ package market
 import (
 	"fmt"
 	"log"
+	"org.hbb/algo-trading/go/models"
 	"time"
 )
 
@@ -14,46 +15,31 @@ const (
 	marketEndTimeCalcFailureErrorMessage   string = "Failed to get market end time:"
 )
 
-/*
-MarketSpecifications - This struct will capture all attributes specific to the market
-marketStartTime - Local time when the market opens
-marketEndTime - Local time when the market closes
-marketStartTimeUTC - UTC time when the market opens
-marketEndTimeUTC - UTC time when the market closes
-marketName - NSE,BSE,NYSE,NASDAQ,CME,Binance,FX
-isMarket247 -set to true when the market is always open
-*/
-type Specifications struct {
-	marketStartTime time.Time
-	marketEndTime   time.Time
-}
-
 // GetMarketSpecs /* TODO: Refactor - MarketUtils must know the start and end time of the market.
-func GetMarketSpecs(mst time.Time, met time.Time) *Specifications {
-	return &Specifications{
-		marketStartTime: mst,
-		marketEndTime:   met,
+func GetMarketSpecs(mst time.Time, met time.Time) *models.Specifications {
+	return &models.Specifications{
+		MarketStartTime: mst,
+		MarketEndTime:   met,
 	}
 }
 
-func InitMarketSpecification() *Specifications {
+func InitMarketSpecification() *models.Specifications {
 	marketStartTime, marketEndTime := GetMarketTime()
 	marketSpecifications := GetMarketSpecs(marketStartTime, marketEndTime)
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", marketStartTime, marketEndTime)
 	return marketSpecifications
-
 }
 
-func (m *Specifications) IsMarketOpen(t time.Time) bool {
-	return t.After(m.marketStartTime) && t.Before(m.marketEndTime)
+func IsMarketOpen(t time.Time, m *models.Specifications) bool {
+	return t.After(m.MarketEndTime) && t.Before(m.MarketEndTime)
 }
 
-func (m *Specifications) IsAfterMarketHrs(t time.Time) bool {
-	return t.After(m.marketEndTime)
+func IsAfterMarketHrs(t time.Time, m *models.Specifications) bool {
+	return t.After(m.MarketEndTime)
 }
 
-func (m *Specifications) IsBeforeMarketHrs(t time.Time) bool {
-	return t.Before(m.marketStartTime)
+func IsBeforeMarketHrs(t time.Time, m *models.Specifications) bool {
+	return t.Before(m.MarketStartTime)
 }
 
 func GetMarketTime() (time.Time, time.Time) {

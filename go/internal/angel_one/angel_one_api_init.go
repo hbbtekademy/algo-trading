@@ -21,8 +21,8 @@ var (
 )
 
 const (
-	AngelOneClientCode string = "123123asd"
-	AngelOnePassword   string = "123asdasd"
+	AngelOneClientCode string = ""
+	AngelOnePassword   string = ""
 	AngelOneApiKey     string = "apikey"
 )
 

@@ -7,7 +7,6 @@ import (
 	"org.hbb/algo-trading/go/models"
 	instrumentsRepository "org.hbb/algo-trading/go/pkg/instruments-repository"
 	secretManager "org.hbb/algo-trading/go/pkg/secret-manager"
-	"org.hbb/algo-trading/go/pkg/utils/market"
 	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 	"os"
@@ -19,7 +18,7 @@ var (
 	redisClient          *redis.Client
 	ctx                  context.Context
 	instruments          models.Instruments
-	marketSpecifications *market.Specifications
+	marketSpecifications *models.Specifications
 )
 
 func Start() {

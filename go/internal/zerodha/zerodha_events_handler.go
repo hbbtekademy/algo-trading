@@ -3,15 +3,15 @@ package zerodha
 import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	kiteconnect "github.com/zerodha/gokiteconnect/v4"
+	kiteConnect "github.com/zerodha/gokiteconnect/v4"
+	kiteModels "github.com/zerodha/gokiteconnect/v4/models"
+	kiteTicker "github.com/zerodha/gokiteconnect/v4/ticker"
 	"log"
+	"org.hbb/algo-trading/go/models"
+	eventHandlerUtils "org.hbb/algo-trading/go/pkg/utils/event_handler"
+	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 	"os"
 	"time"
-
-	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
-	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
-	"org.hbb/algo-trading/go/models"
-	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 var (
@@ -22,41 +22,13 @@ var (
 
 const channelSize = 5000
 
-//Observed market tick data is received after market close. Buffer time need to collate these ticks.
-const bufferTimeToCollectAfterMarketHoursTickData = -5
-
-func onTick(kiteTick kitemodels.Tick) {
+func onTick(kiteTick kiteModels.Tick) {
 	//log.Println(getTickData(tick))
-
 	tick := mapKiteTickToCBTick(kiteTick)
-
-	// Close the channels 5 minutes after market close
-	if marketSpecifications.IsAfterMarketHrs(getCurrentTimeWithBuffer()) && !channelClosed {
-		log.Printf("Current Time: %s after mkt hrs. Closing File and Redis channels...",
-			time.Now().Format(time.RFC3339))
-		if !channelClosed {
-			//Market Closed. Close all channels.
-			close(fileTickChannel)
-			close(redisTickChannel)
-			channelClosed = true
-		}
-		return
-	}
-
-	if !marketSpecifications.IsMarketOpen(tick.ExchangeTS) {
-		//Safety - Are we receiving ticks after close of market/
-		log.Printf("ExchangeTS: %s outside mkt hrs. Skip tick for Sym %s",
-			tick.ExchangeTS.Format(time.RFC3339), instruments[tick.InstrumentToken].Sym)
-		return
-	}
-
-	if !channelClosed {
-		fileTickChannel <- tick
-		redisTickChannel <- tick
-	}
+	eventHandlerUtils.ConsumeTick(tick, marketSpecifications, channelClosed, fileTickChannel, redisTickChannel)
 }
 
-func mapKiteTickToCBTick(kiteTick kitemodels.Tick) *models.Tick {
+func mapKiteTickToCBTick(kiteTick kiteModels.Tick) *models.Tick {
 	cbTick := &models.Tick{
 		InstrumentToken:    kiteTick.InstrumentToken,
 		Sym:                instruments[kiteTick.InstrumentToken].Sym,
@@ -69,10 +41,6 @@ func mapKiteTickToCBTick(kiteTick kitemodels.Tick) *models.Tick {
 	return cbTick
 }
 
-func getCurrentTimeWithBuffer() time.Time {
-	return time.Now().Add(bufferTimeToCollectAfterMarketHoursTickData * time.Minute)
-}
-
 func onConnect() {
 	log.Println("Connected")
 
@@ -81,7 +49,7 @@ func onConnect() {
 		log.Fatalln(err)
 	}
 
-	err = kiteTickerClient.SetMode(kiteticker.ModeFull, getInstrumentTokens())
+	err = kiteTickerClient.SetMode(kiteTicker.ModeFull, getInstrumentTokens())
 	if err != nil {
 		log.Fatalln("Error setting Ticker Mode:", err)
 	}
@@ -117,7 +85,7 @@ func onNoReconnect(attempt int) {
 }
 
 // Triggered when order update is received
-func onOrderUpdate(order kiteconnect.Order) {
+func onOrderUpdate(order kiteConnect.Order) {
 	fmt.Printf("Order: %s", order.OrderID)
 }
 
@@ -156,7 +124,7 @@ func streamTicksToRedisDatabase() {
 			log.Printf("Redis Tick Channel closed. Exiting streamTicksToRedisDatabase goroutine...")
 			return
 		}
-		redisutils.WriteTickToRedis(ctx, redisClient, tick)
+		redisUtils.WriteTickToRedis(ctx, redisClient, tick)
 	}
 
 }
