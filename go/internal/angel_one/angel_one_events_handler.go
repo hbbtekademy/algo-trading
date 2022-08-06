@@ -2,43 +2,63 @@ package angel_one
 
 import (
 	"fmt"
-	"github.com/angelbroking-github/smartapigo/websocket"
 	"log"
 	"org.hbb/algo-trading/go/models"
 	csvUtils "org.hbb/algo-trading/go/pkg/utils/csv"
 	eventHandlerUtils "org.hbb/algo-trading/go/pkg/utils/event_handler"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
+	"strconv"
 	"time"
 )
 
 var (
-	socketClient     *websocket.SocketClient
 	fileTickChannel  chan *models.Tick
 	redisTickChannel chan *models.Tick
 	channelClosed    bool
 )
 
 const (
-	channelSize = 5000
+	channelSize        = 5000
+	tk                 = "tk"
+	ltt                = "ltt"
+	ltp                = "ltp"
+	ltq                = "ltq"
+	v                  = "v"
+	angelOneTimeFormat = "02/01/2006 15:04:05"
 )
 
 // Triggered when a message is received
 func onMessage(message []map[string]interface{}) {
 	fmt.Printf("Message Received :- %v\n", message)
-	tick := mapAngelOneTickToCBTick(message)
-	eventHandlerUtils.ConsumeTick(tick, marketSpecifications, channelClosed, fileTickChannel, redisTickChannel)
+	for _, element := range message {
+		tick := mapAngelOneTickToCBTick(element)
+		eventHandlerUtils.ConsumeTick(tick, marketSpecifications, channelClosed, fileTickChannel, redisTickChannel)
+	}
+
 }
 
-func mapAngelOneTickToCBTick(message []map[string]interface{}) *models.Tick {
+func mapAngelOneTickToCBTick(message map[string]interface{}) *models.Tick {
 	//TODO: Convert message into cbTick. Per preliminary analysis, Angel One feed does not seem to provide any timestamps
+	fmt.Printf("Message Received :- %v\n", message)
+	// Source : https://smartapi.angelbroking.com/docs/WebSocketStreaming
+
+	instrumentToken, _ := strconv.ParseInt(message[tk].(string), 10, 32)
+	symbol := message["e"].(string)
+	exchangeTs, _ := time.Parse(angelOneTimeFormat, message[ltt].(string))
+	//TODO: Where is lastTradeTs
+	//lastTradeTs, _ := time.Parse("2006-01-02 15:04:05", message["ltt"].(string))
+	ltp, _ := strconv.ParseFloat(message[ltp].(string), 64)
+	ltq, _ := strconv.ParseInt(message[ltq].(string), 10, 32)
+	volume, _ := strconv.ParseInt(message[v].(string), 10, 32)
+
 	cbTick := &models.Tick{
-		InstrumentToken:    0,
-		Sym:                "string",
-		ExchangeTS:         time.Now(),
-		LastTradeTS:        time.Now(),
-		LTP:                0,
-		LastTradedQuantity: 0,
-		VolumeTraded:       0,
+		InstrumentToken:    uint32(instrumentToken),
+		Sym:                symbol,
+		ExchangeTS:         exchangeTs,
+		LastTradeTS:        exchangeTs, //TODO: need to find where is this timestamp on the message
+		LTP:                float32(ltp),
+		LastTradedQuantity: uint32(ltq),
+		VolumeTraded:       uint32(volume),
 	}
 	return cbTick
 }

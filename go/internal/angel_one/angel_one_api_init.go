@@ -7,6 +7,7 @@ import (
 	"github.com/angelbroking-github/smartapigo/websocket"
 	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/go/models"
+	envutils "org.hbb/algo-trading/go/pkg/utils/env"
 	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 	"os"
@@ -18,22 +19,21 @@ var (
 	ctx                  context.Context
 	instruments          models.Instruments
 	marketSpecifications *models.Specifications
-)
-
-const (
-	AngelOneClientCode string = ""
-	AngelOnePassword   string = ""
-	AngelOneApiKey     string = "apikey"
+	socketClient         *websocket.SocketClient
 )
 
 func Start() {
+
+	angelOneClientCode := envutils.MustGetEnv("ANGEL_ONE_CLIENT_CODE")
+	angelOnePassword := envutils.MustGetEnv("ANGEL_ONE_PASSWORD")
+	angelOneApiKey := envutils.MustGetEnv("ANGEL_ONE_API_KEY")
 
 	ctx, redisClient = redisUtils.InitRedisClient()
 	marketSpecifications = marketUtils.InitMarketSpecification() // market data - all - tick-consumer / tick-adapter // this is a tick data consumer
 	initInstruments()
 
 	// Create New Angel Broking Client
-	SmartApiClient := SmartApi.New(AngelOneClientCode, AngelOnePassword, AngelOneApiKey)
+	SmartApiClient := SmartApi.New(angelOneClientCode, angelOnePassword, angelOneApiKey)
 
 	// User Login and Generate User Session
 	session, err := SmartApiClient.GenerateSession()
@@ -53,7 +53,7 @@ func Start() {
 
 	// New Websocket Client
 	//TODO: scrips should be provided as input.
-	socketClient := websocket.New(session.ClientCode, session.FeedToken, "nse_cm|17963&nse_cm|3499&nse_cm|11536&nse_cm|21808&nse_cm|317")
+	socketClient = websocket.New(session.ClientCode, session.FeedToken, "nse_cm|1594")
 
 	// Assign callbacks
 	socketClient.OnError(onError)
