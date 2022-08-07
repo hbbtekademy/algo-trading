@@ -2,7 +2,7 @@ package angel_one
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"os"
 
 	SmartApi "github.com/angelbroking-github/smartapigo"
@@ -19,7 +19,7 @@ var (
 	redisClient          *redis.Client
 	ctx                  context.Context
 	instruments          models.Instruments
-	marketSpecifications *models.Specifications
+	marketSpecifications *models.MarketSpecifications
 	socketClient         *websocket.SocketClient
 )
 
@@ -40,7 +40,7 @@ func Start() {
 	session, err := SmartApiClient.GenerateSession()
 
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println("SmartApiClient: Could not connect to Smart API: ", err.Error())
 		return
 	}
 
@@ -48,7 +48,7 @@ func Start() {
 	session.UserProfile, err = SmartApiClient.GetUserProfile()
 
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		return
 	}
 

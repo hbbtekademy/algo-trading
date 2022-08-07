@@ -16,31 +16,18 @@ const (
 	marketEndTimeCalcFailureErrorMessage   string = "Failed to get market end time:"
 )
 
-// GetMarketSpecs /* TODO: Refactor - MarketUtils must know the start and end time of the market.
-func GetMarketSpecs(mst time.Time, met time.Time) *models.Specifications {
-	return &models.Specifications{
+func getMarketSpecs(mst time.Time, met time.Time) *models.MarketSpecifications {
+	return &models.MarketSpecifications{
 		MarketStartTime: mst,
 		MarketEndTime:   met,
 	}
 }
 
-func InitMarketSpecification() *models.Specifications {
+func InitMarketSpecification() *models.MarketSpecifications {
 	marketStartTime, marketEndTime := GetMarketTime()
-	marketSpecifications := GetMarketSpecs(marketStartTime, marketEndTime)
+	marketSpecifications := getMarketSpecs(marketStartTime, marketEndTime)
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", marketStartTime, marketEndTime)
 	return marketSpecifications
-}
-
-func IsMarketOpen(t time.Time, m *models.Specifications) bool {
-	return t.After(m.MarketEndTime) && t.Before(m.MarketEndTime)
-}
-
-func IsAfterMarketHrs(t time.Time, m *models.Specifications) bool {
-	return t.After(m.MarketEndTime)
-}
-
-func IsBeforeMarketHrs(t time.Time, m *models.Specifications) bool {
-	return t.Before(m.MarketStartTime)
 }
 
 func GetMarketTime() (time.Time, time.Time) {

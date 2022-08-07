@@ -19,7 +19,7 @@ var (
 	redisClient          *redis.Client
 	ctx                  context.Context
 	instruments          models.Instruments
-	marketSpecifications *models.Specifications
+	marketSpecifications *models.MarketSpecifications
 )
 
 func Start() {

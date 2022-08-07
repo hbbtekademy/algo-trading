@@ -8,8 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"org.hbb/algo-trading/go/pkg/utils/market"
-
 	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/go/models"
 	redisTypes "org.hbb/algo-trading/go/pkg/redis/types"
@@ -19,13 +17,13 @@ import (
 
 var (
 	rdb         *redis.Client
-	marketSpecs *models.Specifications
+	marketSpecs *models.MarketSpecifications
 	done        chan bool
 )
 
 func main() {
 	rdb = redisUtils.GetRTRedisClient()
-	marketSpecs = market.GetMarketSpecs(market.GetMarketTime())
+	marketSpecs = marketUtils.InitMarketSpecification()
 	done = make(chan bool)
 
 	now := time.Now()
@@ -47,7 +45,7 @@ func candleTicker(ticker *time.Ticker) {
 		t := <-ticker.C
 		tCounter++
 
-		if marketUtils.IsMarketOpen(t.Add(-1*time.Minute), marketSpecs) {
+		if marketSpecs.IsMarketOpen(t.Add(-1 * time.Minute)) {
 			counter := 0
 			ct := t.Add(-15 * time.Second)
 			pt := t.Add(-75 * time.Second)
@@ -78,10 +76,10 @@ func candleTicker(ticker *time.Ticker) {
 				redisUtils.PublishMsg(ctx, rdb, redisTypes.Cs15mNotifyTopic, msg)
 			}
 
-		} else if marketUtils.IsAfterMarketHrs(t.Add(-5*time.Minute), marketSpecs) {
+		} else if marketSpecs.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
 			log.Println("Outside mkt hrs. Exiting...")
 			done <- true
-		} else if marketUtils.IsBeforeMarketHrs(t, marketSpecs) {
+		} else if marketSpecs.IsBeforeMarketHrs(t) {
 			log.Println("Waiting for mkt hrs to start....")
 		}
 	}

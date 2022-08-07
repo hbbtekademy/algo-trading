@@ -1,7 +1,6 @@
 package tokenservice
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,7 +11,7 @@ var (
 )
 
 func Start() {
-	fmt.Println("Starting token service")
+	log.Println("Starting token service")
 
 	http.HandleFunc("/token", tokenHandler)
 	http.HandleFunc("/local", localTokenHandler)

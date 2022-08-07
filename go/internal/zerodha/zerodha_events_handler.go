@@ -1,7 +1,6 @@
 package zerodha
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -72,15 +71,15 @@ func onError(err error) {
 }
 
 func onClose(code int, reason string) {
-	fmt.Println("Close: ", code, reason)
+	log.Println("Close: ", code, reason)
 }
 
 func onNoReconnect(attempt int) {
-	fmt.Printf("Maximum no of reconnect attempt reached: %d", attempt)
+	log.Printf("Maximum no of reconnect attempt reached: %d\n", attempt)
 }
 
 func onOrderUpdate(order kiteConnect.Order) {
-	fmt.Printf("Order: %s", order.OrderID)
+	log.Printf("Order: %s\n", order.OrderID)
 }
 
 func getInstrumentTokens() []uint32 {

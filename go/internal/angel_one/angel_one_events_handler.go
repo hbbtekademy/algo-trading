@@ -1,7 +1,6 @@
 package angel_one
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -30,7 +29,7 @@ const (
 
 // Triggered when a message is received
 func onMessage(message []map[string]interface{}) {
-	fmt.Printf("Message Received :- %v\n", message)
+	log.Printf("Message Received :- %v\n\n", message)
 	for _, element := range message {
 		tick := mapAngelOneTickToCBTick(element)
 		eventHandlerUtils.ConsumeTick(tick, marketSpecifications, channelClosed, fileTickChannel, redisTickChannel)
@@ -40,7 +39,7 @@ func onMessage(message []map[string]interface{}) {
 
 func mapAngelOneTickToCBTick(message map[string]interface{}) *models.Tick {
 	//TODO: Convert message into cbTick. Per preliminary analysis, Angel One feed does not seem to provide any timestamps
-	fmt.Printf("Message Received :- %v\n", message)
+	log.Printf("Message Received :- %v\n\n", message)
 	// Source : https://smartapi.angelbroking.com/docs/WebSocketStreaming
 
 	instrumentToken, _ := strconv.ParseInt(message[tk].(string), 10, 32)
@@ -66,20 +65,20 @@ func mapAngelOneTickToCBTick(message map[string]interface{}) *models.Tick {
 
 // Triggered when any error is raised
 func onError(err error) {
-	fmt.Println("Error: ", err)
+	log.Println("Error: ", err)
 }
 
 // Triggered when websocket connection is closed
 func onClose(code int, reason string) {
-	fmt.Println("Close: ", code, reason)
+	log.Println("Close: ", code, reason)
 }
 
 // Triggered when connection is established and ready to send and accept data
 func onConnect() {
-	fmt.Println("Connected")
+	log.Println("Connected")
 	err := socketClient.Subscribe()
 	if err != nil {
-		fmt.Println("err: ", err)
+		log.Println("err: ", err)
 	}
 	channelClosed = false
 	fileTickChannel = make(chan *models.Tick, channelSize)
@@ -93,10 +92,10 @@ func onConnect() {
 
 // Triggered when reconnection is attempted which is enabled by default
 func onReconnect(attempt int, delay time.Duration) {
-	fmt.Printf("Reconnect attempt %d in %fs\n", attempt, delay.Seconds())
+	log.Printf("Reconnect attempt %d in %fs\n\n", attempt, delay.Seconds())
 }
 
 // Triggered when maximum number of reconnect attempt is made and the program is terminated
 func onNoReconnect(attempt int) {
-	fmt.Printf("Maximum no of reconnect attempt reached: %d\n", attempt)
+	log.Printf("Maximum no of reconnect attempt reached: %d\n\n", attempt)
 }
