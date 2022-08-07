@@ -3,14 +3,15 @@ package angel_one
 import (
 	"context"
 	"fmt"
+	"os"
+
 	SmartApi "github.com/angelbroking-github/smartapigo"
 	"github.com/angelbroking-github/smartapigo/websocket"
 	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/go/models"
-	envutils "org.hbb/algo-trading/go/pkg/utils/env"
+	envUtils "org.hbb/algo-trading/go/pkg/utils/env"
 	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
-	"os"
 )
 
 var (
@@ -24,9 +25,9 @@ var (
 
 func Start() {
 
-	angelOneClientCode := envutils.MustGetEnv("ANGEL_ONE_CLIENT_CODE")
-	angelOnePassword := envutils.MustGetEnv("ANGEL_ONE_PASSWORD")
-	angelOneApiKey := envutils.MustGetEnv("ANGEL_ONE_API_KEY")
+	angelOneClientCode := envUtils.MustGetEnv("ANGEL_ONE_CLIENT_CODE")
+	angelOnePassword := envUtils.MustGetEnv("ANGEL_ONE_PASSWORD")
+	angelOneApiKey := envUtils.MustGetEnv("ANGEL_ONE_API_KEY")
 
 	ctx, redisClient = redisUtils.InitRedisClient()
 	marketSpecifications = marketUtils.InitMarketSpecification() // market data - all - tick-consumer / tick-adapter // this is a tick data consumer

@@ -3,8 +3,9 @@ package market
 import (
 	"fmt"
 	"log"
-	"org.hbb/algo-trading/go/models"
 	"time"
+
+	"org.hbb/algo-trading/go/models"
 )
 
 const (

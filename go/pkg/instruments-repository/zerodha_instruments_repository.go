@@ -1,7 +1,7 @@
 package instruments_repository
 
 import (
-	models "org.hbb/algo-trading/go/models"
+	"org.hbb/algo-trading/go/models"
 )
 
 func GetAllInstruments() models.Instruments {

@@ -4,9 +4,10 @@ import (
 	"encoding/csv"
 	"fmt"
 	"log"
-	"org.hbb/algo-trading/go/models"
 	"os"
 	"time"
+
+	"org.hbb/algo-trading/go/models"
 )
 
 func StreamTicksToFile(fileTickChannel chan *models.Tick, tickDataFile *os.File, instruments models.Instruments) {

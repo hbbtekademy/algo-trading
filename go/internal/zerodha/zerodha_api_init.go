@@ -2,6 +2,8 @@ package zerodha
 
 import (
 	"context"
+	"os"
+
 	"github.com/go-redis/redis/v8"
 	kiteTicker "github.com/zerodha/gokiteconnect/v4/ticker"
 	"org.hbb/algo-trading/go/models"
@@ -9,7 +11,6 @@ import (
 	secretManager "org.hbb/algo-trading/go/pkg/secret-manager"
 	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
-	"os"
 )
 
 var (

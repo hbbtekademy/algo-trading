@@ -3,12 +3,13 @@ package angel_one
 import (
 	"fmt"
 	"log"
+	"strconv"
+	"time"
+
 	"org.hbb/algo-trading/go/models"
 	csvUtils "org.hbb/algo-trading/go/pkg/utils/csv"
 	eventHandlerUtils "org.hbb/algo-trading/go/pkg/utils/event_handler"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
-	"strconv"
-	"time"
 )
 
 var (

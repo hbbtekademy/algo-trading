@@ -3,7 +3,7 @@ package models
 import "time"
 
 /*
-MarketSpecifications - This struct will capture all attributes specific to the market
+Specifications - This struct will capture all attributes specific to the market
 marketStartTime - Local time when the market opens
 marketEndTime - Local time when the market closes
 marketStartTimeUTC - UTC time when the market opens

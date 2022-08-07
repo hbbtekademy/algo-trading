@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	kiteconnect "github.com/zerodha/gokiteconnect/v4"
+	kiteConnect "github.com/zerodha/gokiteconnect/v4"
 	"org.hbb/algo-trading/go/models"
 	instmanager "org.hbb/algo-trading/go/pkg/instruments-repository"
 	"org.hbb/algo-trading/go/pkg/utils"
-	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
+	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 type CmdArgs struct {
@@ -22,7 +22,7 @@ type CmdArgs struct {
 }
 
 var (
-	kc  *kiteconnect.Client
+	kc  *kiteConnect.Client
 	rdb *redis.Client
 )
 
@@ -33,14 +33,14 @@ func main() {
 	ctx := context.Background()
 	cmdArgs := parseCmdLineArgs()
 	kc = utils.GetKiteClient()
-	rdb = redisutils.GetHistRedisClient()
+	rdb = redisUtils.GetHistRedisClient()
 	instruments := instmanager.GetAllInstruments()
 
 	for tokenId, instrument := range instruments {
 		log.Printf("Token: %d, Instrument: %v", tokenId, instrument)
 		candles := getHistCandles(tokenId, cmdArgs.Interval, cmdArgs.From, cmdArgs.To)
 		wg.Add(1)
-		go redisutils.WriteHistCandlesToRedis(ctx, rdb, candles, &wg)
+		go redisUtils.WriteHistCandlesToRedis(ctx, rdb, candles, &wg)
 	}
 
 	log.Printf("Waiting for all goroutines to finish...")

@@ -2,10 +2,11 @@ package event_handler
 
 import (
 	"log"
-	"org.hbb/algo-trading/go/models"
-	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
 	"strconv"
 	"time"
+
+	"org.hbb/algo-trading/go/models"
+	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
 )
 
 //Observed market tick data is received after market close. Buffer time need to collate these ticks.

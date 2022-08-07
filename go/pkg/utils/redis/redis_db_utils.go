@@ -2,8 +2,9 @@ package redisutils
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
 	"log"
+
+	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/go/models"
 )
 

@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/go/models"
-	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
+	redisTypes "org.hbb/algo-trading/go/pkg/redis/types"
 	envutils "org.hbb/algo-trading/go/pkg/utils/env"
 )
 
@@ -65,8 +65,8 @@ func getRedisClient(host string, port string, redisdb int) *redis.Client {
 }
 
 func WriteTickToRedis(ctx context.Context, rdb *redis.Client, tick *models.Tick) {
-	key := redistypes.NewKey(tick.ExchangeTS, tick.InstrumentToken)
-	idxKey := redistypes.NewIdxKey(tick.InstrumentToken)
+	key := redisTypes.NewKey(tick.ExchangeTS, tick.InstrumentToken)
+	idxKey := redisTypes.NewIdxKey(tick.InstrumentToken)
 	ltpValue := fmt.Sprintf("%f", tick.LTP)
 	volValue := fmt.Sprintf("%d", tick.VolumeTraded)
 
@@ -102,8 +102,8 @@ func WriteHistCandlesToRedis(ctx context.Context, rdb *redis.Client, candles *[]
 	for _, candle := range *candles {
 		c++
 		tokenId = candle.InstrumentToken
-		key := redistypes.NewKey(candle.TS, candle.InstrumentToken)
-		idxKey := redistypes.NewIdxKey(candle.InstrumentToken)
+		key := redisTypes.NewKey(candle.TS, candle.InstrumentToken)
+		idxKey := redisTypes.NewIdxKey(candle.InstrumentToken)
 
 		ohlcv := candle.OHLCV
 		_, err := rdb.HSet(ctx, key.GetCS15MKey(),
@@ -130,11 +130,11 @@ func WriteHistCandlesToRedis(ctx context.Context, rdb *redis.Client, candles *[]
 	log.Printf("Set %d candles for %d in redis...", c, tokenId)
 }
 
-func WriteCandleToRedis(ctx context.Context, rdb *redis.Client, key redistypes.RedisKey, ohlcv models.OHLCV) {
+func WriteCandleToRedis(ctx context.Context, rdb *redis.Client, key redisTypes.RedisKey, ohlcv models.OHLCV) {
 	panic("not implemented")
 }
 
-func GetVolume(ctx context.Context, rdb *redis.Client, key redistypes.RedisKey) (uint32, error) {
+func GetVolume(ctx context.Context, rdb *redis.Client, key redisTypes.RedisKey) (uint32, error) {
 	v, err := rdb.Get(ctx, key.GetVOLKey()).Result()
 	switch {
 	case err == redis.Nil:
