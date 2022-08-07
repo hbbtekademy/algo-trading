@@ -47,7 +47,7 @@ func main() {
 		log.Fatal("Error in iface.type")
 	}
 
-	telegramBotApiInterface := getTelegramBotApiInterface()
+	telegramBotApi := getTelegramBotApi()
 	telegramChatIdAsInt := getTelegramChatId()
 
 	for {
@@ -58,7 +58,7 @@ func main() {
 		log.Println("MessageFromRedisChannel received", messageFromRedisChannel)
 
 		telegramMsg := NewMessage(telegramChatIdAsInt, messageFromRedisChannel.Payload)
-		respMsg, err := telegramBotApiInterface.Send(telegramMsg)
+		respMsg, err := telegramBotApi.Send(telegramMsg)
 
 		if err != nil {
 			log.Fatal("Error occurred while posting message to Telegram Channel: ", err)
@@ -76,12 +76,12 @@ func getTelegramChatId() int64 {
 	return telegramChatIdAsInt
 }
 
-func getTelegramBotApiInterface() *tgbotapi.BotAPI {
-	telegramBotApiInterface, err := tgbotapi.NewBotAPI(TelegramBotKey)
+func getTelegramBotApi() *tgbotapi.BotAPI {
+	telegramBotApi, err := tgbotapi.NewBotAPI(TelegramBotKey)
 	if err != nil {
 		log.Fatal("Could not create Telegram Bot API interface", err)
 	}
-	return telegramBotApiInterface
+	return telegramBotApi
 }
 
 func NewMessage(chatID int64, text string) tgbotapi.MessageConfig {
