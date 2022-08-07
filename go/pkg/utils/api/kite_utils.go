@@ -1,4 +1,4 @@
-package utils
+package api
 
 import (
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"

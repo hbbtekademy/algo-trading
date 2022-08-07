@@ -11,7 +11,7 @@ import (
 	kiteConnect "github.com/zerodha/gokiteconnect/v4"
 	"org.hbb/algo-trading/go/models"
 	instmanager "org.hbb/algo-trading/go/pkg/instruments-repository"
-	"org.hbb/algo-trading/go/pkg/utils"
+	apiUtils "org.hbb/algo-trading/go/pkg/utils/api"
 	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
@@ -32,7 +32,7 @@ func main() {
 	var wg sync.WaitGroup
 	ctx := context.Background()
 	cmdArgs := parseCmdLineArgs()
-	kc = utils.GetKiteClient()
+	kc = apiUtils.GetKiteClient()
 	rdb = redisUtils.GetHistRedisClient()
 	instruments := instmanager.GetAllInstruments()
 

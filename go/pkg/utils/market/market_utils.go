@@ -1,11 +1,11 @@
 package market
 
 import (
-	"fmt"
 	"log"
 	"time"
 
 	"org.hbb/algo-trading/go/models"
+	timeUtils "org.hbb/algo-trading/go/pkg/utils/time"
 )
 
 const (
@@ -16,38 +16,26 @@ const (
 	marketEndTimeCalcFailureErrorMessage   string = "Failed to get market end time:"
 )
 
-func getMarketSpecs(mst time.Time, met time.Time) *models.MarketSpecifications {
-	return &models.MarketSpecifications{
-		MarketStartTime: mst,
-		MarketEndTime:   met,
-	}
-}
-
 func InitMarketSpecification() *models.MarketSpecifications {
-	marketStartTime, marketEndTime := GetMarketTime()
+	marketStartTime, marketEndTime := getMarketTime()
 	marketSpecifications := getMarketSpecs(marketStartTime, marketEndTime)
 	log.Printf("Mkt Start Time: %v, Mkt End time: %v", marketStartTime, marketEndTime)
 	return marketSpecifications
 }
 
-func GetMarketTime() (time.Time, time.Time) {
+func getMarketSpecs(marketStartTime time.Time, marketEndTime time.Time) *models.MarketSpecifications {
+	return &models.MarketSpecifications{
+		MarketStartTime: marketStartTime,
+		MarketEndTime:   marketEndTime,
+	}
+}
+
+func getMarketTime() (time.Time, time.Time) {
 	y, m, d := time.Now().Date()
-	marketStartTime := getMarketTime(y, m, d,
-		timeFormatPatternPrefix+indiaMarketStartTime, marketStartTimeCalcFailureErrorMessage)
-	marketEndTime := getMarketTime(y, m, d,
-		timeFormatPatternPrefix+indiaMarketEndTime, marketEndTimeCalcFailureErrorMessage)
+	marketStartTime := timeUtils.GetTime(y, m, d,
+		timeFormatPatternPrefix+indiaMarketStartTime, time.RFC3339, marketStartTimeCalcFailureErrorMessage)
+	marketEndTime := timeUtils.GetTime(y, m, d,
+		timeFormatPatternPrefix+indiaMarketEndTime, time.RFC3339, marketEndTimeCalcFailureErrorMessage)
 
 	return marketStartTime, marketEndTime
-}
-
-func getMarketTime(y int, m time.Month, d int, timeAsString string, logMessage string) time.Time {
-	marketTime, err := GetTime(y, m, d, timeAsString)
-	if err != nil {
-		log.Fatalln(logMessage, err)
-	}
-	return marketTime
-}
-
-func GetTime(y int, m time.Month, d int, timeAsString string) (time.Time, error) {
-	return time.Parse(time.RFC3339, fmt.Sprintf(timeAsString, y, int(m), d))
 }
