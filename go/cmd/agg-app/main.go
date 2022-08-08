@@ -10,20 +10,20 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"org.hbb/algo-trading/go/models"
-	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
-	"org.hbb/algo-trading/go/pkg/utils"
-	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
+	redisTypes "org.hbb/algo-trading/go/pkg/redis/types"
+	marketUtils "org.hbb/algo-trading/go/pkg/utils/market"
+	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 var (
 	rdb         *redis.Client
-	marketSpecs *utils.MarketSpecifications
+	marketSpecs *models.MarketSpecifications
 	done        chan bool
 )
 
 func main() {
-	rdb = redisutils.GetRTRedisClient()
-	marketSpecs = utils.GetMarketSpecs(utils.GetMarketTime())
+	rdb = redisUtils.GetRTRedisClient()
+	marketSpecs = marketUtils.InitMarketSpecification()
 	done = make(chan bool)
 
 	now := time.Now()
@@ -49,15 +49,15 @@ func candleTicker(ticker *time.Ticker) {
 			counter := 0
 			ct := t.Add(-15 * time.Second)
 			pt := t.Add(-75 * time.Second)
-			keyTS := ct.Format(redistypes.KeyTsFmt)
+			keyTS := ct.Format(redisTypes.KeyTsFmt)
 
-			keyPat := redistypes.NewKeyPattern(keyTS, "*")
+			keyPat := redisTypes.NewKeyPattern(keyTS, "*")
 			iter := rdb.Scan(ctx, 0, keyPat.GetLTPKey(), 500).Iterator()
 			for iter.Next(ctx) {
 				counter++
-				key := redistypes.ParseKey(iter.Val())
+				key := redisTypes.ParseKey(iter.Val())
 				wg.Add(1)
-				go candleGenerator(ctx, key, redistypes.NewKey(pt, key.TokenId), &wg)
+				go candleGenerator(ctx, key, redisTypes.NewKey(pt, key.TokenId), &wg)
 			}
 			if err := iter.Err(); err != nil {
 				log.Println("Failed scanning keys: ", err)
@@ -69,11 +69,11 @@ func candleTicker(ticker *time.Ticker) {
 			log.Println("All 1M candles generated. Sending notification...")
 
 			msg := fmt.Sprintf("CS1M:ts:%s", keyTS)
-			redisutils.PublishMsg(ctx, rdb, redistypes.Cs1mNotifyTopic, msg)
+			redisUtils.PublishMsg(ctx, rdb, redisTypes.Cs1mNotifyTopic, msg)
 			if tCounter%15 == 0 {
 				msg := fmt.Sprintf("CS15M:ts:%s", keyTS)
 				log.Println("Sending notification for 15M Candles...")
-				redisutils.PublishMsg(ctx, rdb, redistypes.Cs15mNotifyTopic, msg)
+				redisUtils.PublishMsg(ctx, rdb, redisTypes.Cs15mNotifyTopic, msg)
 			}
 
 		} else if marketSpecs.IsAfterMarketHrs(t.Add(-5 * time.Minute)) {
@@ -85,7 +85,7 @@ func candleTicker(ticker *time.Ticker) {
 	}
 }
 
-func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redistypes.RedisKey, wg *sync.WaitGroup) {
+func candleGenerator(ctx context.Context, cKey redisTypes.RedisKey, pKey redisTypes.RedisKey, wg *sync.WaitGroup) {
 	defer wg.Done()
 	values, err := rdb.LRange(ctx, cKey.GetLTPKey(), 0, -1).Result()
 	if err != nil {
@@ -115,13 +115,13 @@ func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redisty
 		ohlcv.Close = ltp
 	}
 
-	volEnd, err := redisutils.GetVolume(ctx, rdb, cKey)
+	volEnd, err := redisUtils.GetVolume(ctx, rdb, cKey)
 	if err != nil {
 		log.Printf("Failed getting VOL for key:%s. Err: %v", cKey.GetVOLKey(), err)
 		return
 	}
 
-	volStart, err := redisutils.GetVolume(ctx, rdb, pKey)
+	volStart, err := redisUtils.GetVolume(ctx, rdb, pKey)
 	if err != nil {
 		log.Printf("Failed getting VOL for key:%s. Err: %v", pKey.GetVOLKey(), err)
 		return
@@ -130,7 +130,7 @@ func candleGenerator(ctx context.Context, cKey redistypes.RedisKey, pKey redisty
 	ohlcv.Volume = volEnd - volStart
 
 	candleKey := cKey.GetCS1MKey() // gen 1 min key
-	idxKey := redistypes.NewIdxKey(cKey.TokenId)
+	idxKey := redisTypes.NewIdxKey(cKey.TokenId)
 
 	_, err = rdb.HSet(ctx, candleKey,
 		"O", fmt.Sprintf("%f", ohlcv.Open),

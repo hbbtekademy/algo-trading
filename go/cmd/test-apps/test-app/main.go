@@ -27,7 +27,7 @@ func main() {
 		cmd := fmt.Sprintf("python python/strategy/rsi_sell.py \"/Users/hbb/MyDocs/Work/Startup/AlgoTrading/TickData/BackTest/NSEHist15min/%s-HIST-15M.csv\" \"%s\" %d >> results_Cash_Sell_2021.csv",
 			sym, sym, lot)
 		cmd = fmt.Sprintf("%s,%d,2022-01-26,2022-02-02,2022-02-01", inst.Sym, lot)
-		fmt.Println(cmd)
+		log.Println(cmd)
 	}
 	os.Exit(0)
 
