@@ -27,7 +27,6 @@ func Start() {
 	angelOneClientCode := envUtils.MustGetEnv("ANGEL_ONE_CLIENT_CODE")
 	angelOnePassword := envUtils.MustGetEnv("ANGEL_ONE_PASSWORD")
 	angelOneApiKey := envUtils.MustGetEnv("ANGEL_ONE_API_KEY")
-	//angelOneApiKey = "dyvo7ytn"
 
 	ctx, redisClient = redisUtils.InitRedisClient()
 	marketSpecifications = marketUtils.InitMarketSpecification() // market data - all - tick-consumer / tick-adapter // this is a tick data consumer
