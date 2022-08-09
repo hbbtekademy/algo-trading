@@ -24,6 +24,7 @@ const (
 	ltp                = "ltp"
 	ltq                = "ltq"
 	v                  = "v"
+	e                  = "e"
 	angelOneTimeFormat = "02/01/2006 15:04:05"
 )
 
@@ -31,36 +32,92 @@ const (
 func onMessage(message []map[string]interface{}) {
 	log.Printf("Message Received :- %v\n\n", message)
 	for _, element := range message {
-		tick := mapAngelOneTickToCBTick(element)
-		eventHandlerUtils.ConsumeTick(tick, marketSpecifications, channelClosed, fileTickChannel, redisTickChannel)
+		if consumeMessage(element) {
+			tick := mapAngelOneTickToCBTick(element)
+			eventHandlerUtils.ConsumeTick(tick, marketSpecifications, channelClosed, fileTickChannel, redisTickChannel)
+		}
 	}
+}
 
+func consumeMessage(element map[string]interface{}) bool {
+	return !isMessageTimeFeed(element)
+}
+
+func isMessageTimeFeed(element map[string]interface{}) bool {
+	return element["name"] != nil && element["name"].(string) == "tm"
 }
 
 func mapAngelOneTickToCBTick(message map[string]interface{}) *models.Tick {
 	//TODO: Convert message into cbTick. Per preliminary analysis, Angel One feed does not seem to provide any timestamps
-	log.Printf("Message Received :- %v\n\n", message)
 	// Source : https://smartapi.angelbroking.com/docs/WebSocketStreaming
-
-	instrumentToken, _ := strconv.ParseInt(message[tk].(string), 10, 32)
-	symbol := message["e"].(string)
-	exchangeTs, _ := time.Parse(angelOneTimeFormat, message[ltt].(string))
-	//TODO: Where is lastTradeTs
-	//lastTradeTs, _ := time.Parse("2006-01-02 15:04:05", message["ltt"].(string))
-	ltp, _ := strconv.ParseFloat(message[ltp].(string), 64)
-	ltq, _ := strconv.ParseInt(message[ltq].(string), 10, 32)
-	volume, _ := strconv.ParseInt(message[v].(string), 10, 32)
+	instrumentToken := getInstrumentToken(message)
+	symbol := getSymbol(message)
+	exchangeTs := getExchangeTs(message)
+	//TODO: need to find where is this timestamp on the message
+	lastTradeTs := exchangeTs
+	lastTradedPrice := getLastTradedPrice(message)
+	lastTradedQuantity := getLastTradedQuantity(message)
+	volume := getVolume(message)
 
 	cbTick := &models.Tick{
 		InstrumentToken:    uint32(instrumentToken),
 		Sym:                symbol,
 		ExchangeTS:         exchangeTs,
-		LastTradeTS:        exchangeTs, //TODO: need to find where is this timestamp on the message
-		LTP:                float32(ltp),
-		LastTradedQuantity: uint32(ltq),
+		LastTradeTS:        lastTradeTs,
+		LTP:                float32(lastTradedPrice),
+		LastTradedQuantity: uint32(lastTradedQuantity),
 		VolumeTraded:       uint32(volume),
 	}
 	return cbTick
+}
+
+func getVolume(message map[string]interface{}) int64 {
+	volume := int64(0)
+	if message[v] != nil {
+		volume, _ = strconv.ParseInt(message[v].(string), 10, 32)
+	}
+	return volume
+}
+
+func getLastTradedQuantity(message map[string]interface{}) int64 {
+	lastTradedQuantity := int64(0)
+	if message[ltq] != nil {
+		lastTradedQuantity, _ = strconv.ParseInt(message[ltq].(string), 10, 32)
+	}
+	return lastTradedQuantity
+}
+
+func getLastTradedPrice(message map[string]interface{}) float64 {
+	lastTradedPrice := float64(0)
+	if message[ltp] != nil {
+		lastTradedPrice, _ = strconv.ParseFloat(message[ltp].(string), 64)
+	}
+	return lastTradedPrice
+}
+
+func getExchangeTs(message map[string]interface{}) time.Time {
+	exchangeTs := time.UnixMilli(0)
+	if message[ltt] != nil {
+		location, _ := time.LoadLocation("Asia/Kolkata")
+		exchangeTs, _ = time.ParseInLocation(angelOneTimeFormat, message[ltt].(string), location)
+	}
+	return exchangeTs
+}
+
+func getSymbol(message map[string]interface{}) string {
+	symbol := ""
+	if message[e] != nil {
+		symbol = message[e].(string)
+	}
+	return symbol
+}
+
+func getInstrumentToken(message map[string]interface{}) int64 {
+	instrumentToken := int64(0)
+	if message[tk] != nil {
+		instrumentToken, _ = strconv.ParseInt(message[tk].(string), 10, 32)
+	}
+	return instrumentToken
 }
 
 // Triggered when any error is raised
@@ -85,7 +142,7 @@ func onConnect() {
 	redisTickChannel = make(chan *models.Tick, channelSize)
 	log.Println("File and Redis Channels created...")
 
-	go csvUtils.StreamTicksToFile(fileTickChannel, tickDataFile, instruments)
+	go csvUtils.StreamTicksToFile(fileTickChannel, instruments)
 	go redisUtils.StreamTicksToRedisDatabase(redisClient, redisTickChannel, ctx)
 
 }
