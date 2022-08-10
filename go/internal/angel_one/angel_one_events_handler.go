@@ -18,15 +18,24 @@ var (
 )
 
 const (
-	channelSize        = 5000
-	tk                 = "tk"
-	ltt                = "ltt"
-	ltp                = "ltp"
-	ltq                = "ltq"
-	v                  = "v"
-	e                  = "e"
-	angelOneTimeFormat = "02/01/2006 15:04:05"
+	channelSize         = 5000
+	tk                  = "tk"
+	ltt                 = "ltt"
+	ltp                 = "ltp"
+	ltq                 = "ltq"
+	v                   = "v"
+	e                   = "e"
+	angelOneTimeFormat  = "02/01/2006 15:04:05"
+	indiaTimeZoneFormat = "Asia/Kolkata"
 )
+
+var (
+	indiaLocation *time.Location
+)
+
+func init() {
+	indiaLocation, _ = time.LoadLocation(indiaTimeZoneFormat)
+}
 
 // Triggered when a message is received
 func onMessage(message []map[string]interface{}) {
@@ -60,46 +69,46 @@ func mapAngelOneTickToCBTick(message map[string]interface{}) *models.Tick {
 	volume := getVolume(message)
 
 	cbTick := &models.Tick{
-		InstrumentToken:    uint32(instrumentToken),
+		InstrumentToken:    instrumentToken,
 		Sym:                symbol,
 		ExchangeTS:         exchangeTs,
 		LastTradeTS:        lastTradeTs,
-		LTP:                float32(lastTradedPrice),
-		LastTradedQuantity: uint32(lastTradedQuantity),
-		VolumeTraded:       uint32(volume),
+		LTP:                lastTradedPrice,
+		LastTradedQuantity: lastTradedQuantity,
+		VolumeTraded:       volume,
 	}
 	return cbTick
 }
 
-func getVolume(message map[string]interface{}) int64 {
+func getVolume(message map[string]interface{}) uint32 {
 	volume := int64(0)
 	if message[v] != nil {
 		volume, _ = strconv.ParseInt(message[v].(string), 10, 32)
 	}
-	return volume
+	return uint32(volume)
 }
 
-func getLastTradedQuantity(message map[string]interface{}) int64 {
+func getLastTradedQuantity(message map[string]interface{}) uint32 {
 	lastTradedQuantity := int64(0)
 	if message[ltq] != nil {
 		lastTradedQuantity, _ = strconv.ParseInt(message[ltq].(string), 10, 32)
 	}
-	return lastTradedQuantity
+	return uint32(lastTradedQuantity)
 }
 
-func getLastTradedPrice(message map[string]interface{}) float64 {
+func getLastTradedPrice(message map[string]interface{}) float32 {
 	lastTradedPrice := float64(0)
 	if message[ltp] != nil {
-		lastTradedPrice, _ = strconv.ParseFloat(message[ltp].(string), 64)
+		lastTradedPrice, _ = strconv.ParseFloat(message[ltp].(string), 32)
 	}
-	return lastTradedPrice
+	return float32(lastTradedPrice)
 }
 
 func getExchangeTs(message map[string]interface{}) time.Time {
-	exchangeTs := time.UnixMilli(0)
-	if message[ltt] != nil {
-		location, _ := time.LoadLocation("Asia/Kolkata")
-		exchangeTs, _ = time.ParseInLocation(angelOneTimeFormat, message[ltt].(string), location)
+	exchangeTs := time.Now()
+	//https://smartapi.angelbroking.com/topic/1793/ltt-is-na-when-subscribed-token-26000-nifty-and-26009-banknifty
+	if message[ltt] != nil && message[ltt] != "NA" {
+		exchangeTs, _ = time.ParseInLocation(angelOneTimeFormat, message[ltt].(string), indiaLocation)
 	}
 	return exchangeTs
 }
@@ -112,12 +121,12 @@ func getSymbol(message map[string]interface{}) string {
 	return symbol
 }
 
-func getInstrumentToken(message map[string]interface{}) int64 {
+func getInstrumentToken(message map[string]interface{}) uint32 {
 	instrumentToken := int64(0)
 	if message[tk] != nil {
 		instrumentToken, _ = strconv.ParseInt(message[tk].(string), 10, 32)
 	}
-	return instrumentToken
+	return uint32(instrumentToken)
 }
 
 // Triggered when any error is raised
