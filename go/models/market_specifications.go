@@ -17,7 +17,7 @@ type MarketSpecifications struct {
 }
 
 func (marketSpecs MarketSpecifications) IsMarketOpen(t time.Time) bool {
-	return t.After(marketSpecs.MarketEndTime) && t.Before(marketSpecs.MarketEndTime)
+	return t.After(marketSpecs.MarketStartTime) && t.Before(marketSpecs.MarketEndTime)
 }
 
 func (marketSpecs MarketSpecifications) IsAfterMarketHrs(t time.Time) bool {

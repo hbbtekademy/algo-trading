@@ -10,8 +10,8 @@ import (
 	"org.hbb/algo-trading/go/models"
 )
 
-func StreamTicksToFile(fileTickChannel chan *models.Tick, tickDataFile *os.File, instruments models.Instruments) {
-	f, err := createTickFile()
+func StreamTicksToFile(fileTickChannel chan *models.Tick, instruments models.Instruments) {
+	tickDataFile, err := createTickFile()
 	if err != nil {
 		log.Fatalln("Error creating zerodha file: ", err)
 	}
@@ -20,7 +20,7 @@ func StreamTicksToFile(fileTickChannel chan *models.Tick, tickDataFile *os.File,
 		if err != nil {
 			log.Fatalln("Error closing zerodha file: ", err)
 		}
-	}(f)
+	}(tickDataFile)
 
 	for {
 		tick, ok := <-fileTickChannel
