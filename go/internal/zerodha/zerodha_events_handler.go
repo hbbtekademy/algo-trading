@@ -59,7 +59,7 @@ func onConnect() {
 	redisTickChannel = make(chan *models.Tick, channelSize)
 	log.Println("File and Redis Channels created...")
 
-	go csvUtils.StreamTicksToFile(fileTickChannel, tickDataFile, instruments)
+	go csvUtils.StreamTicksToFile(fileTickChannel, instruments)
 	go redisUtils.StreamTicksToRedisDatabase(redisClient, redisTickChannel, ctx)
 }
 func onReconnect(attempt int, delay time.Duration) {

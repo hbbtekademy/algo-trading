@@ -5,6 +5,19 @@ import (
 	"testing"
 )
 
+func TestMapAngelOneTickToCBTickNilData(t *testing.T) {
+	t.Parallel()
+	m := make(map[string]interface{})
+	m["tk"] = nil
+	m["e"] = nil
+	m["ltt"] = nil
+	m["ltp"] = nil
+	m["ltq"] = nil
+	m["v"] = nil
+	cbTick := mapAngelOneTickToCBTick(m)
+	log.Print("cbTick", cbTick)
+}
+
 func TestMapAngelOneTickToCBTick(t *testing.T) {
 	t.Parallel()
 	cbTick := mapAngelOneTickToCBTick(getMessage())
