@@ -1,0 +1,5 @@
+package smash
+
+func Start() {
+
+}
