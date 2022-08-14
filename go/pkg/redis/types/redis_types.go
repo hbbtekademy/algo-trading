@@ -32,7 +32,7 @@ const (
 	Cs15mIdxKeyPrefix = "IDX:CS15M:sym:"
 	Cs15mIdxKeyFmt    = Cs15mIdxKeyPrefix + "%s"
 
-	KeyTsFmt = "200601021504" //TODO: what does this number mean ?
+	KeyTsFmt = "200601021504"
 
 	Cs1mNotifyTopic  = "CS1M_NOTIFY"
 	Cs15mNotifyTopic = "CS15M_NOTIFY"

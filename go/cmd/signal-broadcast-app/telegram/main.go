@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	redisUtils "org.hbb/algo-trading/go/pkg/repository/marketdata"
 	envutils "org.hbb/algo-trading/go/pkg/utils/env"
-	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
 )
 
 var (

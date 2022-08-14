@@ -6,7 +6,7 @@ import (
 	"time"
 
 	redistypes "org.hbb/algo-trading/go/pkg/redis/types"
-	redisutils "org.hbb/algo-trading/go/pkg/utils/redis"
+	redisutils "org.hbb/algo-trading/go/pkg/repository/marketdata"
 )
 
 func main() {

@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
+
 	"github.com/go-redis/redis/v8"
-	redisUtils "org.hbb/algo-trading/go/pkg/utils/redis"
+	redisUtils "org.hbb/algo-trading/go/pkg/repository/marketdata"
 )
 
 var (
