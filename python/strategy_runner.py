@@ -3,7 +3,7 @@ import pandas as pd
 from python.chartbusters.controllers.backtest_controller import BacktestExecutor
 from python.chartbusters.controllers.realtime_controller import RealtimeExecutor
 
-strategy = input("Select strategies. Options - STI,RSI-BUY,RSI-SELL. Enter:")
+strategy = input("Select strategies. Options - STI,RSI-BUY,RSI-SELL Enter:")
 print("strategies is:", strategy)
 
 execution_mode = input("Select Execution Mode. options: RT or BT. Enter:")
@@ -33,14 +33,15 @@ def get_strategy_params_dict(parameter_file):
                        header=0, index_col=False).to_dict()
 
 
+driver_file = get_driver_file(strategy)
+strategy_params_dict = get_strategy_params_dict(get_param_file(strategy))
+
 if execution_mode == 'RT':
     print('Executing in Real Time mode')
-    rte = RealtimeExecutor()
-    rte.execute()
+    rte = RealtimeExecutor(driver_file,  strategy_params_dict)
+    rte.execute(strategy)
 elif execution_mode == 'BT' or 1 == 1:
     print('Executing in Back Test mode')
-    driver_file = get_driver_file(strategy)
-    strategy_params_dict = get_strategy_params_dict(get_param_file(strategy))
     bte = BacktestExecutor(driver_file,  strategy_params_dict)
     result = bte.execute(strategy)
     print('Result', result)

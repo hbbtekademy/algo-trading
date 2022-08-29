@@ -44,7 +44,12 @@ func candleTicker() {
 	tCounter := 0
 	ct := time.Date(2022, time.August, 11, 9, 14, 0, 0, indiaLocation)
 	pt := time.Date(2022, time.August, 11, 9, 13, 0, 0, indiaLocation)
+	stopProcessingAtTime := time.Date(2022, time.August, 11, 9, 17, 0, 0, indiaLocation)
 	for {
+		if ct.After(stopProcessingAtTime) {
+			break
+		}
+
 		tCounter++
 		counter := 0
 
