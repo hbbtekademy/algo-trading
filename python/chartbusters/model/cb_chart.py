@@ -123,6 +123,7 @@ class CBChart:
                                             self.df[constants.SMA_CLOSE]
 
     def candle(self, ts) -> CBCandle:
+        print(ts)
         row = self.df.loc[ts]
         return CBCandle(self.sym, row, MA=self.MA)
 

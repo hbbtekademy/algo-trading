@@ -38,11 +38,11 @@ strategy_params_dict = get_strategy_params_dict(get_param_file(strategy))
 
 if execution_mode == 'RT':
     print('Executing in Real Time mode')
-    rte = RealtimeExecutor(driver_file,  strategy_params_dict)
+    rte = RealtimeExecutor(driver_file, strategy_params_dict)
     rte.execute(strategy)
 elif execution_mode == 'BT' or 1 == 1:
     print('Executing in Back Test mode')
-    bte = BacktestExecutor(driver_file,  strategy_params_dict)
+    bte = BacktestExecutor(driver_file, strategy_params_dict)
     result = bte.execute(strategy)
     print('Result', result)
 else:

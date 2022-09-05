@@ -27,7 +27,7 @@ class CBSuperTrendStrategyV3(CBStrategy):
     def execute(self, candle: CBCandle, signal: CBSignalV3) -> List[CBSignalV3]:
         signals = list()
         prev_candle = self.chart.previous(candle)
-        next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
+#        next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
         rsi = candle.rsi
 
         stop_loss_updated_ema = False

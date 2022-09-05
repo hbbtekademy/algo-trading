@@ -70,24 +70,37 @@ class RealtimeExecutor:
                     datetime_str = candle[12:24]
                     date_time_obj = datetime.strptime(datetime_str, '%Y%m%d%H%M')
                     df1 = pd.DataFrame({"Date": date_time_obj,
-                                        "Open": [ohlcv.get('O')],
-                                        "High": [ohlcv.get('H')],
-                                        "Low": [ohlcv.get('L')],
-                                        "Close": [ohlcv.get('C')],
-                                        "Volume": [ohlcv.get('V')]})
+                                        "Open": [float(ohlcv.get('O'))],
+                                        "High": [float(ohlcv.get('H'))],
+                                        "Low": [float(ohlcv.get('L'))],
+                                        "Close": [float(ohlcv.get('C'))],
+                                        "Volume": [int(ohlcv.get('V'))]})
                     df_1min_realtime = df_1min_realtime.append(df1)
                 print(df_1min_realtime)
-            df_1min_realtime['Date'] = pd.to_datetime(df_1min_realtime['Date'], errors='coerce')
-            df_1min_realtime = df_1min_realtime.set_index('Date')
-            df_15min_realtime = helpers.get_revised_interval_df(df_1min_realtime, '15Min', '1Min')
-            df_15min_merged = df_15min_hist.append(df_15min_realtime, ignore_index=True)
-            cb_chart = self.get_cbchart(df_15min_merged, "9999", "100", strategy_name)
-            row = {'Expiry': 'TBD',
-                   'StopLoss15': 'TBD'}
-            strategy = self.get_strategy(row, cb_chart, strategy_name)
-            signal = CBSignalV1('', '', 0, '', 0, 0, None)
-            strategy.execute(cb_chart.candle(date_time_obj), signal)
-            pass
+                df_1min_realtime['Date'] = pd.to_datetime(df_1min_realtime['Date'], errors='coerce')
+                print('df_1min_realtime:')
+                print(df_1min_realtime)
+                df_1min_realtime = df_1min_realtime.set_index('Date')
+                df_15min_realtime = helpers.get_revised_interval_df(df_1min_realtime, '15Min', '1Min')
+                if df_15min_hist.empty:
+                    df_15min_merged = df_15min_realtime
+                else:
+                    df_15min_merged = df_15min_hist.append(df_15min_realtime, ignore_index=True)
+                print('df_15min_merged:')
+                print(df_15min_merged)
+                cb_chart = self.get_cbchart(df_15min_merged, "9999", "100", strategy_name)
+                row = {'Expiry': 'TBD',
+                       'StopLoss15': '1000'}
+                strategy = self.get_strategy(row, cb_chart, strategy_name)
+                signal = CBSignalV1('', '', 0, '', 0, 0, None)
+                date_time_obj = datetime.strptime('202208111501', '%Y%m%d%H%M')
+                print('date_time_obj:', date_time_obj)
+                exec_result, signal = strategy.execute(cb_chart.candle(date_time_obj), signal)
+                print('exec_result: ', exec_result)
+                print('signal: ', signal)
+                pub_result = redis_historical_db.publish('Smash-Telegram-Channel', signal.__str__())
+                print('pub_result: ', pub_result)
+                pass
         # 2. Read Candlestick data from Redis DB (and Hist DB)
         # 3. Combine it into a Data Frame
         # 4. Execute Strategy
