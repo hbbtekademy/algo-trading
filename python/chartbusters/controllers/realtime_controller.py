@@ -34,78 +34,64 @@ class RealtimeExecutor:
 
     def execute(self, strategy_name) -> str:
         print('Real Time execution')
-        # 1. read from redis topic CS1M - at 15 min mark
-        redis_realtime_db = redis.StrictRedis(host='localhost', port=6379, db=1,
-                                              charset="utf-8", decode_responses=True)
-        redis_historical_db = redis.StrictRedis(host='localhost', port=6379, db=0,
-                                                charset="utf-8", decode_responses=True)
-        p = redis_realtime_db.pubsub()
-        p.subscribe('CS1M_NOTIFY')
-        df_15min_hist = pd.DataFrame(columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume'])
-        historical_candlestick_keys_list = redis_historical_db.keys('CS15M*')
-        for hist_candle in historical_candlestick_keys_list:
-            ohlcv_hist = redis_historical_db.hgetall(hist_candle)
-            datetime_str = hist_candle[12:24]
-            date_time_obj = datetime.strptime(datetime_str, '%Y%m%d%H%M')
-            df_hist = pd.DataFrame({"Date": date_time_obj,
-                                    "Open": [ohlcv_hist.get('O')],
-                                    "High": [ohlcv_hist.get('H')],
-                                    "Low": [ohlcv_hist.get('L')],
-                                    "Close": [ohlcv_hist.get('C')],
-                                    "Volume": [ohlcv_hist.get('V')]})
-            df_15min_hist = df_15min_hist.append(df_hist)
+        redis_realtime_db = self.get_redis_client(1)
+        redis_historical_db = self.get_redis_client(0)
+
+        pub_sub_client = redis_realtime_db.pubsub()
+        pub_sub_client.subscribe('CS1M_NOTIFY')
+
+        df_1min_hist = self.get_data_frame_from_db(redis_historical_db)
 
         for _ in iter(int, 1):
             time.sleep(3)
-            message = p.get_message()
-            df_1min_realtime = pd.DataFrame(columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume'])
+            message = pub_sub_client.get_message()
             if message:
                 print(message)
+                df_1min_realtime = self.get_data_frame_from_db(redis_realtime_db)
+                df_1min_merged = df_1min_hist.append(df_1min_realtime, ignore_index=False)
+                print('df_1min_hist', df_1min_hist)
+                print('df_1min_realtime', df_1min_realtime)
+                print('df_1min_merged', df_1min_merged)
+                df_15min_merged = helpers.get_revised_interval_df(df_1min_merged, '15Min', '1Min')
 
-                # read today's 1-min candles
-                candlestick_keys_list = redis_realtime_db.keys('CS1M*')
-                for candle in candlestick_keys_list:
-                    ohlcv = redis_realtime_db.hgetall(candle)
-                    print(ohlcv)
-                    datetime_str = candle[12:24]
-                    date_time_obj = datetime.strptime(datetime_str, '%Y%m%d%H%M')
-                    df1 = pd.DataFrame({"Date": date_time_obj,
-                                        "Open": [float(ohlcv.get('O'))],
-                                        "High": [float(ohlcv.get('H'))],
-                                        "Low": [float(ohlcv.get('L'))],
-                                        "Close": [float(ohlcv.get('C'))],
-                                        "Volume": [int(ohlcv.get('V'))]})
-                    df_1min_realtime = df_1min_realtime.append(df1)
-                print(df_1min_realtime)
-                df_1min_realtime['Date'] = pd.to_datetime(df_1min_realtime['Date'], errors='coerce')
-                print('df_1min_realtime:')
-                print(df_1min_realtime)
-                df_1min_realtime = df_1min_realtime.set_index('Date')
-                df_15min_realtime = helpers.get_revised_interval_df(df_1min_realtime, '15Min', '1Min')
-                if df_15min_hist.empty:
-                    df_15min_merged = df_15min_realtime
-                else:
-                    df_15min_merged = df_15min_hist.append(df_15min_realtime, ignore_index=True)
-                print('df_15min_merged:')
-                print(df_15min_merged)
                 cb_chart = self.get_cbchart(df_15min_merged, "9999", "100", strategy_name)
                 row = {'Expiry': 'TBD',
                        'StopLoss15': '1000'}
                 strategy = self.get_strategy(row, cb_chart, strategy_name)
                 signal = CBSignalV1('', '', 0, '', 0, 0, None)
                 date_time_obj = datetime.strptime('202208111501', '%Y%m%d%H%M')
-                print('date_time_obj:', date_time_obj)
                 exec_result, signal = strategy.execute(cb_chart.candle(date_time_obj), signal)
-                print('exec_result: ', exec_result)
-                print('signal: ', signal)
                 pub_result = redis_historical_db.publish('Smash-Telegram-Channel', signal.__str__())
                 print('pub_result: ', pub_result)
                 pass
-        # 2. Read Candlestick data from Redis DB (and Hist DB)
-        # 3. Combine it into a Data Frame
-        # 4. Execute Strategy
-
+            else:
+                print('No Message in last 3 seconds')
         pass
+
+    @staticmethod
+    def get_data_frame_from_db(redis_db_client):
+        df_1min = pd.DataFrame(columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        candlestick_keys_list = redis_db_client.keys('CS1M*')
+        for candle in candlestick_keys_list:
+            ohlcv_object = redis_db_client.hgetall(candle)
+            datetime_str = candle[12:24]
+            date_time_obj = datetime.strptime(datetime_str, '%Y%m%d%H%M')
+            df_element = pd.DataFrame({"Date": date_time_obj,
+                                       "Open": [float(ohlcv_object.get('O'))],
+                                       "High": [float(ohlcv_object.get('H'))],
+                                       "Low": [float(ohlcv_object.get('L'))],
+                                       "Close": [float(ohlcv_object.get('C'))],
+                                       "Volume": [int(ohlcv_object.get('V'))]})
+            df_1min = df_1min.append(df_element)
+        df_1min['Date'] = pd.to_datetime(df_1min['Date'], errors='coerce')
+        df_1min = df_1min.set_index('Date')
+        return df_1min
+
+    @staticmethod
+    def get_redis_client(db):
+        redis_realtime_db = redis.StrictRedis(host='localhost', port=6379, db=db,
+                                              charset="utf-8", decode_responses=True)
+        return redis_realtime_db
 
     def get_cbchart(self, df, symbol, lot_size, strategy_name):
 

@@ -24,6 +24,10 @@ func InitRealTimeRedisClient() (context.Context, *redis.Client) {
 	return context.Background(), GetRTRedisClient()
 }
 
+func InitHistoricalRedisClient() (context.Context, *redis.Client) {
+	return context.Background(), GetHistRedisClient()
+}
+
 func GetHistRedisClient() *redis.Client {
 	host := envutils.MustGetEnv("REDIS_HIST_HOST")
 	port := envutils.MustGetEnv("REDIS_HIST_PORT")

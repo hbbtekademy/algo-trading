@@ -36,8 +36,8 @@ func main() {
 		log.Fatalln("Error creating mock tick data file:", err)
 	}
 
-	startTime := time.Date(2022, time.August, 11, 9, 15, 0, 0, indiaLocation)
-	endTime := time.Date(2022, time.August, 11, 15, 30, 0, 0, indiaLocation)
+	startTime := time.Date(2022, time.August, 10, 9, 15, 0, 0, indiaLocation)
+	endTime := time.Date(2022, time.August, 10, 15, 30, 0, 0, indiaLocation)
 
 	w := csv.NewWriter(tickDataFile)
 	defer w.Flush()
@@ -53,8 +53,15 @@ func main() {
 	close := 125
 	volume := 1000
 
+	createData(startTime, endTime, w, open, high, low, close, volume, err, time.Second)
+	log.Printf(" File creation completed.")
+}
+
+func createData(startTime time.Time, endTime time.Time, w *csv.Writer, open int,
+	high int, low int, close int, volume int, err error, d time.Duration) {
 	for ok := true; ok; ok = startTime.Before(endTime) {
-		startTime = startTime.Add(time.Second)
+
+		startTime = startTime.Add(d)
 		writeError := w.Write([]string{startTime.Format("02/01/2006 15:04:05"), strconv.Itoa(open),
 			strconv.Itoa(high), strconv.Itoa(low), strconv.Itoa(close), strconv.Itoa(volume)})
 
@@ -65,7 +72,6 @@ func main() {
 			log.Fatalln("Error writing record to tick data file:", err)
 		}
 	}
-	log.Printf(" File creation completed.")
 }
 
 func getHistHeader() []string {

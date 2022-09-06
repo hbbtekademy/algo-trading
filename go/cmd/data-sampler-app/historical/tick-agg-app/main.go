@@ -29,7 +29,8 @@ func init() {
 }
 
 func main() {
-	rdb = redisUtils.GetRTRedisClient()
+	//rdb = redisUtils.GetRTRedisClient()
+	rdb = redisUtils.GetHistRedisClient()
 	done = make(chan bool)
 	now := time.Now()
 	log.Println("Now: ", now, 60-now.Second())
@@ -42,9 +43,9 @@ func candleTicker() {
 	var wg sync.WaitGroup
 	ctx := context.Background()
 	tCounter := 0
-	ct := time.Date(2022, time.August, 11, 9, 14, 0, 0, indiaLocation)
-	pt := time.Date(2022, time.August, 11, 9, 13, 0, 0, indiaLocation)
-	stopProcessingAtTime := time.Date(2022, time.August, 11, 15, 31, 0, 0, indiaLocation)
+	ct := time.Date(2022, time.August, 10, 9, 14, 0, 0, indiaLocation)
+	pt := time.Date(2022, time.August, 10, 9, 13, 0, 0, indiaLocation)
+	stopProcessingAtTime := time.Date(2022, time.August, 10, 15, 31, 0, 0, indiaLocation)
 	for {
 		if ct.After(stopProcessingAtTime) {
 			break

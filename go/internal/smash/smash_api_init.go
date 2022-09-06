@@ -27,7 +27,8 @@ func Start() {
 	3. After 1 record is read, write the record to Redis Real Time DB
 	*/
 
-	ctx, redisClient = redisUtils.InitRealTimeRedisClient()
+	//ctx, redisClient = redisUtils.InitRealTimeRedisClient()
+	ctx, redisClient = redisUtils.InitHistoricalRedisClient()
 
 	records := readCsvFile("./SMASH-MOCK-tickdata.csv")
 	fmt.Println("No of records", len(records))
