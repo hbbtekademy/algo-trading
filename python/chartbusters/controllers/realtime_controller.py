@@ -32,7 +32,7 @@ class RealtimeExecutor:
     def record_signal(self):
         pass
 
-    def execute(self, strategy_name) -> str:
+    def execute(self, strategy_name, stock_symbol) -> str:
         redis_realtime_db = self.get_redis_client(1)
         redis_historical_db = self.get_redis_client(0)
 
@@ -53,7 +53,7 @@ class RealtimeExecutor:
                 print('df_1min_merged', df_1min_merged)
                 df_15min_merged = helpers.get_revised_interval_df(df_1min_merged, '15Min', '1Min')
 
-                cb_chart = self.get_cbchart(df_15min_merged, "9999", "100", strategy_name)
+                cb_chart = self.get_cbchart(df_15min_merged, stock_symbol, "100", strategy_name)
                 row = self.get_strategy_params(strategy_name)
                 strategy = self.get_strategy(row, cb_chart, strategy_name)
                 signal = self.get_new_signal()
