@@ -33,7 +33,6 @@ class RealtimeExecutor:
         pass
 
     def execute(self, strategy_name) -> str:
-        print('Real Time execution')
         redis_realtime_db = self.get_redis_client(1)
         redis_historical_db = self.get_redis_client(0)
 
@@ -55,18 +54,31 @@ class RealtimeExecutor:
                 df_15min_merged = helpers.get_revised_interval_df(df_1min_merged, '15Min', '1Min')
 
                 cb_chart = self.get_cbchart(df_15min_merged, "9999", "100", strategy_name)
-                row = {'Expiry': 'TBD',
-                       'StopLoss15': '1000'}
+                row = self.get_strategy_params(strategy_name)
                 strategy = self.get_strategy(row, cb_chart, strategy_name)
-                signal = CBSignalV1('', '', 0, '', 0, 0, None)
-                date_time_obj = datetime.strptime('202208111501', '%Y%m%d%H%M')
-                exec_result, signal = strategy.execute(cb_chart.candle(date_time_obj), signal)
+                signal = self.get_new_signal()
+                latest_candle = cb_chart.get_last_candle()
+                exec_result, signal = strategy.execute(latest_candle, signal)
                 pub_result = redis_historical_db.publish('Smash-Telegram-Channel', signal.__str__())
                 print('pub_result: ', pub_result)
                 pass
             else:
                 print('No Message in last 3 seconds')
         pass
+
+    @staticmethod
+    def get_new_signal():
+        signal = CBSignalV1('', '', 0, '', 0, 0, None)
+        return signal
+
+    @staticmethod
+    def get_strategy_params(strategy_name):
+        if strategy_name == 'STI':
+            # TODO: Check with Bhate - Where is this defined?
+            return {'Expiry': 'TBD',
+                    'StopLoss15': '1000'}
+        else:
+            return 'Undefined Strategy'
 
     @staticmethod
     def get_data_frame_from_db(redis_db_client):

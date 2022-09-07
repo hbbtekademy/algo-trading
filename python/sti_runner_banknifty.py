@@ -7,7 +7,7 @@ from python.chartbusters.strategies.supertrend.banknifty.cb_supertrend_banknifty
     CBSuperTrendBankNiftyStrategy
 from python.chartbusters.util import constants, helpers
 
-file = './python/backtest/config/STI_BankNifty_BackTest_2021.csv'
+file = 'backtest/config/driver_files/STI_BankNifty_BackTest_2021.csv'
 # file = './python/backtest/config/STI_BankNifty_BackTest_2020.csv'
 # file = './python/backtest/config/STI_BankNifty_BackTest_2019.csv'
 # file = './python/backtest/config/STI_BankNifty_BackTest_2018.csv'
@@ -30,7 +30,7 @@ input_df = pd.read_csv(file, parse_dates=['Start', 'End'], index_col=['Sym'])
 all_signals = list()
 all_signals60 = list()
 for index, row in input_df.iterrows():
-    file = './python/backtest/hist15min/' + index + '-HIST-15M.csv'
+    file = 'backtest/hist15min/' + index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
     df_30min = helpers.get_revised_interval_df(df, '30Min', '0Min')
 
