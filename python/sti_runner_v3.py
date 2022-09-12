@@ -28,7 +28,10 @@ all_signals = list()
 for index, row in input_df.iterrows():
     file = './backtest/hist15min/' + index + '-HIST-15M.csv'
     df = pd.read_csv(file, parse_dates=['Date'], index_col=['Date'])
+    print(df)
     df_60min = helpers.get_revised_interval_df(df, '60Min', '15Min')
+    print(df_60min)
+    print(type(df['Close']))
     chart = CBChart(index, int(row['LotSize']), df, ema_interval=ema_interval)
 
     strategy = CBSuperTrendStrategyV3(

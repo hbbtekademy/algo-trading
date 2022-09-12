@@ -123,6 +123,7 @@ class CBChart:
                                             self.df[constants.SMA_CLOSE]
 
     def candle(self, ts) -> CBCandle:
+        print(ts)
         row = self.df.loc[ts]
         return CBCandle(self.sym, row, MA=self.MA)
 
@@ -155,6 +156,7 @@ class CBChart:
 
     def get_next_candles(self, index, n: int) -> List[CBCandle]:
         candles = list()
+        print(self.df)
         loc = self.df.index.get_loc(index)
 
         df = self.df.iloc[loc + 1:loc + 1 + n]
@@ -163,3 +165,7 @@ class CBChart:
             candles.append(candle)
 
         return candles
+
+    def get_last_candle(self) -> CBCandle:
+        candle = CBCandle(self.sym, self.df.iloc[-1], MA=self.MA)
+        return candle

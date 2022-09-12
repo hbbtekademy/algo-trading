@@ -27,6 +27,12 @@ class CBSuperTrendStrategy(CBStrategy):
         if str(candle.ts) == self.expiry_ts2:
             return '', None
 
+        if candle.sym == '9999':
+            signal.status = "TEST"
+            signal.strategy = 'STI'
+            signal.comment = "Smoke Test Signal"
+            return 'Smoke Test Signal', signal
+
         # Series Expiry Signal Closure - backtest perspective
         if str(candle.ts) == self.expiry_ts:
             next_candle = self.chart.get_next_candles(candle.ts, 1)[0]
